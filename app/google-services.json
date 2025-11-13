@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "666999367881",
+    "project_id": "reglamento-upp",
+    "storage_bucket": "reglamento-upp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:666999367881:android:4c0abab7487ff9ce024518",
+        "android_client_info": {
+          "package_name": "com.example.reglamentoupp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfIuuVagBjzHRsTOjfj7EtE1xqjPAagAQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
