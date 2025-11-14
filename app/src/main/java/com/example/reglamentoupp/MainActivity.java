@@ -198,8 +198,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
 
     private void navigateToLogin() {
-        Intent intent;
-        intent = new Intent(LoginActivity.this, LoginActivity.class);
+        // Puedes declarar e inicializar en la misma línea
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class); // <-- LÍNEA CORREGIDA
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
