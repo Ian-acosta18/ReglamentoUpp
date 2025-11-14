@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="upp_primary">#8C1D40</color> <color name="upp_primary_dark">#6D1631</color> <color name="upp_accent">#E87722</color> <color name="upp_bg">#F4F4F4</color> <color name="upp_card_bg">#FFFFFF</color> <color name="upp_text_title">#333333</color> <color name="upp_text_body">#5F5F5F</color> <color name="upp_text_on_primary">#FFFFFF</color> <color name="black">#FF000000</color>
+    <color name="upp_primary">#8C1D40</color>
+    <color name="upp_primary_dark">#6D1631</color>
+    <color name="upp_accent">#E87722</color>
+    <color name="upp_bg">#F4F4F4</color>
+    <color name="upp_card_bg">#FFFFFF</color>
+    <color name="upp_text_title">#333333</color>
+    <color name="upp_text_body">#5F5F5F</color>
+    <color name="upp_text_on_primary">#FFFFFF</color>
+    <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
     <color name="game_primary">@color/upp_primary</color>
@@ -16,8 +24,13 @@
     <color name="game_text_primary">@color/game_text_title</color>
 
     <color name="game_success">#2E7D32</color>
+    <color name="game_success_bg">#C8E6C9</color>
     <color name="game_fail">#C62828</color>
+    <color name="game_fail_bg">#FFCDD2</color>
     <color name="game_info">#0277BD</color>
     <color name="game_locked">#BDBDBD</color>
     <color name="game_locked_bg">#EEEEEE</color>
+    <color name="game_button_default">#ECECEC</color>
+    <color name="game_button_default_text">#424242</color>
+
 </resources>

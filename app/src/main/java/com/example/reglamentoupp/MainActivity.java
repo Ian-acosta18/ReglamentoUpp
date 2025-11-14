@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
     public static final String KEY_NIVEL_JUEGO = "nivelJuego";
     public static final String KEY_PUNTAJE_ACTUAL = "puntajeActual";
+    public static final String KEY_NIVEL_DESBLOQUEADO = "nivelDesbloqueado"; // <-- AÑADIR ESTA LÍNEA
     private static final String TAG = "MainActivity";
 
     @Override
@@ -98,25 +99,25 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                         Log.d(TAG, "Usuario cargado. Puntaje: " + userPuntaje + ", Nivel Desbloqueado: " + userNivel);
 
                         // Configurar los botones de nivel con la lógica de bloqueo
-                        // Nivel 1 (Derechos)
+                        // Nivel 1 (Derechos) - 0 Puntos requeridos
                         setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos,
-                                "Derechos", 1, R.color.upp_primary, R.color.upp_text_title);
+                                "Derechos", 1, R.color.upp_primary, R.color.upp_text_title, 0);
 
-                        // Nivel 2 (Obligaciones)
+                        // Nivel 2 (Obligaciones) - 50 Puntos requeridos
                         setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones,
-                                "Obligaciones", 2, R.color.upp_primary, R.color.upp_text_title);
+                                "Obligaciones", 2, R.color.upp_primary, R.color.upp_text_title, 50);
 
-                        // Nivel 3 (Prohibiciones)
+                        // Nivel 3 (Prohibiciones) - 100 Puntos requeridos
                         setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones,
-                                "Prohibiciones", 3, R.color.upp_primary, R.color.upp_text_title);
+                                "Prohibiciones", 3, R.color.upp_primary, R.color.upp_text_title, 100);
 
-                        // Nivel 4 (Sanciones)
+                        // Nivel 4 (Sanciones) - 150 Puntos requeridos
                         setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones,
-                                "Sanciones", 4, R.color.upp_primary, R.color.upp_text_title);
+                                "Sanciones", 4, R.color.upp_primary, R.color.upp_text_title, 150);
 
-                        // Nivel 5 (Reconocimientos)
+                        // Nivel 5 (Reconocimientos) - 200 Puntos requeridos
                         setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos,
-                                "Reconocimientos", 5, R.color.upp_primary, R.color.upp_text_title);
+                                "Reconocimientos", 5, R.color.upp_primary, R.color.upp_text_title, 200);
 
                     } else {
                         Log.w(TAG, "No existe el documento del usuario en Firestore.");
@@ -137,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
      * y activando el click listener si el nivel está desbloqueado.
      */
     private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
-                                  String nivel, int nivelRequerido, int colorDesbloqueado, int textColorDesbloqueado) {
+                                  String nivel, int nivelRequerido, int colorDesbloqueado, int textColorDesbloqueado, int puntosRequeridos) {
 
         int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked);
         int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg);
@@ -145,7 +146,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         int colorIconoDesbloqueado = ContextCompat.getColor(this, colorDesbloqueado);
         int colorTextoDesbloqueado = ContextCompat.getColor(this, textColorDesbloqueado);
 
-        if (userNivel >= nivelRequerido) {
+        // AHORA COMPROBAMOS EL NIVEL Y LOS PUNTOS
+        if (userNivel >= nivelRequerido && userPuntaje >= puntosRequeridos) {
             // --- Nivel Desbloqueado ---
             button.setEnabled(true);
             button.setClickable(true);
@@ -159,8 +161,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
             // Restaurar colores de texto e ícono
             textView.setTextColor(colorTextoDesbloqueado);
+            textView.setText(String.format("Nivel %d: %s", nivelRequerido, nivel)); // Texto normal
             iconView.setImageTintList(ColorStateList.valueOf(colorIconoDesbloqueado));
-
 
             // Configurar el OnClickListener
             button.setOnClickListener(v -> {
@@ -168,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
                 intent.putExtra(KEY_NIVEL_JUEGO, nivel);
                 intent.putExtra(KEY_PUNTAJE_ACTUAL, userPuntaje);
+                intent.putExtra(KEY_NIVEL_DESBLOQUEADO, userNivel); // <-- AÑADIR ESTA LÍNEA
                 startActivity(intent);
             });
 
@@ -185,14 +188,17 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
             // Poner colores de "bloqueado"
             textView.setTextColor(colorBloqueado);
+            // Mostrar los puntos necesarios
+            textView.setText(String.format("Nivel %d: %s (Req. %d Pts)", nivelRequerido, nivel, puntosRequeridos));
             iconView.setImageTintList(ColorStateList.valueOf(colorBloqueado));
 
             // El OnClickListener no se configura, por lo que el botón no hace nada
         }
     }
 
+
     private void navigateToLogin() {
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        Intent intent = new Intent(LoginActivity.this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
