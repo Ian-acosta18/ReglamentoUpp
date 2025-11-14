@@ -84,7 +84,7 @@
         android:id="@+id/btn_register"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Crear Cuenta"
+        android:text="¿No tienes cuenta? Regístrate"
         android:padding="12dp"
         style="@style/Widget.Material3.Button.TextButton"
         app:layout_constraintBottom_toBottomOf="parent"

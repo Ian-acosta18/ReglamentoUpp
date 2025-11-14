@@ -14,4 +14,10 @@
 
     <color name="game_background">@color/game_bg</color>
     <color name="game_text_primary">@color/game_text_title</color>
+
+    <color name="game_success">#2E7D32</color>
+    <color name="game_fail">#C62828</color>
+    <color name="game_info">#0277BD</color>
+    <color name="game_locked">#BDBDBD</color>
+    <color name="game_locked_bg">#EEEEEE</color>
 </resources>

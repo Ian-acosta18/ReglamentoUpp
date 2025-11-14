@@ -7,43 +7,31 @@ import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-// --- INICIO DE CORRECCIÓN (Importar ViewBinding) ---
 import com.example.reglamentoupp.databinding.ActivityLoginBinding;
-// --- FIN DE CORRECCIÓN ---
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import java.util.HashMap;
-import java.util.Map;
+// NOTA: Ya no importamos FirebaseUser, FirebaseFirestore, Map, etc. aquí
+// porque esta clase ya no crea usuarios.
 
 public class LoginActivity extends AppCompatActivity {
 
-    // --- INICIO DE CORRECCIÓN (Declarar variable ViewBinding) ---
     private ActivityLoginBinding binding;
-    // --- FIN DE CORRECCIÓN ---
-
     private FirebaseAuth mAuth;
-    private FirebaseFirestore mStore;
+    // Ya no se necesita mStore aquí
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // --- INICIO DE CORRECCIÓN (Inflar layout con ViewBinding) ---
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        // --- FIN DE CORRECCIÓN ---
 
         try {
             mAuth = FirebaseAuth.getInstance();
-            mStore = FirebaseFirestore.getInstance();
+            // mStore = FirebaseFirestore.getInstance(); // Ya no es necesario
         } catch (IllegalStateException e) {
             Log.e("LOGIN_FIREBASE_ERROR", "Error al inicializar Firebase: " + e.getMessage());
-            Log.e("LOGIN_FIREBASE_ERROR", "Asegúrate de que 'google-services.json' esté en la carpeta /app y el package_name sea correcto.");
-            Toast.makeText(this, "Error fatal de configuración de Firebase. Revisa Logcat.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error fatal de configuración de Firebase.", Toast.LENGTH_LONG).show();
 
-            // Deshabilitar vistas usando binding
             binding.btnLogin.setEnabled(false);
             binding.btnRegister.setEnabled(false);
             binding.etEmail.setEnabled(false);
@@ -51,80 +39,30 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Configurar listeners usando binding (ya no se necesitan las variables de vistas)
+        // --- INICIO DE CORRECCIÓN: Autologueo si el usuario ya está activo ---
+        if (mAuth.getCurrentUser() != null) {
+            Log.d("LoginActivity", "Usuario ya logueado, saltando a MainActivity.");
+            navigateToMain();
+            return; // Evita que el resto del onCreate se ejecute
+        }
+        // --- FIN DE CORRECCIÓN ---
+
+
+        // Configurar listeners
         binding.btnLogin.setOnClickListener(v -> loginUser());
-        binding.btnRegister.setOnClickListener(v -> registerUser());
+
+        // --- LÓGICA DE BOTÓN MODIFICADA ---
+        // Ahora, el botón de registro lanza la RegisterActivity
+        binding.btnRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(intent);
+        });
     }
 
-    private void registerUser() {
-        // --- CORRECCIÓN 1 (Verificación de texto nulo y obtención desde binding) ---
-        String email = "";
-        if (binding.etEmail.getText() != null) {
-            email = binding.etEmail.getText().toString().trim();
-        }
-
-        String password = "";
-        if (binding.etPassword.getText() != null) {
-            password = binding.etPassword.getText().toString().trim();
-        }
-        // --- FIN DE CORRECCIÓN 1 ---
-
-        if (email.isEmpty() || password.isEmpty() || password.length() < 6) {
-            Toast.makeText(this, "Correo inválido o contraseña (mín 6 caracteres)", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        setLoading(true);
-
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        Log.d("LoginActivity", "Usuario creado con éxito.");
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        createNewUserInFirestore(user);
-                    } else {
-                        Log.w("LoginActivity", "Fallo createUser: ", task.getException());
-
-                        // --- INICIO DE CORRECCIÓN 2 (Verificación de excepción nula) ---
-                        String errorMessage = "Error al registrar.";
-                        if (task.getException() != null && task.getException().getMessage() != null) {
-                            errorMessage = task.getException().getMessage();
-                        }
-                        Toast.makeText(LoginActivity.this, "Error: " + errorMessage,
-                                Toast.LENGTH_LONG).show();
-                        // --- FIN DE CORRECCIÓN 2 ---
-
-                        setLoading(false);
-                    }
-                });
-    }
-
-    private void createNewUserInFirestore(FirebaseUser firebaseUser) {
-        if (firebaseUser == null) {
-            setLoading(false);
-            return;
-        }
-
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("email", firebaseUser.getEmail());
-        userData.put("puntaje", 0);
-        userData.put("uid", firebaseUser.getUid());
-
-        mStore.collection("usuarios").document(firebaseUser.getUid())
-                .set(userData)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d("LoginActivity", "Documento de usuario creado en Firestore.");
-                    navigateToMain();
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("LoginActivity", "Error al crear documento en Firestore", e);
-                    Toast.makeText(LoginActivity.this, "Error al crear perfil de puntaje: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    setLoading(false);
-                });
-    }
+    // --- EL MÉTODO registerUser() HA SIDO ELIMINADO ---
+    // --- EL MÉTODO createNewUserInFirestore() HA SIDO ELIMINADO ---
 
     private void loginUser() {
-        // --- CORRECCIÓN 1 (Verificación de texto nulo y obtención desde binding) ---
         String email = "";
         if (binding.etEmail.getText() != null) {
             email = binding.etEmail.getText().toString().trim();
@@ -134,7 +72,6 @@ public class LoginActivity extends AppCompatActivity {
         if (binding.etPassword.getText() != null) {
             password = binding.etPassword.getText().toString().trim();
         }
-        // --- FIN DE CORRECCIÓN 1 ---
 
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Campos vacíos", Toast.LENGTH_SHORT).show();
@@ -150,16 +87,16 @@ public class LoginActivity extends AppCompatActivity {
                         navigateToMain();
                     } else {
                         Log.w("LoginActivity", "Fallo signIn: ", task.getException());
-
-                        // --- INICIO DE CORRECCIÓN 2 (Verificación de excepción nula) ---
                         String errorMessage = "Error de autenticación. Verifique sus datos.";
                         if (task.getException() != null && task.getException().getMessage() != null) {
-                            errorMessage = task.getException().getMessage();
+                            // Intenta dar un mensaje más amigable
+                            if (task.getException().getMessage().contains("INVALID_LOGIN_CREDENTIALS")) {
+                                errorMessage = "Credenciales inválidas. Revisa tu correo y contraseña.";
+                            } else {
+                                errorMessage = task.getException().getMessage();
+                            }
                         }
-                        Toast.makeText(LoginActivity.this, "Error: " + errorMessage,
-                                Toast.LENGTH_LONG).show();
-                        // --- FIN DE CORRECCIÓN 2 ---
-
+                        Toast.makeText(LoginActivity.this, "Error: " + errorMessage, Toast.LENGTH_LONG).show();
                         setLoading(false);
                     }
                 });
@@ -167,12 +104,12 @@ public class LoginActivity extends AppCompatActivity {
 
     private void navigateToMain() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
 
     private void setLoading(boolean isLoading) {
-        // Controlar vistas usando binding
         if (isLoading) {
             binding.progressBar.setVisibility(View.VISIBLE);
             binding.btnLogin.setEnabled(false);
