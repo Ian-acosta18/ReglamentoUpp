@@ -2,22 +2,21 @@
     <style name="Theme.ReglamentoUpp" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/upp_primary</item>
         <item name="colorPrimaryVariant">@color/upp_primary_dark</item>
-        <item name="colorOnPrimary">@color/upp_text_on_primary</item>
-
+        <item name="colorOnPrimary">@color/text_on_primary</item>
         <item name="colorSecondary">@color/upp_accent</item>
-        <item name="colorSecondaryVariant">@color/upp_accent</item>
         <item name="colorOnSecondary">@color/white</item>
 
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
 
-        <item name="android:windowBackground">@color/upp_bg</item>
+        <item name="android:windowBackground">@color/app_bg</item>
+        <item name="colorSurface">@color/card_bg</item>
 
         <item name="materialCardViewStyle">@style/Widget.App.MissionCard</item>
     </style>
 
     <style name="Widget.App.MissionCard" parent="Widget.Material3.CardView.Elevated">
-        <item name="cardElevation">3dp</item>
-        <item name="cardCornerRadius">12dp</item>
-        <item name="cardBackgroundColor">@color/upp_card_bg</item>
+        <item name="cardElevation">4dp</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardBackgroundColor">@color/card_bg</item>
     </style>
 </resources>

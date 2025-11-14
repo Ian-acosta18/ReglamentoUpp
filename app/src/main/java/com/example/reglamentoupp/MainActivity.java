@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-// Esta clase YA implementa la interfaz correcta, no es necesario cambiarla
+// Esta clase YA implementa la interfaz correcta
 public class MainActivity extends AppCompatActivity implements BaseReglamentoFragment.ReglamentoInteractionListener {
 
     private ActivityMainBinding binding;
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
     public static final String KEY_NIVEL_JUEGO = "nivelJuego";
     public static final String KEY_PUNTAJE_ACTUAL = "puntajeActual";
-    public static final String KEY_NIVEL_DESBLOQUEADO = "nivelDesbloqueado"; // <-- AÑADIR ESTA LÍNEA
+    public static final String KEY_NIVEL_DESBLOQUEADO = "nivelDesbloqueado";
     private static final String TAG = "MainActivity";
 
     @Override
@@ -55,16 +55,12 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             mAuth.signOut();
             navigateToLogin();
         });
-
-        // La carga de datos inicial se moverá a onResume para que
-        // se actualice cada vez que volvamos de un nivel
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         // Recarga los datos del usuario cada vez que la pantalla se vuelve visible
-        // (el puntaje y el nivel pueden cambiar después de jugar)
         loadUserData();
     }
 
@@ -78,7 +74,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                         String nombre = documentSnapshot.getString("nombre");
                         String apellidos = documentSnapshot.getString("apellidos");
                         if (nombre != null && !nombre.isEmpty()) {
-                            binding.tvUserName.setText(nombre + " " + apellidos); // Actualizamos el nombre
+                            // Texto actualizado para el nuevo diseño de tarjeta de perfil
+                            binding.tvUserName.setText("Bienvenido, " + nombre);
                         } else {
                             binding.tvUserName.setText(documentSnapshot.getString("email")); // Fallback al email
                         }
@@ -99,29 +96,32 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                         Log.d(TAG, "Usuario cargado. Puntaje: " + userPuntaje + ", Nivel Desbloqueado: " + userNivel);
 
                         // Configurar los botones de nivel con la lógica de bloqueo
+
                         // Nivel 1 (Derechos) - 0 Puntos requeridos
+                        // ----- INICIO DE CORRECCIÓN (Se cambió upp_text_title por text_primary) -----
                         setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos,
-                                "Derechos", 1, R.color.upp_primary, R.color.upp_text_title, 0);
+                                "Derechos", 1, R.color.upp_primary, R.color.text_primary, 0);
 
                         // Nivel 2 (Obligaciones) - 50 Puntos requeridos
                         setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones,
-                                "Obligaciones", 2, R.color.upp_primary, R.color.upp_text_title, 50);
+                                "Obligaciones", 2, R.color.upp_primary, R.color.text_primary, 50);
 
                         // Nivel 3 (Prohibiciones) - 100 Puntos requeridos
                         setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones,
-                                "Prohibiciones", 3, R.color.upp_primary, R.color.upp_text_title, 100);
+                                "Prohibiciones", 3, R.color.upp_primary, R.color.text_primary, 100);
 
                         // Nivel 4 (Sanciones) - 150 Puntos requeridos
                         setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones,
-                                "Sanciones", 4, R.color.upp_primary, R.color.upp_text_title, 150);
+                                "Sanciones", 4, R.color.upp_primary, R.color.text_primary, 150);
 
                         // Nivel 5 (Reconocimientos) - 200 Puntos requeridos
                         setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos,
-                                "Reconocimientos", 5, R.color.upp_primary, R.color.upp_text_title, 200);
+                                "Reconocimientos", 5, R.color.upp_primary, R.color.text_primary, 200);
+                        // ----- FIN DE CORRECCIÓN -----
+
 
                     } else {
                         Log.w(TAG, "No existe el documento del usuario en Firestore.");
-                        // (Opcional) Forzar un deslogueo o re-crear el documento
                         mAuth.signOut();
                         navigateToLogin();
                     }
@@ -142,12 +142,17 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
         int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked);
         int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg);
-        int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.upp_card_bg);
+
+        // ----- INICIO DE CORRECCIÓN (Se cambió upp_card_bg por card_bg) -----
+        int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.card_bg);
+        // ----- FIN DE CORRECCIÓN -----
+
         int colorIconoDesbloqueado = ContextCompat.getColor(this, colorDesbloqueado);
         int colorTextoDesbloqueado = ContextCompat.getColor(this, textColorDesbloqueado);
 
-        // AHORA COMPROBAMOS EL NIVEL Y LOS PUNTOS
-        if (userNivel >= nivelRequerido && userPuntaje >= puntosRequeridos) {
+
+        // El desbloqueo es por NIVEL (no por puntos)
+        if (userNivel >= nivelRequerido) {
             // --- Nivel Desbloqueado ---
             button.setEnabled(true);
             button.setClickable(true);
@@ -161,7 +166,10 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
             // Restaurar colores de texto e ícono
             textView.setTextColor(colorTextoDesbloqueado);
-            textView.setText(String.format("Nivel %d: %s", nivelRequerido, nivel)); // Texto normal
+
+            // Texto actualizado para el nuevo diseño (solo el nombre)
+            textView.setText(nivel);
+
             iconView.setImageTintList(ColorStateList.valueOf(colorIconoDesbloqueado));
 
             // Configurar el OnClickListener
@@ -170,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
                 intent.putExtra(KEY_NIVEL_JUEGO, nivel);
                 intent.putExtra(KEY_PUNTAJE_ACTUAL, userPuntaje);
-                intent.putExtra(KEY_NIVEL_DESBLOQUEADO, userNivel); // <-- AÑADIR ESTA LÍNEA
+                intent.putExtra(KEY_NIVEL_DESBLOQUEADO, userNivel);
                 startActivity(intent);
             });
 
@@ -188,26 +196,26 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
             // Poner colores de "bloqueado"
             textView.setTextColor(colorBloqueado);
-            // Mostrar los puntos necesarios
-            textView.setText(String.format("Nivel %d: %s (Req. %d Pts)", nivelRequerido, nivel, puntosRequeridos));
-            iconView.setImageTintList(ColorStateList.valueOf(colorBloqueado));
 
-            // El OnClickListener no se configura, por lo que el botón no hace nada
+            // Texto actualizado para el nuevo diseño (solo el nombre)
+            textView.setText(nivel);
+
+            iconView.setImageTintList(ColorStateList.valueOf(colorBloqueado));
         }
     }
 
 
     private void navigateToLogin() {
-        // Puedes declarar e inicializar en la misma línea
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class); // <-- LÍNEA CORREGIDA
+        // ----- INICIO DE CORRECCIÓN (Error de Contexto) -----
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        // ----- FIN DE CORRECCIÓN -----
+
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
 
-    // --- Estos métodos son requeridos por la interfaz ---
-    // Esta actividad (MainActivity) no los usa, pero debe tenerlos.
-    // La que los usará es GameLevelActivity.
+    // --- Métodos de la interfaz (Ignorados en MainActivity) ---
 
     @Override
     public void onQuizClick(String itemText, String itemType) {

@@ -3,13 +3,17 @@
 
         <item name="colorPrimary">@color/upp_primary</item>
         <item name="colorPrimaryVariant">@color/upp_primary_dark</item>
-        <item name="colorOnPrimary">@color/upp_text_on_primary</item>
+
+        <item name="colorOnPrimary">@color/text_on_primary</item>
 
         <item name="colorSecondary">@color/upp_accent</item>
         <item name="colorOnSecondary">@color/white</item>
 
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
 
-        <item name="android:windowBackground">#E0E0E0</item> <item name="materialCardViewStyle">@style/Widget.App.MissionCard</item>
+        <item name="android:windowBackground">#E0E0E0</item>
+        <item name="colorSurface">@color/card_bg</item>
+
+        <item name="materialCardViewStyle">@style/Widget.App.MissionCard</item>
     </style>
 </resources>

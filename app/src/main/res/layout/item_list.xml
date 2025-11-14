@@ -6,30 +6,31 @@
     android:id="@+id/card_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="12dp"
-    android:layout_marginEnd="12dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
     android:layout_marginTop="6dp"
     android:layout_marginBottom="6dp"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?attr/selectableItemBackground">
+    android:foreground="?attr/selectableItemBackground"
+    app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="16dp">
 
             <ImageView
                 android:id="@+id/item_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_marginEnd="16dp"
                 android:src="@drawable/ic_check_circle"
                 app:tint="@color/upp_accent" />
@@ -39,10 +40,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:textColor="@color/upp_text_body"
+                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+                android:textColor="@color/text_primary"
                 android:lineSpacingMultiplier="1.1"
-
                 tools:text="Derecho 1: Recibir educación de calidad." />
 
         </LinearLayout>
@@ -50,9 +50,9 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/upp_bg"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"/>
+            android:background="@color/app_bg"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_case_study"
@@ -60,6 +60,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
             android:text="Analizar Caso"
             android:textColor="@color/upp_primary"
             app:icon="@drawable/ic_send"

@@ -1,10 +1,7 @@
 package com.example.reglamentoupp;
 
-
-
 public class Pregunta {
 
-    // Asumiendo que estos son tus campos en Firestore
     private String pregunta;
     private String opcionA;
     private String opcionB;
@@ -14,6 +11,17 @@ public class Pregunta {
 
     // Constructor vacío (requerido por Firestore para .toObject())
     public Pregunta() {}
+
+    // --- NUEVO CONSTRUCTOR ---
+    // (Este lo usaremos en nuestro script para crear las preguntas)
+    public Pregunta(String categoria, String pregunta, String opcionA, String opcionB, String opcionC, String respuestaCorrecta) {
+        this.categoria = categoria;
+        this.pregunta = pregunta;
+        this.opcionA = opcionA;
+        this.opcionB = opcionB;
+        this.opcionC = opcionC;
+        this.respuestaCorrecta = respuestaCorrecta;
+    }
 
     // --- Getters (Requeridos por Firestore) ---
     public String getPregunta() {

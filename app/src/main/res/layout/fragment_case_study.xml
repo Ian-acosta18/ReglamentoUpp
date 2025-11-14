@@ -9,6 +9,11 @@
     android:padding="24dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tint="@color/game_locked"/>
+
     <TextView
         android:id="@+id/tv_case_title"
         android:layout_width="wrap_content"
@@ -34,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:textColor="@color/upp_text_body"
+        android:textColor="@color/text_secondary"
         android:lineSpacingMultiplier="1.1"
         tools:text="Un estudiante es sorprendido fumando dentro de los baños de la universidad. ¿Qué artículo aplica?" />
 
@@ -42,9 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Regla Aplicada:"
-
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-
         android:textColor="@color/upp_accent"
         android:textStyle="bold"
         android:layout_marginTop="24dp"/>
@@ -55,7 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:textColor="@color/upp_text_title"
+        android:textColor="@color/text_primary"
         android:lineSpacingMultiplier="1.1"
         android:textStyle="italic"
         tools:text="Artículo 8 (I): Fumar en las instalaciones (excepto áreas autorizadas)." />
@@ -65,6 +68,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
+        android:backgroundTint="@color/upp_primary"
         android:text="Entendido"
         android:padding="12dp"/>
 
