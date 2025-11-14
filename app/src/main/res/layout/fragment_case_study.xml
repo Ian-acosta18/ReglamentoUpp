@@ -42,7 +42,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Regla Aplicada:"
-        android:textAppearance="@style/TextAppearance.Material3G.TitleMedium"
+
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+
         android:textColor="@color/upp_accent"
         android:textStyle="bold"
         android:layout_marginTop="24dp"/>
