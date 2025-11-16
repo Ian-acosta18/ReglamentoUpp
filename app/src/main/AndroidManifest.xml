@@ -35,5 +35,13 @@
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" /> </application>
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".QuizActivity"
+            android:theme="@style/Theme.ReglamentoUpp" />
+        <activity
+            android:name=".TrueFalseActivity"
+            android:theme="@style/Theme.ReglamentoUpp" />
+    </application>
 </manifest>

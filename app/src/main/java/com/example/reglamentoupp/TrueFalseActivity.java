@@ -12,6 +12,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import androidx.core.content.ContextCompat;
 
 public class TrueFalseActivity extends AppCompatActivity {
 
