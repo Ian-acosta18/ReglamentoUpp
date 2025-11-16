@@ -19,8 +19,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-// Importaciones limpias (sin el script de subida)
-
 public class MainActivity extends AppCompatActivity implements BaseReglamentoFragment.ReglamentoInteractionListener {
 
     private ActivityMainBinding binding;
@@ -40,8 +38,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        // --- El código del script de subida (FAB) se ha eliminado ---
 
         mAuth = FirebaseAuth.getInstance();
         mStore = FirebaseFirestore.getInstance();
@@ -92,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
                         Log.d(TAG, "Usuario cargado. Puntaje: " + userPuntaje + ", Nivel Desbloqueado: " + userNivel);
 
-                        // ----- INICIO DE CORRECCIÓN (Se cambió R.color.upp_text_title por R.color.text_primary) -----
+                        // Configura los botones de Nivel (Modo Estudio)
                         setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos,
                                 "Derechos", 1, R.color.upp_primary, R.color.text_primary, 0);
                         setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones,
@@ -103,7 +99,21 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                                 "Sanciones", 4, R.color.upp_primary, R.color.text_primary, 150);
                         setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos,
                                 "Reconocimientos", 5, R.color.upp_primary, R.color.text_primary, 200);
-                        // ----- FIN DE CORRECCIÓN -----
+
+
+                        // === NUEVOS LISTENERS AÑADIDOS AQUÍ ===
+
+                        // Configurar el nuevo botón de Modo Desafío
+                        binding.btnJugarModoDesafio.setOnClickListener(v -> {
+                            Intent intent = new Intent(MainActivity.this, QuizActivity.class);
+                            startActivity(intent);
+                        });
+
+                        // Configurar el nuevo botón de Verdadero/Falso
+                        binding.btnJugarVerdaderoFalso.setOnClickListener(v -> {
+                            Intent intent = new Intent(MainActivity.this, TrueFalseActivity.class);
+                            startActivity(intent);
+                        });
 
                     } else {
                         Log.w(TAG, "No existe el documento del usuario en Firestore.");
@@ -123,11 +133,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
         int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked);
         int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg);
-
-        // ----- INICIO DE CORRECCIÓN (Se cambió R.color.upp_card_bg por R.color.card_bg) -----
         int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.card_bg);
-        // ----- FIN DE CORRECCIÓN -----
-
         int colorIconoDesbloqueado = ContextCompat.getColor(this, colorDesbloqueado);
         int colorTextoDesbloqueado = ContextCompat.getColor(this, textColorDesbloqueado);
 
@@ -171,10 +177,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     }
 
     private void navigateToLogin() {
-        // ----- INICIO DE CORRECCIÓN (Error de Contexto) -----
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        // ----- FIN DE CORRECCIÓN -----
-
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
