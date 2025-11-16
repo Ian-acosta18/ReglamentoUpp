@@ -3,10 +3,27 @@
     <color name="purple_dark">#4C3A51</color>
     <color name="purple_medium">#774360</color>
     <color name="purple_light">#B25068</color>
-
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#333333</color>
-    <color name="card_background">#FFFFFF</color>
+
+    <color name="upp_primary">#512DA8</color>
+    <color name="upp_primary_dark">#311B92</color>
+    <color name="upp_accent">#FFC107</color>
+    <color name="text_on_primary">#FFFFFF</color>
+
+    <color name="app_bg">#F5F5F5</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+
+    <color name="game_success">#4CAF50</color>
+    <color name="game_success_bg">#E8F5E9</color>
+    <color name="game_fail">#F44336</color>
+    <color name="game_fail_bg">#FFEBEE</color>
+
+    <color name="game_locked">#9E9E9E</color>
+    <color name="game_locked_bg">#F5F5F5</color>
+
+    <color name="game_button_default">#E0E0E0</color>
+    <color name="game_button_default_text">#212121</color>
 </resources>
