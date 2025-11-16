@@ -33,31 +33,77 @@
         app:layout_constraintTop_toBottomOf="@id/tvHangmanTitle"
         tools:text="Vidas restantes: 6" />
 
-    <TextView
-        android:id="@+id/tvHangmanWord"
+    <Button
+        android:id="@+id/btnHangmanHint"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pista (-1 Vida)"
+        android:textColor="@color/white"
+        app:icon="@drawable/ic_check_circle"
+        app:iconTint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/white"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardWord"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:letterSpacing="0.2"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="34sp"
-        android:textStyle="bold"
+        android:layout_marginTop="32dp"
+        app:cardBackgroundColor="#80FFFFFF"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvHangmanLives"
-        tools:text="_ _ G _ A _ _ _ T _" />
+        app:layout_constraintTop_toBottomOf="@id/tvHangmanLives">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tvHangmanWord"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.2"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="34sp"
+                android:textStyle="bold"
+                tools:text="_ _ G _ A _ _ _ T _" />
+
+            <TextView
+                android:id="@+id/tvHangmanHint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="italic"
+                android:visibility="gone"
+                tools:text="Es un documento oficial de la UPP"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
 
     <GridLayout
         android:id="@+id/glKeyboard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         android:columnCount="7"
         android:rowCount="4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvHangmanWord">
+        app:layout_constraintTop_toBottomOf="@id/cardWord">
 
     </GridLayout>
 

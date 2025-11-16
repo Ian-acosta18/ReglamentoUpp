@@ -56,7 +56,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvUserPuntaje">
-
         <ImageView
             android:id="@+id/ivBadge1"
             android:layout_width="40dp"
@@ -129,7 +128,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_reconocimientos"
-                        app:tint="@color/white" />
+                        app:tint="@color/text_primary" />
                     <TextView
                         android:id="@+id/tvDesafio"
                         android:layout_width="wrap_content"
@@ -137,7 +136,7 @@
                         android:layout_toEndOf="@id/ivDesafio"
                         android:text="Modo Desafío"
                         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                        android:textColor="@color/white"
+                        android:textColor="@color/text_primary"
                         android:textStyle="bold" />
                     <TextView
                         android:layout_width="wrap_content"
@@ -146,7 +145,7 @@
                         android:layout_toEndOf="@id/ivDesafio"
                         android:text="Prueba tu conocimiento"
                         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textColor="@color/white" />
+                        android:textColor="@color/text_secondary" />
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -169,7 +168,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_check_circle"
-                        app:tint="@color/white" />
+                        app:tint="@color/text_primary" />
                     <TextView
                         android:id="@+id/tvVF"
                         android:layout_width="wrap_content"
@@ -177,7 +176,7 @@
                         android:layout_toEndOf="@id/ivVF"
                         android:text="Verdadero o Falso"
                         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                        android:textColor="@color/white"
+                        android:textColor="@color/text_primary"
                         android:textStyle="bold" />
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -201,7 +200,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_prohibiciones"
-                        app:tint="@color/white" />
+                        app:tint="@color/text_primary" />
                     <TextView
                         android:id="@+id/tvAhorcado"
                         android:layout_width="wrap_content"
@@ -209,11 +208,10 @@
                         android:layout_toEndOf="@id/ivAhorcado"
                         android:text="Ahorcado"
                         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                        android:textColor="@color/white"
+                        android:textColor="@color/text_primary"
                         android:textStyle="bold" />
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
-
 
             <TextView
                 android:layout_width="wrap_content"
@@ -231,7 +229,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/card_bg"
+                android:background="@drawable/card_bg_study"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -245,7 +243,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_derechos"
-                        app:tint="@color/upp_primary" />
+                        app:tint="@color/text_primary" />
                     <TextView
                         android:id="@+id/tvDerechos"
                         android:layout_width="wrap_content"
@@ -262,7 +260,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/card_bg"
+                android:background="@drawable/card_bg_study"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -276,7 +274,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_obligaciones"
-                        app:tint="@color/upp_primary" />
+                        app:tint="@color/text_primary" />
                     <TextView
                         android:id="@+id/tvObligaciones"
                         android:layout_width="wrap_content"
@@ -303,7 +301,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/card_bg"
+                android:background="@drawable/card_bg_study"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -317,7 +315,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_prohibiciones"
-                        app:tint="@color/upp_primary" />
+                        app:tint="@color/text_primary" />
                     <TextView
                         android:id="@+id/tvProhibiciones"
                         android:layout_width="wrap_content"
@@ -344,7 +342,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/card_bg"
+                android:background="@drawable/card_bg_study"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -358,7 +356,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_sanciones"
-                        app:tint="@color/upp_primary" />
+                        app:tint="@color/text_primary" />
                     <TextView
                         android:id="@+id/tvSanciones"
                         android:layout_width="wrap_content"
@@ -385,7 +383,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/card_bg"
+                android:background="@drawable/card_bg_study"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -399,7 +397,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_reconocimientos"
-                        app:tint="@color/upp_primary" />
+                        app:tint="@color/text_primary" />
                     <TextView
                         android:id="@+id/tvReconocimientos"
                         android:layout_width="wrap_content"
