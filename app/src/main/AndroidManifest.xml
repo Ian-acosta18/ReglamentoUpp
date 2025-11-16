@@ -43,5 +43,8 @@
         <activity
             android:name=".TrueFalseActivity"
             android:theme="@style/Theme.ReglamentoUpp" />
+        <activity
+            android:name=".HangmanActivity"
+            android:theme="@style/Theme.ReglamentoUpp" />
     </application>
 </manifest>

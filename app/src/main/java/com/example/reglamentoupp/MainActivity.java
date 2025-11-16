@@ -5,7 +5,10 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     protected void onResume() {
         super.onResume();
         loadUserData();
+        animarMenu(); // Llamada a la nueva animación
     }
 
     private void loadUserData() {
@@ -88,23 +92,29 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
                         Log.d(TAG, "Usuario cargado. Puntaje: " + userPuntaje + ", Nivel Desbloqueado: " + userNivel);
 
-                        // --- NUEVA LLAMADA A INSIGNIAS ---
+                        // --- Actualizar Insignias ---
                         actualizarInsignias(userPuntaje);
 
-                        // Configurar el nuevo botón de Modo Desafío
+                        // --- Configurar Listeners de Juegos ---
                         binding.btnJugarModoDesafio.setOnClickListener(v -> {
                             Intent intent = new Intent(MainActivity.this, QuizActivity.class);
                             startActivity(intent);
                         });
 
-                        // Configurar el nuevo botón de Verdadero/Falso
                         binding.btnJugarVerdaderoFalso.setOnClickListener(v -> {
                             Intent intent = new Intent(MainActivity.this, TrueFalseActivity.class);
                             startActivity(intent);
                         });
 
+                        // --- NUEVO LISTENER PARA AHORCADO ---
+                        binding.btnJugarAhorcado.setOnClickListener(v -> {
+                            Intent intent = new Intent(MainActivity.this, HangmanActivity.class);
+                            startActivity(intent);
+                        });
 
-                        // Configura los botones de Nivel (Modo Estudio)
+
+                        // --- Configura los botones de Nivel (Modo Estudio) ---
+                        // (El diseño ahora es blanco por defecto en el XML, la lógica de bloqueo sigue aquí)
                         setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos,
                                 "Derechos", 1, R.color.upp_primary, R.color.text_primary, 0);
                         setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones,
@@ -130,9 +140,25 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 });
     }
 
-    // --- NUEVA FUNCIÓN DE INSIGNIAS ---
+    // --- NUEVA FUNCIÓN DE ANIMACIÓN ---
+    private void animarMenu() {
+        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        LinearLayout menuContainer = binding.llMenuContainer;
+
+        // Animar cada tarjeta una por una con un ligero retraso
+        for (int i = 0; i < menuContainer.getChildCount(); i++) {
+            View child = menuContainer.getChildAt(i);
+            if (child instanceof MaterialCardView) {
+                Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+                anim.setStartOffset(i * 100L); // 100ms de retraso por cada tarjeta
+                child.startAnimation(anim);
+            }
+        }
+    }
+
+    // --- FUNCIÓN DE INSIGNIAS ---
     private void actualizarInsignias(long puntaje) {
-        // Insignia 1: 50 Puntos (usamos ic_derechos como ejemplo)
+        // Insignia 1: 50 Puntos
         if (puntaje >= 50) {
             binding.ivBadge1.setAlpha(1.0f); // Completamente visible
             binding.ivBadge1.setOnClickListener(v -> Toast.makeText(this, "Insignia: Principiante (50 pts)", Toast.LENGTH_SHORT).show());
@@ -141,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             binding.ivBadge1.setOnClickListener(null); // No hacer nada si está bloqueada
         }
 
-        // Insignia 2: 150 Puntos (usamos ic_reconocimientos como ejemplo)
+        // Insignia 2: 150 Puntos
         if (puntaje >= 150) {
             binding.ivBadge2.setAlpha(1.0f);
             binding.ivBadge2.setOnClickListener(v -> Toast.makeText(this, "Insignia: Experto (150 pts)", Toast.LENGTH_SHORT).show());
@@ -150,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             binding.ivBadge2.setOnClickListener(null);
         }
 
-        // Insignia 3: 300 Puntos (usamos ic_sanciones como ejemplo)
+        // Insignia 3: 300 Puntos
         if (puntaje >= 300) {
             binding.ivBadge3.setAlpha(1.0f);
             binding.ivBadge3.setOnClickListener(v -> Toast.makeText(this, "Insignia: Maestro (300 pts)", Toast.LENGTH_SHORT).show());
@@ -165,14 +191,17 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
         int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked);
         int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg);
-        int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.card_bg);
         int colorIconoDesbloqueado = ContextCompat.getColor(this, colorDesbloqueado);
         int colorTextoDesbloqueado = ContextCompat.getColor(this, textColorDesbloqueado);
+
+        // El color de fondo de desbloqueado AHORA SE CONTROLA EN EL XML (card_bg)
+        int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.card_bg);
+
 
         if (userNivel >= nivelRequerido) {
             button.setEnabled(true);
             button.setClickable(true);
-            button.setCardBackgroundColor(colorBgDesbloqueado);
+            button.setCardBackgroundColor(colorBgDesbloqueado); // Fondo blanco para modo estudio
             button.setCardElevation(getResources().getDimension(com.google.android.material.R.dimen.m3_card_elevation));
 
             if (lockIcon != null) {

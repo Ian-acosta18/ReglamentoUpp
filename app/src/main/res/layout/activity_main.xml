@@ -66,7 +66,6 @@
             android:src="@drawable/ic_derechos"
             app:tint="@color/white"
             tools:alpha="1.0"/>
-
         <ImageView
             android:id="@+id/ivBadge2"
             android:layout_width="40dp"
@@ -76,7 +75,6 @@
             android:src="@drawable/ic_reconocimientos"
             app:tint="@color/white"
             tools:alpha="0.3"/>
-
         <ImageView
             android:id="@+id/ivBadge3"
             android:layout_width="40dp"
@@ -96,17 +94,28 @@
         app:layout_constraintTop_toBottomOf="@id/llBadges">
 
         <LinearLayout
+            android:id="@+id/llMenuContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="8dp"
+                android:text="JUEGOS"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnJugarModoDesafio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardBackgroundColor="@color/purple_dark"
+                android:background="@drawable/card_bg_game"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -145,8 +154,8 @@
                 android:id="@+id/btnJugarVerdaderoFalso"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/purple_medium"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/card_bg_game"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -174,10 +183,55 @@
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnJugarAhorcado"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/card_bg_game"
+                app:cardElevation="4dp">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+                    <ImageView
+                        android:id="@+id/ivAhorcado"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_prohibiciones"
+                        app:tint="@color/white" />
+                    <TextView
+                        android:id="@+id/tvAhorcado"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/ivAhorcado"
+                        android:text="Ahorcado"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="16dp"
+                android:text="MODO ESTUDIO"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"/>
+
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnJugarDerechos"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/card_bg"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -208,6 +262,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/card_bg"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -248,6 +303,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/card_bg"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -288,6 +344,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/card_bg"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -328,6 +385,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/card_bg"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
