@@ -88,20 +88,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
                         Log.d(TAG, "Usuario cargado. Puntaje: " + userPuntaje + ", Nivel Desbloqueado: " + userNivel);
 
-                        // Configura los botones de Nivel (Modo Estudio)
-                        setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos,
-                                "Derechos", 1, R.color.upp_primary, R.color.text_primary, 0);
-                        setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones,
-                                "Obligaciones", 2, R.color.upp_primary, R.color.text_primary, 50);
-                        setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones,
-                                "Prohibiciones", 3, R.color.upp_primary, R.color.text_primary, 100);
-                        setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones,
-                                "Sanciones", 4, R.color.upp_primary, R.color.text_primary, 150);
-                        setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos,
-                                "Reconocimientos", 5, R.color.upp_primary, R.color.text_primary, 200);
-
-
-                        // === NUEVOS LISTENERS AÑADIDOS AQUÍ ===
+                        // --- NUEVA LLAMADA A INSIGNIAS ---
+                        actualizarInsignias(userPuntaje);
 
                         // Configurar el nuevo botón de Modo Desafío
                         binding.btnJugarModoDesafio.setOnClickListener(v -> {
@@ -115,6 +103,20 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                             startActivity(intent);
                         });
 
+
+                        // Configura los botones de Nivel (Modo Estudio)
+                        setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos,
+                                "Derechos", 1, R.color.upp_primary, R.color.text_primary, 0);
+                        setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones,
+                                "Obligaciones", 2, R.color.upp_primary, R.color.text_primary, 50);
+                        setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones,
+                                "Prohibiciones", 3, R.color.upp_primary, R.color.text_primary, 100);
+                        setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones,
+                                "Sanciones", 4, R.color.upp_primary, R.color.text_primary, 150);
+                        setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos,
+                                "Reconocimientos", 5, R.color.upp_primary, R.color.text_primary, 200);
+
+
                     } else {
                         Log.w(TAG, "No existe el documento del usuario en Firestore.");
                         mAuth.signOut();
@@ -126,6 +128,36 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                     binding.tvUserName.setText("Error al cargar");
                     binding.tvUserPuntaje.setText("Puntaje: Error");
                 });
+    }
+
+    // --- NUEVA FUNCIÓN DE INSIGNIAS ---
+    private void actualizarInsignias(long puntaje) {
+        // Insignia 1: 50 Puntos (usamos ic_derechos como ejemplo)
+        if (puntaje >= 50) {
+            binding.ivBadge1.setAlpha(1.0f); // Completamente visible
+            binding.ivBadge1.setOnClickListener(v -> Toast.makeText(this, "Insignia: Principiante (50 pts)", Toast.LENGTH_SHORT).show());
+        } else {
+            binding.ivBadge1.setAlpha(0.3f); // Opaco (bloqueado)
+            binding.ivBadge1.setOnClickListener(null); // No hacer nada si está bloqueada
+        }
+
+        // Insignia 2: 150 Puntos (usamos ic_reconocimientos como ejemplo)
+        if (puntaje >= 150) {
+            binding.ivBadge2.setAlpha(1.0f);
+            binding.ivBadge2.setOnClickListener(v -> Toast.makeText(this, "Insignia: Experto (150 pts)", Toast.LENGTH_SHORT).show());
+        } else {
+            binding.ivBadge2.setAlpha(0.3f);
+            binding.ivBadge2.setOnClickListener(null);
+        }
+
+        // Insignia 3: 300 Puntos (usamos ic_sanciones como ejemplo)
+        if (puntaje >= 300) {
+            binding.ivBadge3.setAlpha(1.0f);
+            binding.ivBadge3.setOnClickListener(v -> Toast.makeText(this, "Insignia: Maestro (300 pts)", Toast.LENGTH_SHORT).show());
+        } else {
+            binding.ivBadge3.setAlpha(0.3f);
+            binding.ivBadge3.setOnClickListener(null);
+        }
     }
 
     private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
