@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="upp_primary">#8C1D40</color>
-    <color name="upp_primary_dark">#6D1631</color>
-    <color name="upp_accent">#E87722</color>
+    <color name="purple_dark">#4C3A51</color>
+    <color name="purple_medium">#774360</color>
+    <color name="purple_light">#B25068</color>
 
-    <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
-    <color name="app_bg">#F4F4F4</color> <color name="card_bg">#FFFFFF</color> <color name="text_primary">#212121</color> <color name="text_secondary">#757575</color> <color name="text_on_primary">#FFFFFF</color> <color name="game_success">#2E7D32</color> <color name="game_success_bg">#C8E6C9</color> <color name="game_fail">#C62828</color> <color name="game_fail_bg">#FFCDD2</color> <color name="game_locked">#BDBDBD</color> <color name="game_locked_bg">#EEEEEE</color> <color name="game_button_default">#F5F5F5</color> <color name="game_button_default_text">#424242</color> </resources>
+    <color name="black">#FF000000</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#333333</color>
+    <color name="card_background">#FFFFFF</color>
+</resources>
