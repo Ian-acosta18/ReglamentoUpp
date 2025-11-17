@@ -94,14 +94,14 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvUserPuntaje">
+
                         <ImageView
                             android:id="@+id/ivBadge1"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_marginHorizontal="8dp"
                             android:alpha="0.3"
-                            android:src="@drawable/ic_derechos"
-                            app:tint="@color/upp_accent"
+                            android:src="@drawable/ic_reconocimientos"
                             tools:alpha="1.0"/>
                         <ImageView
                             android:id="@+id/ivBadge2"
@@ -110,7 +110,6 @@
                             android:layout_marginHorizontal="8dp"
                             android:alpha="0.3"
                             android:src="@drawable/ic_reconocimientos"
-                            app:tint="@color/upp_accent"
                             tools:alpha="0.3"/>
                         <ImageView
                             android:id="@+id/ivBadge3"
@@ -118,8 +117,7 @@
                             android:layout_height="40dp"
                             android:layout_marginHorizontal="8dp"
                             android:alpha="0.3"
-                            android:src="@drawable/ic_sanciones"
-                            app:tint="@color/upp_accent"
+                            android:src="@drawable/ic_reconocimientos"
                             tools:alpha="0.3"/>
                     </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -140,12 +138,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:background="@drawable/card_bg_game"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:background="@drawable/card_bg_game">
+
                     <ImageView
                         android:id="@+id/ivDesafio"
                         android:layout_width="40dp"
@@ -153,8 +152,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
-                        android:src="@drawable/ic_reconocimientos"
-                        app:tint="@color/text_primary" />
+                        android:src="@drawable/ic_reconocimientos" />
                     <TextView
                         android:id="@+id/tvDesafio"
                         android:layout_width="wrap_content"
@@ -180,12 +178,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:background="@drawable/card_bg_game"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:background="@drawable/card_bg_game">
+
                     <ImageView
                         android:id="@+id/ivVF"
                         android:layout_width="40dp"
@@ -193,8 +192,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
-                        android:src="@drawable/ic_check_circle"
-                        app:tint="@color/text_primary" />
+                        android:src="@drawable/ic_check_circle" />
                     <TextView
                         android:id="@+id/tvVF"
                         android:layout_width="wrap_content"
@@ -212,12 +210,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/card_bg_game"
                 app:cardElevation="4dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:background="@drawable/card_bg_game">
+
                     <ImageView
                         android:id="@+id/ivAhorcado"
                         android:layout_width="40dp"
@@ -225,8 +224,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
-                        android:src="@drawable/ic_prohibiciones"
-                        app:tint="@color/text_primary" />
+                        android:src="@drawable/ic_prohibiciones" />
                     <TextView
                         android:id="@+id/tvAhorcado"
                         android:layout_width="wrap_content"
@@ -261,6 +259,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:background="@drawable/card_bg_study">
+
                     <ImageView
                         android:id="@+id/ivDerechos"
                         android:layout_width="40dp"
@@ -268,8 +267,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
-                        android:src="@drawable/ic_derechos"
-                        app:tint="@color/white" />
+                        android:src="@drawable/ic_derechos" />
                     <TextView
                         android:id="@+id/tvDerechos"
                         android:layout_width="wrap_content"
@@ -293,6 +291,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:background="@drawable/card_bg_study">
+
                     <ImageView
                         android:id="@+id/ivObligaciones"
                         android:layout_width="40dp"
@@ -300,8 +299,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
-                        android:src="@drawable/ic_obligaciones"
-                        app:tint="@color/white" />
+                        android:src="@drawable/ic_obligaciones" />
                     <TextView
                         android:id="@+id/tvObligaciones"
                         android:layout_width="wrap_content"
@@ -335,6 +333,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:background="@drawable/card_bg_study">
+
                     <ImageView
                         android:id="@+id/ivProhibiciones"
                         android:layout_width="40dp"
@@ -342,8 +341,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
-                        android:src="@drawable/ic_prohibiciones"
-                        app:tint="@color/white" />
+                        android:src="@drawable/ic_prohibiciones" />
                     <TextView
                         android:id="@+id/tvProhibiciones"
                         android:layout_width="wrap_content"
@@ -377,6 +375,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:background="@drawable/card_bg_study">
+
                     <ImageView
                         android:id="@+id/ivSanciones"
                         android:layout_width="40dp"
@@ -384,8 +383,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
-                        android:src="@drawable/ic_sanciones"
-                        app:tint="@color/white" />
+                        android:src="@drawable/ic_sanciones" />
                     <TextView
                         android:id="@+id/tvSanciones"
                         android:layout_width="wrap_content"
@@ -419,6 +417,7 @@
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:background="@drawable/card_bg_study">
+
                     <ImageView
                         android:id="@+id/ivReconocimientos"
                         android:layout_width="40dp"
@@ -426,8 +425,7 @@
                         android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
-                        android:src="@drawable/ic_reconocimientos"
-                        app:tint="@color/white" />
+                        android:src="@drawable/ic_reconocimientos" />
                     <TextView
                         android:id="@+id/tvReconocimientos"
                         android:layout_width="wrap_content"

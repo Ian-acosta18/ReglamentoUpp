@@ -6,12 +6,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-// Importamos Chip en lugar de Button
-import com.google.android.material.chip.Chip;
-import com.google.android.material.card.MaterialCardView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.chip.Chip;
 
 public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.ViewHolder> {
 
@@ -51,7 +51,7 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
             }
         });
 
-        // 2. Clic en el botón "Analizar Caso" (ahora un Chip)
+        // 2. Clic en el botón "Analizar Caso"
         holder.btnCaseStudy.setOnClickListener(v -> {
             if (mListener != null) {
                 mListener.onCaseStudyClick(currentItemText, mItemType);
@@ -66,6 +66,7 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
     }
 
     // Método extra para hacer la UI más didáctica
+    // CORRECCIÓN: Nombres de íconos restaurados a los originales
     private int getIconForItemType(String itemType) {
         switch (itemType) {
             case "Derecho":
