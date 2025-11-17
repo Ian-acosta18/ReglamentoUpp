@@ -15,60 +15,46 @@
     android:foreground="?attr/selectableItemBackground"
     app:cardElevation="2dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:padding="16dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/item_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_check_circle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/upp_accent" />
+
+        <TextView
+            android:id="@android:id/text1"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <ImageView
-                android:id="@+id/item_icon"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginEnd="16dp"
-                android:src="@drawable/ic_check_circle"
-                app:tint="@color/upp_accent" />
-
-            <TextView
-                android:id="@android:id/text1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                android:textColor="@color/text_primary"
-                android:lineSpacingMultiplier="1.1"
-                tools:text="Derecho 1: Recibir educación de calidad." />
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/app_bg"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"/>
+            android:lineSpacingMultiplier="1.1"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            android:textColor="@color/text_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/item_icon"
+            app:layout_constraintTop_toTopOf="@id/item_icon"
+            tools:text="Derecho 1: Recibir educación de calidad." />
 
-        <com.google.android.material.button.MaterialButton
+        <com.google.android.material.chip.Chip
             android:id="@+id/btn_case_study"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.Material3.Chip.Suggestion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
             android:text="Analizar Caso"
             android:textColor="@color/upp_primary"
-            app:icon="@drawable/ic_send"
-            app:iconTint="@color/upp_primary"
-            app:iconPadding="8dp"
-            android:textSize="12sp"/>
+            app:chipIcon="@drawable/ic_send"
+            app:chipIconTint="@color/upp_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text1" />
 
-    </LinearLayout>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
