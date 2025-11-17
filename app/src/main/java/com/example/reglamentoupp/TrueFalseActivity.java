@@ -91,11 +91,11 @@ public class TrueFalseActivity extends AppCompatActivity {
         if (respuestaElegida == preguntaActual.isRespuesta()) {
             // Correcto
             puntaje += 10;
-            binding.cardVFQuestion.setCardBackgroundColor(ContextCompat.getColor(this, R.color.game_success_bg));
+            binding.cardVFQuestion.setCardBackgroundColor(ContextCompat.getColor(this, R.color.game_success_container));
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show();
         } else {
             // Incorrecto
-            binding.cardVFQuestion.setCardBackgroundColor(ContextCompat.getColor(this, R.color.game_fail_bg));
+            binding.cardVFQuestion.setCardBackgroundColor(ContextCompat.getColor(this, R.color.game_fail_container));
             Toast.makeText(this, "Incorrecto. La respuesta era: " + !respuestaElegida, Toast.LENGTH_SHORT).show();
         }
 
