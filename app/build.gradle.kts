@@ -6,13 +6,13 @@ plugins {
 android {
     namespace = "com.example.reglamentoupp"
     // --- CORRECCIÓN 1: Actualizado a 36 ---
-    compileSdk = 36 //
+    compileSdk = 34 //
 
     defaultConfig {
         applicationId = "com.example.reglamentoupp"
         minSdk = 24
         // --- CORRECCIÓN 1: Actualizado a 36 ---
-        targetSdk = 36 //
+        targetSdk = 34 //
         versionCode = 1
         versionName = "1.0"
 
