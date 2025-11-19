@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.reglamentoupp.databinding.ActivityQuizBinding;
+import com.google.firebase.auth.FirebaseAuth; // Importar
+import com.google.firebase.firestore.FieldValue; // Importar
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -25,6 +27,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private ActivityQuizBinding binding;
     private FirebaseFirestore mStore;
+    private FirebaseAuth mAuth; // Importante para guardar puntos
 
     private List<Pregunta> listaDePreguntas;
     private Pregunta preguntaActual;
@@ -41,6 +44,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(binding.getRoot());
 
         mStore = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance(); // Inicializar
         listaDePreguntas = new ArrayList<>();
 
         binding.btnQuizOptionA.setOnClickListener(this);
@@ -55,8 +59,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        Toast.makeText(this, "No se encontraron preguntas.", Toast.LENGTH_SHORT).show();
-                        finish();
+                        // Si no hay preguntas en Modo Desafío, las creamos
+                        crearPreguntasDesafio();
                         return;
                     }
 
@@ -64,7 +68,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                         listaDePreguntas.add(doc.toObject(Pregunta.class));
                     }
 
-                    // Mezclar y limitar a 10 preguntas
                     Collections.shuffle(listaDePreguntas);
                     if (listaDePreguntas.size() > MAX_PREGUNTAS) {
                         listaDePreguntas = listaDePreguntas.subList(0, MAX_PREGUNTAS);
@@ -77,6 +80,26 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.makeText(this, "Error al cargar preguntas.", Toast.LENGTH_SHORT).show();
                     finish();
                 });
+    }
+
+    // --- AGREGAR MÁS PREGUNTAS MODO DESAFÍO ---
+    private void crearPreguntasDesafio() {
+        List<Pregunta> nuevas = new ArrayList<>();
+
+        nuevas.add(new Pregunta("General", "¿Cuál es la sanción por inasistencia colectiva?", "Amonestación", "Expulsión", "Suspensión", "Amonestación"));
+        nuevas.add(new Pregunta("Derechos", "¿Qué artículo habla sobre recibir asesorías?", "Art. 3 (XIII)", "Art. 5 (II)", "Art. 8 (I)", "Art. 3 (XIII)"));
+        nuevas.add(new Pregunta("Prohibiciones", "¿Se permite consumir alimentos en la biblioteca?", "Sí, snacks", "No, en ningún caso", "Solo agua", "No, en ningún caso"));
+        nuevas.add(new Pregunta("Obligaciones", "¿Quién es responsable del proceso de formación?", "El profesor", "El alumno", "La universidad", "El alumno"));
+        nuevas.add(new Pregunta("General", "¿Cuándo debes portar tu credencial?", "Solo en exámenes", "Al ingresar", "Nunca", "Al ingresar"));
+        nuevas.add(new Pregunta("Sanciones", "¿Qué pasa si rompes material de laboratorio?", "Nada", "Lo pagas o repones", "Te expulsan", "Lo pagas o repones"));
+        nuevas.add(new Pregunta("Derechos", "Tienes derecho a conocer el resultado de evaluaciones...", "Al final del año", "Oportunamente", "Nunca", "Oportunamente"));
+        nuevas.add(new Pregunta("Prohibiciones", "¿Qué actividad está prohibida en los salones?", "Estudiar", "Juegos de azar", "Hablar", "Juegos de azar"));
+
+        for (Pregunta p : nuevas) {
+            mStore.collection("preguntas").add(p);
+        }
+        Toast.makeText(this, "Creando preguntas... Reinicia.", Toast.LENGTH_LONG).show();
+        finish();
     }
 
     private void iniciarQuiz() {
@@ -103,7 +126,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
             indicePreguntaActual++;
         } else {
-            // Fin del juego
             mostrarResultadoFinal();
         }
     }
@@ -117,21 +139,17 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         String respuestaElegida = botonPresionado.getText().toString();
 
         if (respuestaElegida.equals(preguntaActual.getRespuestaCorrecta())) {
-            // Correcto
             puntaje += 10;
             botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
         } else {
-            // Incorrecto
             vidas--;
             botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
-            // Resaltar la correcta
             resaltarRespuestaCorrecta();
         }
 
         if (vidas <= 0) {
             mostrarResultadoFinal();
         } else {
-            // Esperar 1.5 segundos y pasar a la siguiente
             new Handler(Looper.getMainLooper()).postDelayed(this::mostrarSiguientePregunta, 1500);
         }
     }
@@ -153,9 +171,16 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // --- AQUÍ ES DONDE GUARDAMOS LOS PUNTOS ---
     private void mostrarResultadoFinal() {
-        // Aquí puedes actualizar el puntaje en Firestore si lo deseas
-        // Por ahora, solo mostramos un diálogo
+        if (mAuth.getCurrentUser() != null && puntaje > 0) {
+            // Actualizar en Firestore
+            mStore.collection("usuarios").document(mAuth.getCurrentUser().getUid())
+                    .update("puntaje", FieldValue.increment(puntaje))
+                    .addOnSuccessListener(aVoid -> Log.d("Quiz", "Puntaje guardado"))
+                    .addOnFailureListener(e -> Log.e("Quiz", "Error guardando puntaje", e));
+        }
+
         new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                 .setTitle("¡Juego Terminado!")
                 .setMessage("Tu puntaje final es: " + puntaje)
