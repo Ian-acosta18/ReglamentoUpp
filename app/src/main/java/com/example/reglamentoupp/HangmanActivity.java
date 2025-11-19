@@ -2,6 +2,7 @@ package com.example.reglamentoupp;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.media.MediaPlayer; // Importar MediaPlayer
 import android.os.Bundle;
 import android.view.View;
 import android.widget.GridLayout;
@@ -19,9 +20,8 @@ public class HangmanActivity extends AppCompatActivity {
 
     private ActivityHangmanBinding binding;
 
-    // Palabras clave con PISTAS AUMENTADAS
+    // Palabras clave con PISTAS
     private String[][] palabrasConPistas = {
-            // Básicos
             {"REGLAMENTO", "Documento con todas las normas"},
             {"DERECHOS", "Lo que tienes permitido como alumno"},
             {"SANCION", "Consecuencia de una falta"},
@@ -30,7 +30,6 @@ public class HangmanActivity extends AppCompatActivity {
             {"UPP", "Siglas de tu universidad"},
             {"FALTA", "Incumplimiento de una norma"},
             {"NORMA", "Sinónimo de regla"},
-            // Nuevas palabras agregadas
             {"CREDENCIAL", "Identificación oficial para ingresar"},
             {"RECTOR", "Máxima autoridad de la Universidad"},
             {"TUTOR", "Docente que guía tu trayectoria"},
@@ -59,37 +58,31 @@ public class HangmanActivity extends AppCompatActivity {
         iniciarJuego();
         generarTeclado();
 
-        // Listener para el botón de Pista
         binding.btnHangmanHint.setOnClickListener(v -> mostrarPista());
     }
 
     private void iniciarJuego() {
         vidas = 6;
-
-        // Seleccionar palabra y pista
         int index = new Random().nextInt(palabrasConPistas.length);
         palabraSecreta = palabrasConPistas[index][0];
         pistaActual = palabrasConPistas[index][1];
 
         palabraAdivinada = new char[palabraSecreta.length()];
-
         for (int i = 0; i < palabraSecreta.length(); i++) {
             palabraAdivinada[i] = '_';
         }
 
-        // Resetear UI de pista
         binding.tvHangmanHint.setVisibility(View.GONE);
         binding.btnHangmanHint.setEnabled(true);
-
         actualizarUI();
     }
 
     private void mostrarPista() {
         if (vidas > 1) {
-            vidas--; // Penalización por usar pista
+            vidas--;
             binding.tvHangmanHint.setText(pistaActual);
             binding.tvHangmanHint.setVisibility(View.VISIBLE);
-            binding.btnHangmanHint.setEnabled(false); // Solo una pista por palabra
+            binding.btnHangmanHint.setEnabled(false);
             actualizarUI();
             Toast.makeText(this, "¡Pierdes 1 vida por la pista!", Toast.LENGTH_SHORT).show();
         } else {
@@ -113,7 +106,6 @@ public class HangmanActivity extends AppCompatActivity {
     private void generarTeclado() {
         binding.glKeyboard.removeAllViews();
         for (char c = 'A'; c <= 'Z'; c++) {
-            // Usar MaterialButton para mejor diseño
             MaterialButton btnLetra = new MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
             btnLetra.setText(String.valueOf(c));
             btnLetra.setOnClickListener(this::onLetraClick);
@@ -124,7 +116,7 @@ public class HangmanActivity extends AppCompatActivity {
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
             params.height = GridLayout.LayoutParams.WRAP_CONTENT;
-            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f); // Distribuir equitativamente
+            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.setMargins(8, 8, 8, 8);
             btnLetra.setLayoutParams(params);
 
@@ -134,15 +126,17 @@ public class HangmanActivity extends AppCompatActivity {
 
     private void onLetraClick(View view) {
         MaterialButton btn = (MaterialButton) view;
-        btn.setEnabled(false); // Deshabilitar botón
+        btn.setEnabled(false);
         btn.setStrokeColor(ColorStateList.valueOf(Color.GRAY));
         btn.setTextColor(Color.GRAY);
 
         String letra = btn.getText().toString();
 
         if (palabraSecreta.contains(letra)) {
-            // Letra correcta
-            btn.setBackgroundColor(Color.parseColor("#804CAF50")); // Verde semitransparente
+            // --- ACIERTO (SONIDO) ---
+            reproducirSonido(R.raw.correct_ding);
+
+            btn.setBackgroundColor(Color.parseColor("#804CAF50"));
             for (int i = 0; i < palabraSecreta.length(); i++) {
                 if (palabraSecreta.charAt(i) == letra.charAt(0)) {
                     palabraAdivinada[i] = letra.charAt(0);
@@ -152,8 +146,10 @@ public class HangmanActivity extends AppCompatActivity {
                 mostrarDialogo("¡Ganaste!", "Adivinaste la palabra: " + palabraSecreta);
             }
         } else {
-            // Letra incorrecta
-            btn.setBackgroundColor(Color.parseColor("#80F44336")); // Rojo semitransparente
+            // --- ERROR (SONIDO) ---
+            reproducirSonido(R.raw.megaman_x_error);
+
+            btn.setBackgroundColor(Color.parseColor("#80F44336"));
             vidas--;
             Toast.makeText(this, "¡Incorrecto!", Toast.LENGTH_SHORT).show();
             if (vidas <= 0) {
@@ -161,6 +157,19 @@ public class HangmanActivity extends AppCompatActivity {
             }
         }
         actualizarUI();
+    }
+
+    // --- MÉTODO PARA REPRODUCIR SONIDOS ---
+    private void reproducirSonido(int soundResource) {
+        try {
+            MediaPlayer mp = MediaPlayer.create(this, soundResource);
+            if (mp != null) {
+                mp.start();
+                mp.setOnCompletionListener(MediaPlayer::release);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean haGanado() {

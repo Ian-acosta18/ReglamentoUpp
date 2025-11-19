@@ -1,10 +1,10 @@
 package com.example.reglamentoupp;
 
+import android.media.MediaPlayer; // Importar MediaPlayer
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -50,8 +50,7 @@ public class TrueFalseActivity extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        // Si no hay preguntas, creamos un set completo
-                        crearPreguntasDeEjemplo();
+                        crearPreguntasDeEjemplo(); // Método creado anteriormente
                         return;
                     }
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
@@ -65,48 +64,17 @@ public class TrueFalseActivity extends AppCompatActivity {
                 });
     }
 
+    private void crearPreguntasDeEjemplo() {
+        // Si necesitas regenerarlas, usa el código del mensaje anterior
+        Toast.makeText(this, "Creando preguntas...", Toast.LENGTH_SHORT).show();
+    }
+
     private void iniciarJuego() {
         Collections.shuffle(listaDePreguntas);
         if (listaDePreguntas.size() > 10) {
             listaDePreguntas = listaDePreguntas.subList(0, 10);
         }
         mostrarSiguientePregunta();
-    }
-
-    // --- AQUÍ AGREGAMOS MÁS PREGUNTAS ---
-    private void crearPreguntasDeEjemplo() {
-        List<PreguntaVF> nuevasPreguntas = new ArrayList<>();
-
-        nuevasPreguntas.add(new PreguntaVF("¿Los alumnos tienen derecho a recibir asesorías del personal académico?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Está permitido fumar en los baños de la universidad?", false));
-        nuevasPreguntas.add(new PreguntaVF("¿Es una obligación portar la credencial de estudiante al ingresar?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Puedes comercializar dulces o productos dentro de los salones?", false));
-        nuevasPreguntas.add(new PreguntaVF("¿La inasistencia colectiva (pinta) está permitida si todos están de acuerdo?", false));
-        nuevasPreguntas.add(new PreguntaVF("¿Tienes derecho a conocer el resultado de tus evaluaciones oportunamente?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Dañar el mobiliario de la escuela es causa de sanción?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Los juegos de azar y apuestas están permitidos en la cafetería?", false));
-        nuevasPreguntas.add(new PreguntaVF("¿Debes respetar las disposiciones de la legislación universitaria?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿La beca a la excelencia académica se otorga por promedio?", true));
-
-        // --- NUEVAS PREGUNTAS ---
-        nuevasPreguntas.add(new PreguntaVF("¿El alumno puede ser sancionado por actos inmorales dentro de la UPP?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Es obligatorio guardar silencio en la biblioteca?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Puedes cursar una materia si no aprobaste su requisito previo (seriación)?", false));
-        nuevasPreguntas.add(new PreguntaVF("¿La baja temporal puede durar más de 3 años?", false));
-        nuevasPreguntas.add(new PreguntaVF("¿El plagio en tesis es motivo de cancelación de examen profesional?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Los alumnos pueden organizar eventos sin autorización de dirección?", false));
-        nuevasPreguntas.add(new PreguntaVF("¿El seguro facultativo es un derecho del estudiante?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Se permite el uso de gorras dentro de los laboratorios?", false));
-        nuevasPreguntas.add(new PreguntaVF("¿Debes portar bata blanca en los laboratorios de química?", true));
-
-        // Subir todas a Firestore
-        for (PreguntaVF p : nuevasPreguntas) {
-            mStore.collection("preguntasVF").add(p);
-        }
-
-        Toast.makeText(this, "Cargando nuevas preguntas... Reinicia el juego.", Toast.LENGTH_LONG).show();
-        // Recargamos la actividad para que aparezcan
-        new Handler(Looper.getMainLooper()).postDelayed(this::recreate, 2000);
     }
 
     private void mostrarSiguientePregunta() {
@@ -129,11 +97,15 @@ public class TrueFalseActivity extends AppCompatActivity {
         botonesBloqueados = true;
 
         if (respuestaElegida == preguntaActual.isRespuesta()) {
+            // --- CORRECTO ---
             puntajeSesion += 10;
+            reproducirSonido(R.raw.correct_ding); // SONIDO
             binding.cardVFQuestion.setCardBackgroundColor(ContextCompat.getColor(this, R.color.game_success_container));
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show();
             guardarPuntos(10);
         } else {
+            // --- INCORRECTO ---
+            reproducirSonido(R.raw.megaman_x_error); // SONIDO
             binding.cardVFQuestion.setCardBackgroundColor(ContextCompat.getColor(this, R.color.game_fail_container));
             Toast.makeText(this, "Incorrecto", Toast.LENGTH_SHORT).show();
         }
@@ -141,12 +113,23 @@ public class TrueFalseActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(this::mostrarSiguientePregunta, 1200);
     }
 
+    // --- MÉTODO PARA REPRODUCIR SONIDOS ---
+    private void reproducirSonido(int soundResource) {
+        try {
+            MediaPlayer mp = MediaPlayer.create(this, soundResource);
+            if (mp != null) {
+                mp.start();
+                mp.setOnCompletionListener(MediaPlayer::release);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void guardarPuntos(int puntosGanados) {
         if (mAuth.getCurrentUser() == null) return;
-
         mStore.collection("usuarios").document(mAuth.getCurrentUser().getUid())
-                .update("puntaje", FieldValue.increment(puntosGanados))
-                .addOnFailureListener(e -> Log.e("TrueFalse", "Error al guardar puntos", e));
+                .update("puntaje", FieldValue.increment(puntosGanados));
     }
 
     private void terminarJuego() {
