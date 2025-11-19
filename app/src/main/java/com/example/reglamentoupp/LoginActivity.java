@@ -10,14 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.reglamentoupp.databinding.ActivityLoginBinding;
 
 import com.google.firebase.auth.FirebaseAuth;
-// NOTA: Ya no importamos FirebaseUser, FirebaseFirestore, Map, etc. aquí
-// porque esta clase ya no crea usuarios.
 
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding binding;
     private FirebaseAuth mAuth;
-    // Ya no se necesita mStore aquí
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,40 +24,33 @@ public class LoginActivity extends AppCompatActivity {
 
         try {
             mAuth = FirebaseAuth.getInstance();
-            // mStore = FirebaseFirestore.getInstance(); // Ya no es necesario
         } catch (IllegalStateException e) {
             Log.e("LOGIN_FIREBASE_ERROR", "Error al inicializar Firebase: " + e.getMessage());
             Toast.makeText(this, "Error fatal de configuración de Firebase.", Toast.LENGTH_LONG).show();
 
             binding.btnLogin.setEnabled(false);
-            binding.btnRegister.setEnabled(false);
+            binding.tvRegister.setEnabled(false); // CORREGIDO: Ahora es tvRegister
             binding.etEmail.setEnabled(false);
             binding.etPassword.setEnabled(false);
             return;
         }
 
-        // --- INICIO DE CORRECCIÓN: Autologueo si el usuario ya está activo ---
+        // Autologueo si el usuario ya está activo
         if (mAuth.getCurrentUser() != null) {
             Log.d("LoginActivity", "Usuario ya logueado, saltando a MainActivity.");
             navigateToMain();
-            return; // Evita que el resto del onCreate se ejecute
+            return;
         }
-        // --- FIN DE CORRECCIÓN ---
-
 
         // Configurar listeners
         binding.btnLogin.setOnClickListener(v -> loginUser());
 
-        // --- LÓGICA DE BOTÓN MODIFICADA ---
-        // Ahora, el botón de registro lanza la RegisterActivity
-        binding.btnRegister.setOnClickListener(v -> {
+        // CORREGIDO: Listener actualizado para el nuevo TextView
+        binding.tvRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
         });
     }
-
-    // --- EL MÉTODO registerUser() HA SIDO ELIMINADO ---
-    // --- EL MÉTODO createNewUserInFirestore() HA SIDO ELIMINADO ---
 
     private void loginUser() {
         String email = "";
@@ -74,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Campos vacíos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Por favor, llena todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -87,16 +77,15 @@ public class LoginActivity extends AppCompatActivity {
                         navigateToMain();
                     } else {
                         Log.w("LoginActivity", "Fallo signIn: ", task.getException());
-                        String errorMessage = "Error de autenticación. Verifique sus datos.";
+                        String errorMessage = "Error de autenticación.";
                         if (task.getException() != null && task.getException().getMessage() != null) {
-                            // Intenta dar un mensaje más amigable
                             if (task.getException().getMessage().contains("INVALID_LOGIN_CREDENTIALS")) {
                                 errorMessage = "Credenciales inválidas. Revisa tu correo y contraseña.";
                             } else {
                                 errorMessage = task.getException().getMessage();
                             }
                         }
-                        Toast.makeText(LoginActivity.this, "Error: " + errorMessage, Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                         setLoading(false);
                     }
                 });
@@ -113,11 +102,11 @@ public class LoginActivity extends AppCompatActivity {
         if (isLoading) {
             binding.progressBar.setVisibility(View.VISIBLE);
             binding.btnLogin.setEnabled(false);
-            binding.btnRegister.setEnabled(false);
+            binding.tvRegister.setEnabled(false); // CORREGIDO
         } else {
             binding.progressBar.setVisibility(View.GONE);
             binding.btnLogin.setEnabled(true);
-            binding.btnRegister.setEnabled(true);
+            binding.tvRegister.setEnabled(true); // CORREGIDO
         }
     }
 }
