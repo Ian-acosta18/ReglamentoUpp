@@ -4,7 +4,8 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils; // Importar animación
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils; // Importante
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,18 +41,30 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
 
         holder.textView.setText(Html.fromHtml(currentItemText, Html.FROM_HTML_MODE_LEGACY));
 
-        // 1. Clic en la tarjeta principal
+        // Cargar la animación de presionado
+        final Animation pressAnimation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.scale_press);
+
+        // 1. Clic en la tarjeta principal (ANIMADO)
         holder.cardRoot.setOnClickListener(v -> {
-            if (mListener != null) {
-                mListener.onQuizClick(currentItemText, mItemType);
-            }
+            v.startAnimation(pressAnimation); // ¡Animación aquí!
+
+            // Usamos un pequeño retraso para que se vea la animación antes de abrir el quiz
+            v.postDelayed(() -> {
+                if (mListener != null) {
+                    mListener.onQuizClick(currentItemText, mItemType);
+                }
+            }, 150); // 150ms de espera coinciden con la animación
         });
 
-        // 2. Clic en el botón "Analizar Caso"
+        // 2. Clic en el botón "Analizar Caso" (ANIMADO)
         holder.btnCaseStudy.setOnClickListener(v -> {
-            if (mListener != null) {
-                mListener.onCaseStudyClick(currentItemText, mItemType);
-            }
+            v.startAnimation(pressAnimation); // ¡Animación aquí!
+
+            v.postDelayed(() -> {
+                if (mListener != null) {
+                    mListener.onCaseStudyClick(currentItemText, mItemType);
+                }
+            }, 150);
         });
 
         // Iconos según el tipo
@@ -60,7 +73,7 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
             holder.itemIcon.setImageResource(iconRes);
         }
 
-        // --- ANIMACIÓN DE ENTRADA ---
+        // Animación de entrada (Caída) al aparecer en pantalla
         holder.cardRoot.startAnimation(
                 AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_animation_fall_down)
         );
