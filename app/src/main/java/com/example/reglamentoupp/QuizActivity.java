@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -14,8 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.reglamentoupp.databinding.ActivityQuizBinding;
-import com.google.firebase.auth.FirebaseAuth; // Importar
-import com.google.firebase.firestore.FieldValue; // Importar
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -27,7 +29,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private ActivityQuizBinding binding;
     private FirebaseFirestore mStore;
-    private FirebaseAuth mAuth; // Importante para guardar puntos
+    private FirebaseAuth mAuth;
 
     private List<Pregunta> listaDePreguntas;
     private Pregunta preguntaActual;
@@ -44,7 +46,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(binding.getRoot());
 
         mStore = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance(); // Inicializar
+        mAuth = FirebaseAuth.getInstance();
         listaDePreguntas = new ArrayList<>();
 
         binding.btnQuizOptionA.setOnClickListener(this);
@@ -59,7 +61,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        // Si no hay preguntas en Modo Desafío, las creamos
+                        // Si no hay preguntas, las creamos
                         crearPreguntasDesafio();
                         return;
                     }
@@ -88,12 +90,18 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
         nuevas.add(new Pregunta("General", "¿Cuál es la sanción por inasistencia colectiva?", "Amonestación", "Expulsión", "Suspensión", "Amonestación"));
         nuevas.add(new Pregunta("Derechos", "¿Qué artículo habla sobre recibir asesorías?", "Art. 3 (XIII)", "Art. 5 (II)", "Art. 8 (I)", "Art. 3 (XIII)"));
-        nuevas.add(new Pregunta("Prohibiciones", "¿Se permite consumir alimentos en la biblioteca?", "Sí, snacks", "No, en ningún caso", "Solo agua", "No, en ningún caso"));
-        nuevas.add(new Pregunta("Obligaciones", "¿Quién es responsable del proceso de formación?", "El profesor", "El alumno", "La universidad", "El alumno"));
-        nuevas.add(new Pregunta("General", "¿Cuándo debes portar tu credencial?", "Solo en exámenes", "Al ingresar", "Nunca", "Al ingresar"));
-        nuevas.add(new Pregunta("Sanciones", "¿Qué pasa si rompes material de laboratorio?", "Nada", "Lo pagas o repones", "Te expulsan", "Lo pagas o repones"));
-        nuevas.add(new Pregunta("Derechos", "Tienes derecho a conocer el resultado de evaluaciones...", "Al final del año", "Oportunamente", "Nunca", "Oportunamente"));
-        nuevas.add(new Pregunta("Prohibiciones", "¿Qué actividad está prohibida en los salones?", "Estudiar", "Juegos de azar", "Hablar", "Juegos de azar"));
+
+        // --- NUEVAS PREGUNTAS ---
+        nuevas.add(new Pregunta("Académico", "¿Cuál es la calificación mínima aprobatoria?", "6.0", "7.0", "8.0", "7.0"));
+        nuevas.add(new Pregunta("Sanciones", "¿Qué sanción aplica por falsificar documentos?", "Suspensión", "Baja Definitiva", "Amonestación", "Baja Definitiva"));
+        nuevas.add(new Pregunta("Derechos", "¿Puedes solicitar revisión de calificación?", "No", "Sí, en 24hrs", "Sí, cuando quieras", "Sí, en 24hrs"));
+        nuevas.add(new Pregunta("Obligaciones", "Si rompes un microscopio por descuido...", "No pasa nada", "Lo pagas", "Te expulsan", "Lo pagas"));
+        nuevas.add(new Pregunta("Prohibiciones", "¿Está permitido ingresar con aliento alcohólico?", "Solo viernes", "Si no manejas", "Prohibido siempre", "Prohibido siempre"));
+        nuevas.add(new Pregunta("Académico", "¿Cuántas oportunidades tienes para pasar una materia?", "1 (Ordinaria)", "2 (Ord y Rec)", "3 (Ord, Rec, Esp)", "3 (Ord, Rec, Esp)"));
+        nuevas.add(new Pregunta("General", "La credencial es de uso:", "Compartido", "Personal e intransferible", "Opcional", "Personal e intransferible"));
+        nuevas.add(new Pregunta("Reconocimientos", "¿Qué promedio necesitas para Mención Honorífica?", "8.5", "9.0", "9.5 o más", "9.5 o más"));
+        nuevas.add(new Pregunta("Obligaciones", "Asistir puntualmente a clases es una:", "Sugerencia", "Obligación", "Opción", "Obligación"));
+        nuevas.add(new Pregunta("Prohibiciones", "Vender dulces en el salón es:", "Emprendimiento", "Prohibición", "Derecho", "Prohibición"));
 
         for (Pregunta p : nuevas) {
             mStore.collection("preguntas").add(p);
@@ -144,6 +152,12 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             vidas--;
             botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
+
+            // --- ANIMACIÓN DE ERROR (SHAKE) ---
+            Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake_error);
+            botonPresionado.startAnimation(shake);
+            binding.cardQuestion.startAnimation(shake);
+
             resaltarRespuestaCorrecta();
         }
 
@@ -171,7 +185,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    // --- AQUÍ ES DONDE GUARDAMOS LOS PUNTOS ---
     private void mostrarResultadoFinal() {
         if (mAuth.getCurrentUser() != null && puntaje > 0) {
             // Actualizar en Firestore

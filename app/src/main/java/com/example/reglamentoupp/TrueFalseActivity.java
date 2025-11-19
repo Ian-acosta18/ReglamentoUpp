@@ -3,15 +3,15 @@ package com.example.reglamentoupp;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log; // Importar Log
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.reglamentoupp.databinding.ActivityTrueFalseBinding;
-import com.google.firebase.auth.FirebaseAuth; // Importar Auth
-import com.google.firebase.firestore.FieldValue; // Importar FieldValue
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
@@ -22,11 +22,11 @@ public class TrueFalseActivity extends AppCompatActivity {
 
     private ActivityTrueFalseBinding binding;
     private FirebaseFirestore mStore;
-    private FirebaseAuth mAuth; // Para obtener el usuario actual
+    private FirebaseAuth mAuth;
     private List<PreguntaVF> listaDePreguntas;
     private PreguntaVF preguntaActual;
     private int indicePreguntaActual = 0;
-    private int puntajeSesion = 0; // Puntos ganados en ESTA partida
+    private int puntajeSesion = 0;
     private boolean botonesBloqueados = false;
 
     @Override
@@ -36,7 +36,7 @@ public class TrueFalseActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         mStore = FirebaseFirestore.getInstance();
-        mAuth = FirebaseAuth.getInstance(); // Inicializar Auth
+        mAuth = FirebaseAuth.getInstance();
         listaDePreguntas = new ArrayList<>();
 
         binding.btnTrue.setOnClickListener(v -> checarRespuesta(true));
@@ -67,7 +67,6 @@ public class TrueFalseActivity extends AppCompatActivity {
 
     private void iniciarJuego() {
         Collections.shuffle(listaDePreguntas);
-        // Opcional: Limitar a 10 preguntas por ronda para no hacerlo infinito
         if (listaDePreguntas.size() > 10) {
             listaDePreguntas = listaDePreguntas.subList(0, 10);
         }
@@ -89,6 +88,17 @@ public class TrueFalseActivity extends AppCompatActivity {
         nuevasPreguntas.add(new PreguntaVF("¿Debes respetar las disposiciones de la legislación universitaria?", true));
         nuevasPreguntas.add(new PreguntaVF("¿La beca a la excelencia académica se otorga por promedio?", true));
 
+        // --- NUEVAS PREGUNTAS ---
+        nuevasPreguntas.add(new PreguntaVF("¿El alumno puede ser sancionado por actos inmorales dentro de la UPP?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Es obligatorio guardar silencio en la biblioteca?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Puedes cursar una materia si no aprobaste su requisito previo (seriación)?", false));
+        nuevasPreguntas.add(new PreguntaVF("¿La baja temporal puede durar más de 3 años?", false));
+        nuevasPreguntas.add(new PreguntaVF("¿El plagio en tesis es motivo de cancelación de examen profesional?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Los alumnos pueden organizar eventos sin autorización de dirección?", false));
+        nuevasPreguntas.add(new PreguntaVF("¿El seguro facultativo es un derecho del estudiante?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Se permite el uso de gorras dentro de los laboratorios?", false));
+        nuevasPreguntas.add(new PreguntaVF("¿Debes portar bata blanca en los laboratorios de química?", true));
+
         // Subir todas a Firestore
         for (PreguntaVF p : nuevasPreguntas) {
             mStore.collection("preguntasVF").add(p);
@@ -101,7 +111,7 @@ public class TrueFalseActivity extends AppCompatActivity {
 
     private void mostrarSiguientePregunta() {
         if (indicePreguntaActual >= listaDePreguntas.size()) {
-            terminarJuego(); // Juego terminado
+            terminarJuego();
             return;
         }
 
@@ -122,7 +132,6 @@ public class TrueFalseActivity extends AppCompatActivity {
             puntajeSesion += 10;
             binding.cardVFQuestion.setCardBackgroundColor(ContextCompat.getColor(this, R.color.game_success_container));
             Toast.makeText(this, "¡Correcto!", Toast.LENGTH_SHORT).show();
-            // Guardamos el punto INMEDIATAMENTE en la base de datos
             guardarPuntos(10);
         } else {
             binding.cardVFQuestion.setCardBackgroundColor(ContextCompat.getColor(this, R.color.game_fail_container));
@@ -132,12 +141,9 @@ public class TrueFalseActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(this::mostrarSiguientePregunta, 1200);
     }
 
-    // --- SOLUCIÓN AL PROBLEMA DE SUMA DE PUNTOS ---
     private void guardarPuntos(int puntosGanados) {
         if (mAuth.getCurrentUser() == null) return;
 
-        // Usamos FieldValue.increment para sumar al valor existente en la nube
-        // esto evita que se sobrescriba o se bloquee en 100
         mStore.collection("usuarios").document(mAuth.getCurrentUser().getUid())
                 .update("puntaje", FieldValue.increment(puntosGanados))
                 .addOnFailureListener(e -> Log.e("TrueFalse", "Error al guardar puntos", e));
