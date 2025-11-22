@@ -25,4 +25,10 @@
     <color name="game_button_default_text">#1E293B</color>
     <color name="game_success_container">@color/game_success_bg</color>
     <color name="game_fail_container">@color/game_fail_bg</color>
+    <color name="upp_primary">#6200EA</color>
+    <color name="game_locked_bg">#F5F5F5</color>
+
+    <color name="game_locked">#CFD8DC</color>
+    <color name="white">#FFFFFF</color>
+    <color name="text_primary">#1E293B</color>
 </resources>
