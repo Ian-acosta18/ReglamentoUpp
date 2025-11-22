@@ -19,7 +19,6 @@ import com.example.reglamentoupp.databinding.ActivityMainBinding;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity implements BaseReglamentoFragment.ReglamentoInteractionListener {
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     protected void onResume() {
         super.onResume();
         loadUserData();
-        animarMenu(); // Llamada a la nueva animación
+        animarMenu(); // Animación de entrada de los elementos del menú
     }
 
     private void loadUserData() {
@@ -74,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                     if (documentSnapshot.exists()) {
                         String nombre = documentSnapshot.getString("nombre");
                         if (nombre != null && !nombre.isEmpty()) {
-                            binding.tvUserName.setText("Bienvenido, " + nombre);
+                            binding.tvUserName.setText("Hola, " + nombre);
                         } else {
                             binding.tvUserName.setText(documentSnapshot.getString("email"));
                         }
@@ -83,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                         if (puntajeDb != null) {
                             userPuntaje = puntajeDb;
                         }
-                        binding.tvUserPuntaje.setText(userPuntaje + " Puntos");
+                        binding.tvUserPuntaje.setText(userPuntaje + " XP");
 
                         Long nivelDb = documentSnapshot.getLong("nivelDesbloqueado");
                         if (nivelDb != null) {
@@ -95,37 +94,39 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                         // --- Actualizar Insignias ---
                         actualizarInsignias(userPuntaje);
 
-                        // --- Configurar Listeners de Juegos ---
+                        // --- Configurar Listeners de Juegos Arcade ---
                         binding.btnJugarModoDesafio.setOnClickListener(v -> {
-                            Intent intent = new Intent(MainActivity.this, QuizActivity.class);
-                            startActivity(intent);
+                            startActivity(new Intent(MainActivity.this, QuizActivity.class));
                         });
 
                         binding.btnJugarVerdaderoFalso.setOnClickListener(v -> {
-                            Intent intent = new Intent(MainActivity.this, TrueFalseActivity.class);
-                            startActivity(intent);
+                            startActivity(new Intent(MainActivity.this, TrueFalseActivity.class));
                         });
 
-                        // --- NUEVO LISTENER PARA AHORCADO ---
                         binding.btnJugarAhorcado.setOnClickListener(v -> {
-                            Intent intent = new Intent(MainActivity.this, HangmanActivity.class);
-                            startActivity(intent);
+                            startActivity(new Intent(MainActivity.this, HangmanActivity.class));
                         });
 
-
-                        // --- Configura los botones de Nivel (Modo Estudio) ---
-                        // (El diseño ahora es blanco por defecto en el XML, la lógica de bloqueo sigue aquí)
+                        // --- Configurar botones de Nivel (Grid) ---
+                        // Configuración para Nivel 1: Derechos
                         setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos,
-                                "Derechos", 1, R.color.upp_primary, R.color.text_primary, 0);
-                        setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones,
-                                "Obligaciones", 2, R.color.upp_primary, R.color.text_primary, 50);
-                        setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones,
-                                "Prohibiciones", 3, R.color.upp_primary, R.color.text_primary, 100);
-                        setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones,
-                                "Sanciones", 4, R.color.upp_primary, R.color.text_primary, 150);
-                        setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos,
-                                "Reconocimientos", 5, R.color.upp_primary, R.color.text_primary, 200);
+                                "Derechos", 1, R.color.upp_primary, R.color.text_primary);
 
+                        // Configuración para Nivel 2: Obligaciones
+                        setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones,
+                                "Obligaciones", 2, R.color.upp_primary, R.color.text_primary);
+
+                        // Configuración para Nivel 3: Prohibiciones
+                        setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones,
+                                "Prohibiciones", 3, R.color.upp_primary, R.color.text_primary);
+
+                        // Configuración para Nivel 4: Sanciones
+                        setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones,
+                                "Sanciones", 4, R.color.upp_primary, R.color.text_primary);
+
+                        // Configuración para Nivel 5: Reconocimientos
+                        setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos,
+                                "Reconocimientos", 5, R.color.upp_primary, R.color.text_primary);
 
                     } else {
                         Log.w(TAG, "No existe el documento del usuario en Firestore.");
@@ -135,98 +136,84 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error al cargar datos", e);
-                    binding.tvUserName.setText("Error al cargar");
-                    binding.tvUserPuntaje.setText("Puntaje: Error");
+                    binding.tvUserName.setText("Error de conexión");
+                    binding.tvUserPuntaje.setText("---");
                 });
     }
 
-    // --- NUEVA FUNCIÓN DE ANIMACIÓN ---
     private void animarMenu() {
-        Animation fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        // Animación simple de aparición en cascada para los contenedores principales
         LinearLayout menuContainer = binding.llMenuContainer;
-
-        // Animar cada tarjeta una por una con un ligero retraso
         for (int i = 0; i < menuContainer.getChildCount(); i++) {
             View child = menuContainer.getChildAt(i);
-            if (child instanceof MaterialCardView) {
-                Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-                anim.setStartOffset(i * 100L); // 100ms de retraso por cada tarjeta
-                child.startAnimation(anim);
-            }
+            Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+            anim.setStartOffset(i * 100L);
+            child.startAnimation(anim);
         }
     }
 
-    // --- FUNCIÓN DE INSIGNIAS ---
     private void actualizarInsignias(long puntaje) {
-        // Insignia 1: 50 Puntos
-        if (puntaje >= 50) {
-            binding.ivBadge1.setAlpha(1.0f); // Completamente visible
-            binding.ivBadge1.setOnClickListener(v -> Toast.makeText(this, "Insignia: Principiante (50 pts)", Toast.LENGTH_SHORT).show());
-        } else {
-            binding.ivBadge1.setAlpha(0.3f); // Opaco (bloqueado)
-            binding.ivBadge1.setOnClickListener(null); // No hacer nada si está bloqueada
-        }
+        actualizarEstadoInsignia(binding.ivBadge1, puntaje >= 50, "¡Insignia: Principiante (50 XP)!");
+        actualizarEstadoInsignia(binding.ivBadge2, puntaje >= 150, "¡Insignia: Experto (150 XP)!");
+        actualizarEstadoInsignia(binding.ivBadge3, puntaje >= 300, "¡Insignia: Maestro (300 XP)!");
+    }
 
-        // Insignia 2: 150 Puntos
-        if (puntaje >= 150) {
-            binding.ivBadge2.setAlpha(1.0f);
-            binding.ivBadge2.setOnClickListener(v -> Toast.makeText(this, "Insignia: Experto (150 pts)", Toast.LENGTH_SHORT).show());
+    private void actualizarEstadoInsignia(ImageView badge, boolean desbloqueada, String mensaje) {
+        if (desbloqueada) {
+            badge.setAlpha(1.0f);
+            badge.setOnClickListener(v -> Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show());
         } else {
-            binding.ivBadge2.setAlpha(0.3f);
-            binding.ivBadge2.setOnClickListener(null);
-        }
-
-        // Insignia 3: 300 Puntos
-        if (puntaje >= 300) {
-            binding.ivBadge3.setAlpha(1.0f);
-            binding.ivBadge3.setOnClickListener(v -> Toast.makeText(this, "Insignia: Maestro (300 pts)", Toast.LENGTH_SHORT).show());
-        } else {
-            binding.ivBadge3.setAlpha(0.3f);
-            binding.ivBadge3.setOnClickListener(null);
+            badge.setAlpha(0.3f);
+            badge.setOnClickListener(null);
         }
     }
 
+    /**
+     * Configura el aspecto visual y funcional de un botón de nivel.
+     */
     private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
-                                  String nivel, int nivelRequerido, int colorDesbloqueado, int textColorDesbloqueado, int puntosRequeridos) {
+                                  String nivelNombre, int nivelRequerido, int colorDesbloqueado, int textColorDesbloqueado) {
 
-        // Colores base definidos en colors.xml
-        int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked);
-        int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg); // Fondo gris suave
-        int colorIconoDesbloqueado = ContextCompat.getColor(this, colorDesbloqueado);
-        int colorTextoDesbloqueado = ContextCompat.getColor(this, textColorDesbloqueado);
-        int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.white); // Fondo blanco limpio
+        // Colores desde recursos
+        int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked); // Gris texto
+        int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg); // Gris fondo
+        int colorIconoDesbloqueado = ContextCompat.getColor(this, colorDesbloqueado); // Morado UPP
+        int colorTextoDesbloqueado = ContextCompat.getColor(this, textColorDesbloqueado); // Negro/Gris oscuro
+        int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.white); // Blanco puro
 
         if (userNivel >= nivelRequerido) {
             // --- ESTADO: DESBLOQUEADO (Activo) ---
             button.setEnabled(true);
             button.setClickable(true);
 
-            // Estilo visual activo: Fondo blanco, borde sutil del color del nivel
+            // Diseño "Limpio y Elevado"
             button.setCardBackgroundColor(colorBgDesbloqueado);
-            button.setStrokeColor(colorIconoDesbloqueado);
-            button.setStrokeWidth(2); // Borde delgado para resaltar
-            button.setCardElevation(6f); // Elevación para efecto "flotante"
+            button.setStrokeWidth(0); // Sin borde para look moderno
+            button.setCardElevation(12f); // Sombra pronunciada
 
             // Ocultar candado
             if (lockIcon != null) {
                 lockIcon.setVisibility(View.GONE);
             }
 
-            // Textos e Iconos coloridos
+            // Colorear textos e iconos
             textView.setTextColor(colorTextoDesbloqueado);
-            textView.setText(nivel);
-            iconView.setImageTintList(ColorStateList.valueOf(colorIconoDesbloqueado));
+            textView.setText(nivelNombre);
 
-            // Listener de Clic con Animación Nueva
+            iconView.setImageTintList(ColorStateList.valueOf(colorIconoDesbloqueado));
+            // Fondo circular sutil para el icono
+            iconView.setBackgroundResource(R.drawable.white_circle_bg);
+            // Usamos un tinte muy suave para el fondo del circulo (opcional, usando app_bg o transparente)
+            iconView.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.app_bg)));
+
+            // Listener para abrir el nivel con animación
             button.setOnClickListener(v -> {
-                Log.d(TAG, "Iniciando nivel: " + nivel);
                 Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
-                intent.putExtra(KEY_NIVEL_JUEGO, nivel);
+                intent.putExtra(KEY_NIVEL_JUEGO, nivelNombre);
                 intent.putExtra(KEY_PUNTAJE_ACTUAL, userPuntaje);
                 intent.putExtra(KEY_NIVEL_DESBLOQUEADO, userNivel);
                 startActivity(intent);
-
-                // --- AQUÍ ESTÁ LA MAGIA: Transición suave hacia arriba ---
+                // Transición suave hacia arriba
                 overridePendingTransition(R.anim.slide_up, R.anim.fade_in);
             });
 
@@ -235,12 +222,12 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             button.setEnabled(false);
             button.setClickable(false);
 
-            // Estilo visual bloqueado: Fondo gris plano, sin borde, sin sombra
+            // Diseño "Plano y Gris"
             button.setCardBackgroundColor(colorBgBloqueado);
             button.setStrokeWidth(0);
-            button.setCardElevation(0f);
+            button.setCardElevation(0f); // Sin sombra
 
-            // Mostrar candado en gris
+            // Mostrar candado
             if (lockIcon != null) {
                 lockIcon.setVisibility(View.VISIBLE);
                 lockIcon.setImageTintList(ColorStateList.valueOf(colorBloqueado));
@@ -248,8 +235,11 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
             // Textos e Iconos en gris
             textView.setTextColor(colorBloqueado);
-            textView.setText("Bloqueado"); // Texto informativo
+            // Opcional: Cambiar texto a "Bloqueado" o dejar el nombre del nivel
+            // textView.setText("Bloqueado");
+
             iconView.setImageTintList(ColorStateList.valueOf(colorBloqueado));
+            iconView.setBackground(null); // Quitar fondo circular
         }
     }
 
@@ -260,6 +250,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         finish();
     }
 
+    // Métodos de la interfaz ReglamentoInteractionListener (No usados aquí directamente,
+    // pero requeridos si MainActivity actuara como host directo de fragmentos de reglas en tabletas, etc.)
     @Override
     public void onQuizClick(String itemText, String itemType) {
         Log.d(TAG, "Clic en Quiz (ignorado en MainActivity): " + itemType);
@@ -269,5 +261,4 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     public void onCaseStudyClick(String itemText, String itemType) {
         Log.d(TAG, "Clic en Caso de Estudio (ignorado en MainActivity): " + itemType);
     }
-
 }

@@ -24,7 +24,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/header_purple_curve"
-                android:paddingBottom="30dp">
+                android:paddingBottom="40dp">
 
                 <ImageButton
                     android:id="@+id/btnLogout"
@@ -34,6 +34,7 @@
                     android:layout_marginEnd="16dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_lock"
+                    android:rotation="180"
                     app:tint="@color/white"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -44,17 +45,16 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:paddingTop="20dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:layout_editor_absoluteX="-131dp">
+                    android:paddingTop="30dp"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
                         android:id="@+id/ivUserAvatar"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                        android:layout_width="85dp"
+                        android:layout_height="85dp"
                         android:background="@drawable/white_circle_bg"
-                        android:elevation="5dp"
-                        android:padding="4dp"
+                        android:elevation="8dp"
+                        android:padding="2dp"
                         android:src="@drawable/mi_logo" />
 
                     <TextView
@@ -62,60 +62,68 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="Bienvenido"
+                        android:text="Cargando..."
                         android:textColor="@color/white"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:shadowColor="#40000000"
+                        android:shadowDx="0"
+                        android:shadowDy="2"
+                        android:shadowRadius="4"/>
 
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        app:cardBackgroundColor="#33FFFFFF"
-                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="#40FFFFFF"
+                        app:cardCornerRadius="50dp"
                         app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#80FFFFFF">
 
                         <TextView
                             android:id="@+id/tvUserPuntaje"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="4dp"
+                            android:paddingHorizontal="20dp"
+                            android:paddingVertical="6dp"
                             android:text="0 XP"
                             android:textColor="@color/white"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:drawablePadding="8dp"
+                            app:drawableStartCompat="@drawable/ic_reconocimientos"
+                            app:drawableTint="@color/white"/>
                     </com.google.android.material.card.MaterialCardView>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="16dp"
                         android:gravity="center"
                         android:orientation="horizontal">
 
                         <ImageView
                             android:id="@+id/ivBadge1"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="12dp"
                             android:alpha="0.3"
                             android:src="@drawable/ic_reconocimientos"
                             app:tint="#FFD700" />
 
                         <ImageView
                             android:id="@+id/ivBadge2"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_marginEnd="8dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginEnd="12dp"
                             android:alpha="0.3"
                             android:src="@drawable/ic_reconocimientos"
                             app:tint="#FFD700" />
 
                         <ImageView
                             android:id="@+id/ivBadge3"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:alpha="0.3"
                             android:src="@drawable/ic_reconocimientos"
                             app:tint="#FFD700" />
@@ -128,7 +136,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="-20dp"
+        android:layout_marginTop="-25dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -136,7 +144,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="40dp">
+            android:paddingBottom="30dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -154,7 +162,8 @@
                 android:clipToPadding="false"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:scrollbars="none">
+                android:scrollbars="none"
+                android:overScrollMode="never">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -164,91 +173,118 @@
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarModoDesafio"
-                        android:layout_width="110dp"
-                        android:layout_height="130dp"
+                        android:layout_width="120dp"
+                        android:layout_height="140dp"
                         android:layout_margin="6dp"
                         android:clickable="true"
                         android:focusable="true"
+                        android:stateListAnimator="@animator/card_press_anim"
                         app:cardBackgroundColor="@color/white"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="4dp">
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="6dp">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="10dp">
                             <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
                                 android:src="@drawable/ic_reconocimientos"
                                 app:tint="@color/upp_primary" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="12dp"
                                 android:text="Trivia"
+                                android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/text_primary"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="+XP Rápida"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_secondary"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarVerdaderoFalso"
-                        android:layout_width="110dp"
-                        android:layout_height="130dp"
+                        android:layout_width="120dp"
+                        android:layout_height="140dp"
                         android:layout_margin="6dp"
                         android:clickable="true"
                         android:focusable="true"
+                        android:stateListAnimator="@animator/card_press_anim"
                         app:cardBackgroundColor="@color/white"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="4dp">
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="6dp">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="10dp">
                             <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
                                 android:src="@drawable/ic_check_circle"
                                 app:tint="@color/status_green" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="12dp"
                                 android:text="V / F"
+                                android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/text_primary"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Repaso"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_secondary"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarAhorcado"
-                        android:layout_width="110dp"
-                        android:layout_height="130dp"
+                        android:layout_width="120dp"
+                        android:layout_height="140dp"
                         android:layout_margin="6dp"
                         android:clickable="true"
                         android:focusable="true"
+                        android:stateListAnimator="@animator/card_press_anim"
                         app:cardBackgroundColor="@color/white"
-                        app:cardCornerRadius="16dp"
-                        app:cardElevation="4dp">
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="6dp">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:padding="10dp">
                             <ImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
                                 android:src="@drawable/ic_prohibiciones"
                                 app:tint="#D32F2F" />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="12dp"
                                 android:text="Ahorcado"
+                                android:textSize="16sp"
                                 android:textStyle="bold"
                                 android:textColor="@color/text_primary"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Vocabulario"
+                                android:textSize="11sp"
+                                android:textColor="@color/text_secondary"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
@@ -260,216 +296,279 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="12dp"
-                android:text="Tu Camino de Aprendizaje"
+                android:text="Mapa de Aprendizaje"
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <LinearLayout
+            <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingHorizontal="16dp">
+                android:columnCount="2"
+                android:paddingHorizontal="12dp"
+                android:alignmentMode="alignMargins">
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarDerechos"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="2dp">
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/white">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
                         <ImageView
                             android:id="@+id/ivDerechos"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
                             android:background="@drawable/white_circle_bg"
                             android:backgroundTint="#E3F2FD"
-                            android:padding="8dp"
+                            android:padding="10dp"
                             android:src="@drawable/ic_derechos"
-                            app:tint="@color/upp_primary" />
+                            app:tint="@color/upp_primary"/>
                         <TextView
                             android:id="@+id/tvDerechos"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
+                            android:layout_marginTop="12dp"
                             android:text="Derechos"
-                            android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="@color/text_primary"/>
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_send"
-                            app:tint="@color/text_secondary" />
+                            android:textSize="15sp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Nivel 1"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarObligaciones"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    app:cardBackgroundColor="#ECEFF1"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp">
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#ECEFF1">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
-                        <ImageView
-                            android:id="@+id/ivObligaciones"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_obligaciones"
-                            app:tint="#78909C" />
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <ImageView
+                                android:id="@+id/ivObligaciones"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:padding="10dp"
+                                android:src="@drawable/ic_obligaciones"
+                                app:tint="#90A4AE"/>
+                            <ImageView
+                                android:id="@+id/ivLockObligaciones"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_lock"
+                                app:tint="#78909C"
+                                android:layout_gravity="bottom|end"/>
+                        </FrameLayout>
                         <TextView
                             android:id="@+id/tvObligaciones"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
+                            android:layout_marginTop="12dp"
                             android:text="Obligaciones"
-                            android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="#78909C"/>
-                        <ImageView
-                            android:id="@+id/ivLockObligaciones"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_lock"
-                            app:tint="#78909C" />
+                            android:textColor="#90A4AE"
+                            android:textSize="15sp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Nivel 2"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarProhibiciones"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    app:cardBackgroundColor="#ECEFF1"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp">
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#ECEFF1">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
-                        <ImageView
-                            android:id="@+id/ivProhibiciones"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_prohibiciones"
-                            app:tint="#78909C" />
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <ImageView
+                                android:id="@+id/ivProhibiciones"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:padding="10dp"
+                                android:src="@drawable/ic_prohibiciones"
+                                app:tint="#90A4AE"/>
+                            <ImageView
+                                android:id="@+id/ivLockProhibiciones"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_lock"
+                                app:tint="#78909C"
+                                android:layout_gravity="bottom|end"/>
+                        </FrameLayout>
                         <TextView
                             android:id="@+id/tvProhibiciones"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:text="Prohibiciones"
-                            android:textSize="16sp"
+                            android:layout_marginTop="12dp"
+                            android:text="Prohibido"
                             android:textStyle="bold"
-                            android:textColor="#78909C"/>
-                        <ImageView
-                            android:id="@+id/ivLockProhibiciones"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_lock"
-                            app:tint="#78909C" />
+                            android:textColor="#90A4AE"
+                            android:textSize="15sp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Nivel 3"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarSanciones"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    app:cardBackgroundColor="#ECEFF1"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp">
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#ECEFF1">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
-                        <ImageView
-                            android:id="@+id/ivSanciones"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_sanciones"
-                            app:tint="#78909C" />
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <ImageView
+                                android:id="@+id/ivSanciones"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:padding="10dp"
+                                android:src="@drawable/ic_sanciones"
+                                app:tint="#90A4AE"/>
+                            <ImageView
+                                android:id="@+id/ivLockSanciones"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_lock"
+                                app:tint="#78909C"
+                                android:layout_gravity="bottom|end"/>
+                        </FrameLayout>
                         <TextView
                             android:id="@+id/tvSanciones"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
+                            android:layout_marginTop="12dp"
                             android:text="Sanciones"
-                            android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="#78909C"/>
-                        <ImageView
-                            android:id="@+id/ivLockSanciones"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_lock"
-                            app:tint="#78909C" />
+                            android:textColor="#90A4AE"
+                            android:textSize="15sp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Nivel 4"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarReconocimientos"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    app:cardBackgroundColor="#ECEFF1"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp">
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#ECEFF1">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:padding="16dp">
-                        <ImageView
-                            android:id="@+id/ivReconocimientos"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_reconocimientos"
-                            app:tint="#78909C" />
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+                            <ImageView
+                                android:id="@+id/ivReconocimientos"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                android:padding="10dp"
+                                android:src="@drawable/ic_reconocimientos"
+                                app:tint="#90A4AE"/>
+                            <ImageView
+                                android:id="@+id/ivLockReconocimientos"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_lock"
+                                app:tint="#78909C"
+                                android:layout_gravity="bottom|end"/>
+                        </FrameLayout>
                         <TextView
                             android:id="@+id/tvReconocimientos"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
-                            android:layout_weight="1"
-                            android:text="Reconocimientos"
-                            android:textSize="16sp"
+                            android:layout_marginTop="12dp"
+                            android:text="Premios"
                             android:textStyle="bold"
-                            android:textColor="#78909C"/>
-                        <ImageView
-                            android:id="@+id/ivLockReconocimientos"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_lock"
-                            app:tint="#78909C" />
+                            android:textColor="#90A4AE"
+                            android:textSize="15sp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Nivel 5"
+                            android:textSize="12sp"
+                            android:textColor="@color/text_secondary"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-            </LinearLayout>
+            </GridLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
