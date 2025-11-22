@@ -189,29 +189,35 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
                                   String nivel, int nivelRequerido, int colorDesbloqueado, int textColorDesbloqueado, int puntosRequeridos) {
 
+        // Colores base definidos en colors.xml
         int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked);
-        int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg);
+        int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg); // Fondo gris suave
         int colorIconoDesbloqueado = ContextCompat.getColor(this, colorDesbloqueado);
         int colorTextoDesbloqueado = ContextCompat.getColor(this, textColorDesbloqueado);
-
-        // El color de fondo de desbloqueado AHORA SE CONTROLA EN EL XML (card_bg)
-        int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.card_bg);
-
+        int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.white); // Fondo blanco limpio
 
         if (userNivel >= nivelRequerido) {
+            // --- ESTADO: DESBLOQUEADO (Activo) ---
             button.setEnabled(true);
             button.setClickable(true);
-            button.setCardBackgroundColor(colorBgDesbloqueado); // Fondo blanco para modo estudio
-            button.setCardElevation(getResources().getDimension(com.google.android.material.R.dimen.m3_card_elevation));
 
+            // Estilo visual activo: Fondo blanco, borde sutil del color del nivel
+            button.setCardBackgroundColor(colorBgDesbloqueado);
+            button.setStrokeColor(colorIconoDesbloqueado);
+            button.setStrokeWidth(2); // Borde delgado para resaltar
+            button.setCardElevation(6f); // Elevación para efecto "flotante"
+
+            // Ocultar candado
             if (lockIcon != null) {
                 lockIcon.setVisibility(View.GONE);
             }
 
+            // Textos e Iconos coloridos
             textView.setTextColor(colorTextoDesbloqueado);
             textView.setText(nivel);
             iconView.setImageTintList(ColorStateList.valueOf(colorIconoDesbloqueado));
 
+            // Listener de Clic con Animación Nueva
             button.setOnClickListener(v -> {
                 Log.d(TAG, "Iniciando nivel: " + nivel);
                 Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
@@ -219,20 +225,30 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 intent.putExtra(KEY_PUNTAJE_ACTUAL, userPuntaje);
                 intent.putExtra(KEY_NIVEL_DESBLOQUEADO, userNivel);
                 startActivity(intent);
+
+                // --- AQUÍ ESTÁ LA MAGIA: Transición suave hacia arriba ---
+                overridePendingTransition(R.anim.slide_up, R.anim.fade_in);
             });
 
         } else {
+            // --- ESTADO: BLOQUEADO (Inactivo) ---
             button.setEnabled(false);
             button.setClickable(false);
-            button.setCardBackgroundColor(colorBgBloqueado);
-            button.setCardElevation(0);
 
+            // Estilo visual bloqueado: Fondo gris plano, sin borde, sin sombra
+            button.setCardBackgroundColor(colorBgBloqueado);
+            button.setStrokeWidth(0);
+            button.setCardElevation(0f);
+
+            // Mostrar candado en gris
             if (lockIcon != null) {
                 lockIcon.setVisibility(View.VISIBLE);
+                lockIcon.setImageTintList(ColorStateList.valueOf(colorBloqueado));
             }
 
+            // Textos e Iconos en gris
             textView.setTextColor(colorBloqueado);
-            textView.setText(nivel);
+            textView.setText("Bloqueado"); // Texto informativo
             iconView.setImageTintList(ColorStateList.valueOf(colorBloqueado));
         }
     }

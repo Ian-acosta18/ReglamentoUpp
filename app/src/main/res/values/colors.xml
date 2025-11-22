@@ -1,39 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="upp_primary">#6200EA</color>
-    <color name="upp_primary_dark">#3700B3</color>
-    <color name="upp_secondary">#00E676</color>
-    <color name="upp_accent">#FFAB00</color>
-
-    <color name="app_bg">#F5F6F9</color>
-    <color name="card_bg">#FFFFFF</color>
+    <color name="upp_primary_dark">#4500B5</color>
+    <color name="upp_secondary">#00E5FF</color> <color name="upp_accent">#FFD740</color>   <color name="app_bg">#F4F7FC</color> <color name="card_bg">#FFFFFF</color>
     <color name="surface_color">#FFFFFF</color>
-    <color name="text_primary">#1A1C1E</color>
-    <color name="text_secondary">#545F71</color>
+
+    <color name="text_primary">#1E293B</color> <color name="text_secondary">#64748B</color>
     <color name="text_light">#FFFFFF</color>
     <color name="text_on_primary">#FFFFFF</color>
+
+    <color name="game_success">#00C853</color>
+    <color name="game_success_bg">#E8F5E9</color>
+    <color name="game_fail">#FF1744</color>
+    <color name="game_fail_bg">#FFEBEE</color>
+    <color name="game_locked">#CFD8DC</color>
+
+    <color name="gradient_start">#7C4DFF</color>
+    <color name="gradient_center">#448AFF</color>
+    <color name="gradient_end">#18FFFF</color>
+
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-
-    <color name="game_success">#2E7D32</color>
-    <color name="game_success_bg">#E8F5E9</color>
-    <color name="game_fail">#C62828</color>
-    <color name="game_fail_bg">#FFEBEE</color>
-    <color name="game_locked">#90A4AE</color>
-    <color name="game_locked_bg">#ECEFF1</color>
-
-    <color name="cat_game_bg">#EDE7F6</color>
-    <color name="cat_study_bg">#E1F5FE</color>
-
-    <color name="gradient_start">#651FFF</color>
-    <color name="gradient_end">#2979FF</color>
-
-    <color name="game_button_default">#F5F5F5</color>
-    <color name="game_button_default_text">#212121</color>
-
+    <color name="game_button_default">#FFFFFF</color>
+    <color name="game_button_default_text">#1E293B</color>
     <color name="game_success_container">@color/game_success_bg</color>
     <color name="game_fail_container">@color/game_fail_bg</color>
-
-    <color name="upp_light_blue">#BBDEFB</color>
-    <color name="upp_blue_primary">@color/upp_primary</color>
 </resources>
