@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -45,6 +44,10 @@ public class TrueFalseActivity extends AppCompatActivity {
         binding.btnTrue.setOnClickListener(v -> checarRespuesta(true));
         binding.btnFalse.setOnClickListener(v -> checarRespuesta(false));
 
+        // Botón de salir
+        if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        binding.toolbarTf.setNavigationOnClickListener(v -> finish());
+
         cargarPreguntasVF();
     }
 
@@ -71,38 +74,48 @@ public class TrueFalseActivity extends AppCompatActivity {
         List<PreguntaVF> nuevasPreguntas = new ArrayList<>();
 
         // --- ACADÉMICO ---
-        nuevasPreguntas.add(new PreguntaVF("¿La calificación mínima aprobatoria en la UPP es de 7.0?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Tienes derecho a solicitar revisión de calificación si no estás de acuerdo?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Puedes cursar una materia si reprobaste la anterior que está seriada?", false));
-        nuevasPreguntas.add(new PreguntaVF("¿La Estadía Profesional se realiza hasta terminar todas las asignaturas?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿La calificación mínima aprobatoria en una asignatura ordinaria es de 7.0?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Tienes derecho a solicitar revisión de calificación si no estás de acuerdo con el resultado?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Puedes cursar una materia si reprobaste la anterior que está seriada (prerrequisito)?", false));
+        nuevasPreguntas.add(new PreguntaVF("¿La Estadía Profesional se puede realizar debiendo 3 materias?", false));
+        nuevasPreguntas.add(new PreguntaVF("¿El alumno tiene un límite de tiempo para concluir su plan de estudios?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Es posible dar de baja una materia después de haber presentado el examen ordinario?", false));
+        nuevasPreguntas.add(new PreguntaVF("¿El título profesional se expide automáticamente al terminar las materias sin hacer trámites?", false));
 
-        // --- DISCIPLINA ---
+        // --- DISCIPLINA Y SANCIONES ---
         nuevasPreguntas.add(new PreguntaVF("¿Está permitido consumir bebidas alcohólicas dentro del campus?", false));
-        nuevasPreguntas.add(new PreguntaVF("¿Es obligatorio portar la credencial institucional para ingresar?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Fumar (incluso vapeadores) está prohibido en todas las instalaciones?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Puedes vender productos personales en los salones de clase?", false));
+        nuevasPreguntas.add(new PreguntaVF("¿Fumar (incluyendo vapeadores) está prohibido en todas las instalaciones de la UPP?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Agredir verbalmente a un docente o compañero es motivo de sanción?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Puedes realizar ventas de productos personales en los salones sin permiso?", false));
+        nuevasPreguntas.add(new PreguntaVF("¿El uso de la credencial institucional es obligatorio para el acceso al campus?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Dañar el mobiliario o equipo de laboratorio se considera una falta grave?", true));
 
-        // --- DERECHOS ---
-        nuevasPreguntas.add(new PreguntaVF("¿Tienes derecho a recibir un trato digno de profesores y compañeros?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿El seguro facultativo es un derecho gratuito para los estudiantes?", true));
+        // --- DERECHOS Y SERVICIOS ---
+        nuevasPreguntas.add(new PreguntaVF("¿Tienes derecho a recibir un trato digno y respetuoso de toda la comunidad?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿El seguro facultativo (IMSS) es gratuito para los estudiantes matriculados?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Tienes derecho a recibir asesorías académicas (tutorías) durante tu carrera?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Puedes hacer uso de las instalaciones deportivas en los horarios establecidos?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿La biblioteca permite el préstamo de libros a domicilio?", true));
 
         // --- GENERAL ---
-        nuevasPreguntas.add(new PreguntaVF("¿El modelo educativo de la UPP está basado en competencias?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿Puedes usar las instalaciones deportivas fuera de horario de clase?", true));
-        nuevasPreguntas.add(new PreguntaVF("¿El plagio en trabajos académicos es motivo de sanción grave?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿La UPP se rige por un modelo educativo basado en competencias?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Copiar textualmente un trabajo de internet sin citar es considerado plagio?", true));
+        nuevasPreguntas.add(new PreguntaVF("¿Las inasistencias a clase no afectan tu derecho a calificación?", false));
+        nuevasPreguntas.add(new PreguntaVF("¿Es responsabilidad del alumno mantener actualizados sus datos de contacto?", true));
 
         for (PreguntaVF p : nuevasPreguntas) {
             mStore.collection("preguntasVF").add(p);
         }
 
-        Toast.makeText(this, "Banco de preguntas actualizado.", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Banco de preguntas actualizado. Reiniciando...", Toast.LENGTH_SHORT).show();
         new Handler(Looper.getMainLooper()).postDelayed(this::recreate, 1500);
     }
 
     private void iniciarJuego() {
         Collections.shuffle(listaDePreguntas);
-        if (listaDePreguntas.size() > 10) {
-            listaDePreguntas = listaDePreguntas.subList(0, 10);
+        // Tomamos hasta 15 preguntas para que el juego dure más
+        if (listaDePreguntas.size() > 15) {
+            listaDePreguntas = listaDePreguntas.subList(0, 15);
         }
         mostrarSiguientePregunta();
     }
@@ -117,7 +130,9 @@ public class TrueFalseActivity extends AppCompatActivity {
         preguntaActual = listaDePreguntas.get(indicePreguntaActual);
         binding.tvVFQuestion.setText(preguntaActual.getAfirmacion());
         binding.tvVFScore.setText("Puntaje: " + puntajeSesion);
-        binding.cardVFQuestion.setCardBackgroundColor(ContextCompat.getColor(this, R.color.card_bg));
+
+        // Restaurar color original
+        binding.cardVFQuestion.setCardBackgroundColor(ContextCompat.getColor(this, R.color.white));
 
         indicePreguntaActual++;
     }
@@ -165,8 +180,8 @@ public class TrueFalseActivity extends AppCompatActivity {
 
     private void terminarJuego() {
         new MaterialAlertDialogBuilder(this)
-                .setTitle("¡Juego Terminado!")
-                .setMessage("Conseguiste " + puntajeSesion + " puntos en esta ronda.")
+                .setTitle("¡Ronda Terminada!")
+                .setMessage("Conseguiste " + puntajeSesion + " puntos.")
                 .setPositiveButton("Salir", (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();

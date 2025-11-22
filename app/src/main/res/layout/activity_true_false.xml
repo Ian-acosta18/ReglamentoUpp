@@ -7,54 +7,83 @@
     android:background="@drawable/game_background"
     tools:context=".TrueFalseActivity">
 
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarTf"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        app:navigationIcon="@android:drawable/ic_menu_revert"
+        app:title="Verdadero o Falso"
+        app:titleTextColor="@color/white"
+        app:layout_constraintTop_toTopOf="parent"/>
+
     <TextView
         android:id="@+id/tvVFScore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:text="Puntaje: 0"
         android:textColor="@color/white"
-        android:textSize="24sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/toolbarTf" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardVFQuestion"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_margin="32dp"
-        app:cardCornerRadius="20dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        app:cardCornerRadius="24dp"
         app:cardElevation="8dp"
         app:layout_constraintBottom_toTopOf="@+id/btnFalse"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvVFScore">
 
-        <TextView
-            android:id="@+id/tvVFQuestion"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="24dp"
-            android:text="Cargando afirmación..."
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-            android:textColor="@color/text_primary" />
+            android:orientation="vertical"
+            android:padding="32dp">
+
+            <ImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/ic_check_circle"
+                android:layout_gravity="center"
+                app:tint="@color/upp_primary"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/tvVFQuestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cargando afirmación..."
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"
+                android:lineSpacingMultiplier="1.1"/>
+        </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnFalse"
         android:layout_width="0dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="32dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="40dp"
         android:backgroundTint="@color/game_fail"
-        android:text="Falso"
-        android:textSize="20sp"
+        android:text="FALSO"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="16dp"
+        app:icon="@drawable/ic_prohibiciones"
+        app:iconGravity="textStart"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnTrue"
         app:layout_constraintStart_toStartOf="parent" />
@@ -62,13 +91,17 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnTrue"
         android:layout_width="0dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="40dp"
         android:backgroundTint="@color/game_success"
-        android:text="Verdadero"
-        android:textSize="20sp"
+        android:text="VERDADERO"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="16dp"
+        app:icon="@drawable/ic_check_circle"
+        app:iconGravity="textStart"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnFalse" />
