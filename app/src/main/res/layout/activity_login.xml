@@ -10,30 +10,29 @@
     <View
         android:id="@+id/viewHeader"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
-        android:background="@drawable/header_upp_bg"
+        android:layout_height="320dp"
+        android:background="@drawable/header_purple_curve"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/ivLoginLogo"
-        android:layout_width="110dp"
-        android:layout_height="110dp"
-        android:layout_marginTop="40dp"
-        android:elevation="8dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="48dp"
         android:src="@drawable/mi_logo"
         android:background="@drawable/white_circle_bg"
         android:padding="12dp"
+        android:elevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tvAppTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Reglamento UPP"
-        android:textColor="@color/text_light"
-        android:textSize="24sp"
+        android:textColor="@color/white"
+        android:textSize="26sp"
         android:textStyle="bold"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/ivLoginLogo"
@@ -44,13 +43,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="24dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="6dp"
-        app:cardBackgroundColor="@color/card_bg"
-        app:layout_constraintTop_toBottomOf="@id/tvAppTitle"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.1">
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/viewHeader"
+        app:layout_constraintBottom_toBottomOf="@id/viewHeader"
+        app:layout_constraintVertical_bias="0.5">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -61,30 +59,32 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Iniciar Sesión"
-                android:textSize="20sp"
+                android:text="Bienvenido"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/upp_primary"
                 android:layout_marginBottom="24dp"
-                android:layout_gravity="center_horizontal"/>
+                android:layout_gravity="center"/>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEmail"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Correo Institucional"
-                app:boxStrokeColor="@color/upp_primary"
-                app:hintTextColor="@color/upp_primary"
+                android:hint="Correo Electrónico"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
                 app:startIconDrawable="@drawable/ic_send"
-                app:startIconTint="@color/upp_primary">
+                app:startIconTint="@color/upp_primary"
+                app:boxStrokeColor="@color/upp_primary">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
-                    android:textColor="@color/text_primary"/>
+                    android:inputType="textEmailAddress"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -94,30 +94,31 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="Contraseña"
-                app:boxStrokeColor="@color/upp_primary"
-                app:hintTextColor="@color/upp_primary"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusBottomEnd="12dp"
                 app:startIconDrawable="@drawable/ic_lock"
                 app:startIconTint="@color/upp_primary"
                 app:endIconMode="password_toggle"
-                app:endIconTint="@color/upp_primary">
+                app:boxStrokeColor="@color/upp_primary">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPassword"
-                    android:textColor="@color/text_primary"/>
+                    android:inputType="textPassword"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="60dp"
                 android:layout_marginTop="32dp"
                 android:text="INGRESAR"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:cornerRadius="8dp"
+                app:cornerRadius="16dp"
                 android:backgroundTint="@color/upp_primary" />
 
             <TextView
@@ -125,18 +126,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="24dp"
-                android:text="¿No tienes cuenta? Regístrate aquí"
-                android:textColor="@color/text_secondary"
-                android:padding="8dp"/>
+                android:layout_marginTop="20dp"
+                android:text="Crear cuenta nueva"
+                android:textColor="@color/text_secondary"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:visibility="gone"
-                android:indeterminateTint="@color/upp_primary"/>
+                android:visibility="gone" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
