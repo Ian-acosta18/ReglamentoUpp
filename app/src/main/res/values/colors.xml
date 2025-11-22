@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="upp_primary">#9B1B30</color>
-    <color name="upp_primary_dark">#701322</color>
-    <color name="upp_secondary">#9B1B30</color>
+    <color name="upp_primary">#6200EA</color> <color name="upp_primary_dark">#4500B5</color>
+    <color name="upp_accent">#B388FF</color> <color name="app_bg">#F3F4F6</color> <color name="card_bg">#FFFFFF</color>
 
-    <color name="app_bg">#F5F5F5</color> <color name="card_bg">#FFFFFF</color> <color name="surface_color">#FFFFFF</color>
+    <color name="text_primary">#2D3436</color> <color name="text_secondary">#636E72</color>
+    <color name="text_light">#FFFFFF</color>
 
-    <color name="text_primary">#212121</color> <color name="text_secondary">#757575</color> <color name="text_light">#FFFFFF</color> <color name="text_on_primary">#FFFFFF</color>
-    <color name="text_hint">#9E9E9E</color>
-
-    <color name="game_success">#2E7D32</color> <color name="game_success_bg">#E8F5E9</color>
-    <color name="game_fail">#C62828</color> <color name="game_fail_bg">#FFEBEE</color>
-    <color name="game_locked">#BDBDBD</color> <color name="game_locked_bg">#E0E0E0</color>
+    <color name="game_locked">#DFE6E9</color>
+    <color name="game_locked_icon">#B2BEC3</color>
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <color name="divider_color">#BDBDBD</color>
+
+    <color name="purple_gradient_start">#7C4DFF</color>
+    <color name="purple_gradient_end">#651FFF</color>
 </resources>
