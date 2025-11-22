@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/app_bg"
+    android:background="@drawable/main_background"
     tools:context=".GameLevelActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -15,14 +15,15 @@
         app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbarLevel"
+            android:id="@+id/toolbar_level"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/upp_primary"
-            app:navigationIcon="@android:drawable/ic_menu_close_clear_cancel"
+            android:background="@drawable/gradient_header"
+            app:navigationIcon="@android:drawable/ic_menu_revert"
             app:navigationIconTint="@color/white"
+            app:title="Nivel de Aprendizaje"
             app:titleTextColor="@color/white"
-            tools:title="Misión: Derechos"/>
+            app:titleCentered="true"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -30,7 +31,8 @@
         android:id="@+id/game_content_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-    </FrameLayout>
+        android:background="@drawable/bottom_sheet_background"
+        android:layout_marginTop="10dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
