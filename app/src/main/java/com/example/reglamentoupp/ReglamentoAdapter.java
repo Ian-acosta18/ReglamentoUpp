@@ -5,15 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils; // Importante
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.chip.Chip;
 
 public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.ViewHolder> {
 
@@ -39,41 +39,33 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         String currentItemText = mItems[position];
 
-        holder.textView.setText(Html.fromHtml(currentItemText, Html.FROM_HTML_MODE_LEGACY));
+        // Configurar Título y Descripción
+        holder.tvTitle.setText(mItemType);
+        holder.tvDescription.setText(Html.fromHtml(currentItemText, Html.FROM_HTML_MODE_LEGACY));
 
-        // Cargar la animación de presionado
-        final Animation pressAnimation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.scale_press);
-
-        // 1. Clic en la tarjeta principal (ANIMADO)
-        holder.cardRoot.setOnClickListener(v -> {
-            v.startAnimation(pressAnimation); // ¡Animación aquí!
-
-            // Usamos un pequeño retraso para que se vea la animación antes de abrir el quiz
-            v.postDelayed(() -> {
-                if (mListener != null) {
-                    mListener.onQuizClick(currentItemText, mItemType);
-                }
-            }, 150); // 150ms de espera coinciden con la animación
-        });
-
-        // 2. Clic en el botón "Analizar Caso" (ANIMADO)
-        holder.btnCaseStudy.setOnClickListener(v -> {
-            v.startAnimation(pressAnimation); // ¡Animación aquí!
-
-            v.postDelayed(() -> {
-                if (mListener != null) {
-                    mListener.onCaseStudyClick(currentItemText, mItemType);
-                }
-            }, 150);
-        });
-
-        // Iconos según el tipo
+        // Icono
         int iconRes = getIconForItemType(mItemType);
         if (iconRes != 0) {
             holder.itemIcon.setImageResource(iconRes);
         }
 
-        // Animación de entrada (Caída) al aparecer en pantalla
+        // Animaciones y Clics
+        final Animation pressAnimation = AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.scale_press);
+
+        holder.cardRoot.setOnClickListener(v -> {
+            v.startAnimation(pressAnimation);
+            v.postDelayed(() -> {
+                if (mListener != null) mListener.onQuizClick(currentItemText, mItemType);
+            }, 150);
+        });
+
+        holder.btnCaseStudy.setOnClickListener(v -> {
+            v.startAnimation(pressAnimation);
+            v.postDelayed(() -> {
+                if (mListener != null) mListener.onCaseStudyClick(currentItemText, mItemType);
+            }, 150);
+        });
+
         holder.cardRoot.startAnimation(
                 AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.item_animation_fall_down)
         );
@@ -81,18 +73,12 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
 
     private int getIconForItemType(String itemType) {
         switch (itemType) {
-            case "Derecho":
-                return R.drawable.ic_derechos;
-            case "Obligación":
-                return R.drawable.ic_obligaciones;
-            case "Prohibición":
-                return R.drawable.ic_prohibiciones;
-            case "Sanción":
-                return R.drawable.ic_sanciones;
-            case "Reconocimiento":
-                return R.drawable.ic_reconocimientos;
-            default:
-                return R.drawable.ic_check_circle;
+            case "Derecho": return R.drawable.ic_derechos;
+            case "Obligación": return R.drawable.ic_obligaciones;
+            case "Prohibición": return R.drawable.ic_prohibiciones;
+            case "Sanción": return R.drawable.ic_sanciones;
+            case "Reconocimiento": return R.drawable.ic_reconocimientos;
+            default: return R.drawable.ic_check_circle;
         }
     }
 
@@ -102,14 +88,17 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public final TextView textView;
+        public final TextView tvTitle;
+        public final TextView tvDescription;
         public final MaterialCardView cardRoot;
-        public final Chip btnCaseStudy;
+        public final MaterialButton btnCaseStudy;
         public final ImageView itemIcon;
 
         public ViewHolder(View view) {
             super(view);
-            textView = view.findViewById(android.R.id.text1);
+            tvTitle = view.findViewById(R.id.tv_card_title);
+            // CORRECCIÓN: Usamos el nuevo ID local
+            tvDescription = view.findViewById(R.id.tv_item_description);
             cardRoot = view.findViewById(R.id.card_root);
             btnCaseStudy = view.findViewById(R.id.btn_case_study);
             itemIcon = view.findViewById(R.id.item_icon);
