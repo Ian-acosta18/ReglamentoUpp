@@ -1,22 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.ReglamentoUpp" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/upp_primary</item>
-        <item name="colorOnPrimary">@color/text_on_primary</item>
-        <item name="colorPrimaryContainer">@color/upp_primary_dark</item>
-        <item name="colorOnPrimaryContainer">@color/white</item>
-        <item name="colorSecondary">@color/upp_secondary</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <item name="android:statusBarColor">@color/upp_primary_dark</item>
+        <item name="colorPrimaryVariant">@color/upp_primary_dark</item>
+        <item name="colorOnPrimary">@color/text_light</item>
 
-        <item name="textAppearanceBodyMedium">@style/TextAppearance.Material3.BodyMedium</item>
-        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Material3.Corner.Medium</item>
+        <item name="colorSecondary">@color/upp_secondary</item>
+        <item name="colorOnSecondary">@color/text_light</item>
+
+        <item name="android:statusBarColor">@color/upp_primary_dark</item>
+        <item name="android:windowLightStatusBar">false</item> <item name="android:colorBackground">@color/app_bg</item>
+        <item name="colorSurface">@color/surface_color</item>
     </style>
 
     <style name="Theme.ReglamentoUpp" parent="Base.Theme.ReglamentoUpp" />
-
-    <style name="Widget.App.MissionCard" parent="Widget.Material3.CardView.Elevated">
-        <item name="cardElevation">4dp</item>
-        <item name="cardCornerRadius">16dp</item>
-        <item name="cardBackgroundColor">@color/card_bg</item>
-    </style>
 </resources>
