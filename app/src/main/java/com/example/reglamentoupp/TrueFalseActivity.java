@@ -55,10 +55,16 @@ public class TrueFalseActivity extends AppCompatActivity {
         mStore.collection("preguntasVF")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        crearPreguntasDeEjemplo();
+                    // CAMBIO: Si está vacía O tiene muy poquitas preguntas (viejas), recargamos todo
+                    if (queryDocumentSnapshots.isEmpty() || queryDocumentSnapshots.size() < 5) {
+                        // Borrar las viejas primero para no duplicar (opcional, pero recomendado)
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            mStore.collection("preguntasVF").document(doc.getId()).delete();
+                        }
+                        crearPreguntasDeEjemplo(); // Carga las nuevas
                         return;
                     }
+
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         listaDePreguntas.add(doc.toObject(PreguntaVF.class));
                     }
