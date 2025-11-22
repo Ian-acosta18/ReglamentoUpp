@@ -12,18 +12,18 @@
     android:foreground="?attr/selectableItemBackground"
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="16dp"
-    app:cardElevation="4dp">
+    app:cardElevation="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="16dp"
             android:gravity="center_vertical">
 
             <ImageView
@@ -42,38 +42,26 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="16dp"
-                android:text="Texto de la regla o artículo..."
+                android:text="Texto de la regla..."
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
-                android:lineSpacingExtra="3dp"/>
+                android:lineSpacingExtra="2dp"/>
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#EEEEEE"
-            android:layout_marginHorizontal="16dp"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_case_study"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="end"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_case_study"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Analizar Caso"
-                android:textColor="@color/upp_accent"
-                android:textSize="12sp"
-                app:icon="@drawable/ic_send"
-                app:iconSize="14dp"
-                app:iconTint="@color/upp_accent"/>
-        </LinearLayout>
+            android:text="Ver Caso Práctico"
+            android:textColor="@color/upp_secondary"
+            android:textSize="12sp"
+            app:icon="@drawable/ic_send"
+            app:iconSize="14dp"
+            app:iconTint="@color/upp_secondary"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"/>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
