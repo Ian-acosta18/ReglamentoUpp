@@ -54,6 +54,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         mAuth = FirebaseAuth.getInstance();
         listaDePreguntas = new ArrayList<>();
 
+        binding.tvSpeechBubble.setText("¡Quiz de Opción Múltiple!");
+        binding.tvSpeechBubble.setVisibility(View.VISIBLE);
+
         binding.btnQuizOptionA.setOnClickListener(this);
         binding.btnQuizOptionB.setOnClickListener(this);
         binding.btnQuizOptionC.setOnClickListener(this);

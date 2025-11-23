@@ -10,7 +10,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -20,6 +19,8 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements BaseReglamentoFragment.ReglamentoInteractionListener {
 
@@ -61,8 +62,35 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     @Override
     protected void onResume() {
         super.onResume();
+        actualizarSaludoMascota(); // <--- NUEVO: Actualiza el mensaje de la nube
         loadUserData();
         animarMenu(); // Animación de entrada de los elementos del menú
+    }
+
+    // --- NUEVO MÉTODO: Lógica del saludo según la hora ---
+    private void actualizarSaludoMascota() {
+        Calendar calendar = Calendar.getInstance();
+        int hora = calendar.get(Calendar.HOUR_OF_DAY);
+        String saludo;
+
+        // Mensajes personalizados
+        if (hora >= 5 && hora < 12) {
+            saludo = "¡Buenos días! ☀️\n¿Listo para aprender?";
+        } else if (hora >= 12 && hora < 19) {
+            saludo = "¡Buenas tardes! 🌤️\nRepasemos un poco.";
+        } else {
+            saludo = "¡Buenas noches! 🌙\nNunca es tarde para estudiar.";
+        }
+
+        // Asigna el texto a la burbuja (Asegúrate de haber actualizado el XML activity_main.xml)
+        if (binding.tvWelcomeBubble != null) {
+            binding.tvWelcomeBubble.setText(saludo);
+        }
+
+        // Animación de la nube (opcional, asegura que se mueva al volver)
+        if (binding.lottieWelcome != null) {
+            binding.lottieWelcome.playAnimation();
+        }
     }
 
     private void loadUserData() {
@@ -105,23 +133,18 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                         });
 
                         // --- Configurar botones de Nivel (Lista Vertical) ---
-                        // Configuración para Nivel 1: Derechos
                         setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos,
                                 "Derechos", 1, R.color.upp_primary, R.color.text_primary);
 
-                        // Configuración para Nivel 2: Obligaciones
                         setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones,
                                 "Obligaciones", 2, R.color.upp_primary, R.color.text_primary);
 
-                        // Configuración para Nivel 3: Prohibiciones
                         setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones,
                                 "Prohibiciones", 3, R.color.upp_primary, R.color.text_primary);
 
-                        // Configuración para Nivel 4: Sanciones
                         setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones,
                                 "Sanciones", 4, R.color.upp_primary, R.color.text_primary);
 
-                        // Configuración para Nivel 5: Reconocimientos
                         setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos,
                                 "Reconocimientos", 5, R.color.upp_primary, R.color.text_primary);
 
@@ -231,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         finish();
     }
 
-    // Métodos de la interfaz ReglamentoInteractionListener
+    // Métodos de la interfaz ReglamentoInteractionListener (Para los fragmentos, aunque aquí no se usen directamente)
     @Override
     public void onQuizClick(String itemText, String itemType) {
         Log.d(TAG, "Clic en Quiz (ignorado en MainActivity): " + itemType);
