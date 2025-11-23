@@ -9,7 +9,6 @@
     android:padding="24dp"
     tools:context=".QuizActivity">
 
-    <!-- Barra superior con información -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="match_parent"
@@ -18,7 +17,6 @@
         android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Vidas -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -43,7 +41,6 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <!-- Puntaje -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -64,7 +61,6 @@
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
-    <!-- Barra de progreso -->
     <ProgressBar
         android:id="@+id/quizProgressBar"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
@@ -76,17 +72,60 @@
         android:progress="1"
         app:layout_constraintTop_toBottomOf="@id/topBar" />
 
-    <!-- Tarjeta de la pregunta -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutCharacter"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/quizProgressBar"
+        app:layout_constraintBottom_toTopOf="@+id/cardQuestion">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieCharacter"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            app:lottie_rawRes="@raw/smilling_cloud"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="16dp"/>
+
+        <TextView
+            android:id="@+id/tvSpeechBubble"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/white_circle_bg"
+            android:backgroundTint="#FFFFFF"
+            android:padding="12dp"
+            android:text="¡Tú puedes!"
+            android:textColor="@color/upp_primary"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:elevation="4dp"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@id/lottieCharacter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/lottieCharacter"
+            app:layout_constraintBottom_toBottomOf="@id/lottieCharacter"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="-16dp"
+            tools:visibility="visible"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardQuestion"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginBottom="28dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="20dp"
         app:cardCornerRadius="28dp"
         app:cardElevation="12dp"
         app:cardBackgroundColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/quizProgressBar"
+        app:layout_constraintTop_toBottomOf="@id/layoutCharacter"
         app:layout_constraintBottom_toTopOf="@id/btnQuizOptionA">
 
         <ScrollView
@@ -99,9 +138,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:padding="32dp">
+                android:padding="24dp">
 
-                <!-- Etiqueta PREGUNTA -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -110,9 +148,8 @@
                     android:letterSpacing="0.12"
                     android:textSize="13sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="20dp"/>
+                    android:layout_marginBottom="16dp"/>
 
-                <!-- Texto de la pregunta -->
                 <TextView
                     android:id="@+id/tvQuizQuestion"
                     android:layout_width="wrap_content"
@@ -120,38 +157,52 @@
                     android:text="Cargando pregunta..."
                     android:textAlignment="center"
                     android:textColor="@color/text_primary"
-                    android:textSize="22sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
-                    android:lineSpacingExtra="6dp"/>
+                    android:lineSpacingExtra="4dp"/>
             </LinearLayout>
         </ScrollView>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Botón Opción A -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnQuizOptionA"
         style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="60dp"
         android:text="Opción A"
-        android:textSize="17sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/white"
         app:strokeColor="@color/white"
         app:strokeWidth="2dp"
         app:backgroundTint="#33FFFFFF"
         app:cornerRadius="20dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="12dp"
         app:layout_constraintBottom_toTopOf="@id/btnQuizOptionB"/>
 
-    <!-- Botón Opción B -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnQuizOptionB"
         style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="60dp"
         android:text="Opción B"
-        android:textSize="17sp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        app:strokeColor="@color/white"
+        app:strokeWidth="2dp"
+        app:backgroundTint="#33FFFFFF"
+        app:cornerRadius="20dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@id/btnQuizOptionC"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnQuizOptionC"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Opción C"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/white"
         app:strokeColor="@color/white"
@@ -159,23 +210,6 @@
         app:backgroundTint="#33FFFFFF"
         app:cornerRadius="20dp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@id/btnQuizOptionC"/>
-
-    <!-- Botón Opción C -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnQuizOptionC"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:text="Opción C"
-        android:textSize="17sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        app:strokeColor="@color/white"
-        app:strokeWidth="2dp"
-        app:backgroundTint="#33FFFFFF"
-        app:cornerRadius="20dp"
-        android:layout_marginBottom="20dp"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -44,7 +44,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-
+    
+    implementation("com.airbnb.android:lottie:6.3.0")
     // --- CORRECCIÓN 2: Dependencias de Firebase correctas ---
 
     // 1. Añade el "Bill of Materials" (BOM)
