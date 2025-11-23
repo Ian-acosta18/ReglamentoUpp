@@ -101,32 +101,9 @@
                         android:layout_marginTop="16dp"
                         android:gravity="center"
                         android:orientation="horizontal">
-
-                        <ImageView
-                            android:id="@+id/ivBadge1"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_marginEnd="12dp"
-                            android:alpha="0.3"
-                            android:src="@drawable/ic_reconocimientos"
-                            app:tint="#FFD700" />
-
-                        <ImageView
-                            android:id="@+id/ivBadge2"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:layout_marginEnd="12dp"
-                            android:alpha="0.3"
-                            android:src="@drawable/ic_reconocimientos"
-                            app:tint="#FFD700" />
-
-                        <ImageView
-                            android:id="@+id/ivBadge3"
-                            android:layout_width="36dp"
-                            android:layout_height="36dp"
-                            android:alpha="0.3"
-                            android:src="@drawable/ic_reconocimientos"
-                            app:tint="#FFD700" />
+                        <ImageView android:id="@+id/ivBadge1" android:layout_width="36dp" android:layout_height="36dp" android:layout_marginEnd="12dp" android:alpha="0.3" android:src="@drawable/ic_reconocimientos" app:tint="#FFD700" />
+                        <ImageView android:id="@+id/ivBadge2" android:layout_width="36dp" android:layout_height="36dp" android:layout_marginEnd="12dp" android:alpha="0.3" android:src="@drawable/ic_reconocimientos" app:tint="#FFD700" />
+                        <ImageView android:id="@+id/ivBadge3" android:layout_width="36dp" android:layout_height="36dp" android:alpha="0.3" android:src="@drawable/ic_reconocimientos" app:tint="#FFD700" />
                     </LinearLayout>
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -191,16 +168,14 @@
                             <ImageView
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
-                                android:src="@drawable/ic_reconocimientos"
-                                app:tint="@color/upp_primary" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="12dp"
-                                android:text="Trivia"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/text_primary"/>
+                                android:src="@drawable/ic_reconocimientos" /> <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="Trivia"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -230,16 +205,14 @@
                             <ImageView
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
-                                android:src="@drawable/ic_check_circle"
-                                app:tint="@color/status_green" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="12dp"
-                                android:text="V / F"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/text_primary"/>
+                                android:src="@drawable/ic_check_circle" /> <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="V / F"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -269,16 +242,14 @@
                             <ImageView
                                 android:layout_width="48dp"
                                 android:layout_height="48dp"
-                                android:src="@drawable/ic_prohibiciones"
-                                app:tint="#D32F2F" />
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="12dp"
-                                android:text="Ahorcado"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/text_primary"/>
+                                android:src="@drawable/ic_prohibiciones" /> <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="Ahorcado"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/text_primary"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -333,16 +304,14 @@
                             android:background="@drawable/white_circle_bg"
                             android:backgroundTint="#E3F2FD"
                             android:padding="10dp"
-                            android:src="@drawable/ic_derechos"
-                            app:tint="@color/upp_primary"/>
-                        <TextView
-                            android:id="@+id/tvDerechos"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Derechos"
-                            android:textStyle="bold"
-                            android:textSize="15sp"/>
+                            android:src="@drawable/ic_derechos" /> <TextView
+                        android:id="@+id/tvDerechos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Derechos"
+                        android:textStyle="bold"
+                        android:textSize="15sp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -378,15 +347,13 @@
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
                                 android:padding="10dp"
-                                android:src="@drawable/ic_obligaciones"
-                                app:tint="#90A4AE"/>
-                            <ImageView
-                                android:id="@+id/ivLockObligaciones"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_lock"
-                                app:tint="#78909C"
-                                android:layout_gravity="bottom|end"/>
+                                android:src="@drawable/ic_obligaciones" /> <ImageView
+                            android:id="@+id/ivLockObligaciones"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_lock"
+                            app:tint="#78909C"
+                            android:layout_gravity="bottom|end"/>
                         </FrameLayout>
                         <TextView
                             android:id="@+id/tvObligaciones"
@@ -432,15 +399,13 @@
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
                                 android:padding="10dp"
-                                android:src="@drawable/ic_prohibiciones"
-                                app:tint="#90A4AE"/>
-                            <ImageView
-                                android:id="@+id/ivLockProhibiciones"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_lock"
-                                app:tint="#78909C"
-                                android:layout_gravity="bottom|end"/>
+                                android:src="@drawable/ic_prohibiciones" /> <ImageView
+                            android:id="@+id/ivLockProhibiciones"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_lock"
+                            app:tint="#78909C"
+                            android:layout_gravity="bottom|end"/>
                         </FrameLayout>
                         <TextView
                             android:id="@+id/tvProhibiciones"
@@ -486,15 +451,13 @@
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
                                 android:padding="10dp"
-                                android:src="@drawable/ic_sanciones"
-                                app:tint="#90A4AE"/>
-                            <ImageView
-                                android:id="@+id/ivLockSanciones"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_lock"
-                                app:tint="#78909C"
-                                android:layout_gravity="bottom|end"/>
+                                android:src="@drawable/ic_sanciones" /> <ImageView
+                            android:id="@+id/ivLockSanciones"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_lock"
+                            app:tint="#78909C"
+                            android:layout_gravity="bottom|end"/>
                         </FrameLayout>
                         <TextView
                             android:id="@+id/tvSanciones"
@@ -540,15 +503,13 @@
                                 android:layout_width="50dp"
                                 android:layout_height="50dp"
                                 android:padding="10dp"
-                                android:src="@drawable/ic_reconocimientos"
-                                app:tint="#90A4AE"/>
-                            <ImageView
-                                android:id="@+id/ivLockReconocimientos"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_lock"
-                                app:tint="#78909C"
-                                android:layout_gravity="bottom|end"/>
+                                android:src="@drawable/ic_reconocimientos" /> <ImageView
+                            android:id="@+id/ivLockReconocimientos"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_lock"
+                            app:tint="#78909C"
+                            android:layout_gravity="bottom|end"/>
                         </FrameLayout>
                         <TextView
                             android:id="@+id/tvReconocimientos"

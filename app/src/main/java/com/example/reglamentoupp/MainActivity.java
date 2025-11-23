@@ -171,13 +171,15 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     /**
      * Configura el aspecto visual y funcional de un botón de nivel.
      */
+    /**
+     * Configura el aspecto visual y funcional de un botón de nivel.
+     */
     private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
                                   String nivelNombre, int nivelRequerido, int colorDesbloqueado, int textColorDesbloqueado) {
 
         // Colores desde recursos
         int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked); // Gris texto
         int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg); // Gris fondo
-        int colorIconoDesbloqueado = ContextCompat.getColor(this, colorDesbloqueado); // Morado UPP
         int colorTextoDesbloqueado = ContextCompat.getColor(this, textColorDesbloqueado); // Negro/Gris oscuro
         int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.white); // Blanco puro
 
@@ -196,14 +198,16 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 lockIcon.setVisibility(View.GONE);
             }
 
-            // Colorear textos e iconos
+            // Colorear textos
             textView.setTextColor(colorTextoDesbloqueado);
             textView.setText(nivelNombre);
 
-            iconView.setImageTintList(ColorStateList.valueOf(colorIconoDesbloqueado));
+            // --- CORRECCIÓN: MOSTRAR ICONO ORIGINAL (SIN TINT) ---
+            iconView.clearColorFilter(); // Limpia el filtro gris/morado
+            iconView.setImageTintList(null); // Asegura que no haya tinte
+
             // Fondo circular sutil para el icono
             iconView.setBackgroundResource(R.drawable.white_circle_bg);
-            // Usamos un tinte muy suave para el fondo del circulo (opcional, usando app_bg o transparente)
             iconView.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.app_bg)));
 
             // Listener para abrir el nivel con animación
@@ -233,12 +237,11 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 lockIcon.setImageTintList(ColorStateList.valueOf(colorBloqueado));
             }
 
-            // Textos e Iconos en gris
+            // Textos en gris
             textView.setTextColor(colorBloqueado);
-            // Opcional: Cambiar texto a "Bloqueado" o dejar el nombre del nivel
-            // textView.setText("Bloqueado");
 
-            iconView.setImageTintList(ColorStateList.valueOf(colorBloqueado));
+            // ICONO BLOQUEADO: Se pinta de GRIS
+            iconView.setColorFilter(colorBloqueado);
             iconView.setBackground(null); // Quitar fondo circular
         }
     }

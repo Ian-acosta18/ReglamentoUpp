@@ -1,6 +1,7 @@
 package com.example.reglamentoupp;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,36 +45,41 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
         Context context = holder.itemView.getContext();
 
         // 1. Configurar Textos
-        holder.tvTitle.setText(mItemType.toUpperCase()); // Convertir a mayúsculas para estilo "etiqueta"
-        // Renderizar HTML para que las negritas (<strong>) se vean bien
+        holder.tvTitle.setText(mItemType.toUpperCase());
         holder.tvDescription.setText(Html.fromHtml(currentItemText, Html.FROM_HTML_MODE_LEGACY));
 
-        // 2. Configurar Iconos y Colores dinámicos según el tipo
+        // 2. OBTENER RECURSOS DE COLOR E ICONO
         int iconRes = getIconForItemType(mItemType);
         int colorRes = getColorForItemType(mItemType);
         int colorInt = ContextCompat.getColor(context, colorRes);
         int bgTintInt = ContextCompat.getColor(context, getBgTintForItemType(mItemType));
 
+        // 3. ASIGNAR EL ICONO (¡SIN TINTAR!)
         if (iconRes != 0) {
             holder.itemIcon.setImageResource(iconRes);
-            holder.itemIcon.setColorFilter(colorInt); // Tintar el icono del color del tema
+
+            // CORRECCIÓN IMPORTANTE:
+            // Limpiamos cualquier filtro de color para que se vean los colores originales del vector
+            holder.itemIcon.clearColorFilter();
+
+            // Eliminamos esta línea anterior: holder.itemIcon.setColorFilter(colorInt);
         }
 
-        // Tintar el fondo circular del icono
-        holder.iconContainer.setBackgroundTintList(android.content.res.ColorStateList.valueOf(bgTintInt));
-        // Colorear el título
+        // 4. Aplicar colores al resto (Fondo del icono, Título, Botón)
+        if (holder.iconContainer != null) {
+            holder.iconContainer.setBackgroundTintList(ColorStateList.valueOf(bgTintInt));
+        }
+
         holder.tvTitle.setTextColor(colorInt);
-        // Colorear icono y texto del botón ligeramente
+
+        // Configurar botón
         holder.btnCaseStudy.setTextColor(colorInt);
-        holder.btnCaseStudy.setIconTint(android.content.res.ColorStateList.valueOf(colorInt));
-        // Fondo muy suave para el botón
-        holder.btnCaseStudy.setBackgroundTintList(android.content.res.ColorStateList.valueOf(bgTintInt));
+        holder.btnCaseStudy.setIconTint(ColorStateList.valueOf(colorInt));
+        holder.btnCaseStudy.setBackgroundTintList(ColorStateList.valueOf(bgTintInt));
 
-
-        // 3. Animaciones de clic
+        // 5. Animaciones
         final Animation pressAnimation = AnimationUtils.loadAnimation(context, R.anim.scale_press);
 
-        // Listener en toda la tarjeta (para Quiz)
         holder.cardRoot.setOnClickListener(v -> {
             v.startAnimation(pressAnimation);
             v.postDelayed(() -> {
@@ -81,7 +87,6 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
             }, 150);
         });
 
-        // Listener en el botón (para Caso Práctico)
         holder.btnCaseStudy.setOnClickListener(v -> {
             v.startAnimation(pressAnimation);
             v.postDelayed(() -> {
@@ -89,46 +94,48 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
             }, 150);
         });
 
-        // Animación de entrada (Caída)
         holder.cardRoot.startAnimation(
                 AnimationUtils.loadAnimation(context, R.anim.item_animation_fall_down)
         );
     }
 
-    // Método auxiliar para obtener iconos
     private int getIconForItemType(String itemType) {
-        switch (itemType) {
-            case "Derecho": return R.drawable.ic_derechos;
-            case "Obligación": return R.drawable.ic_obligaciones;
-            case "Prohibición": return R.drawable.ic_prohibiciones;
-            case "Sanción": return R.drawable.ic_sanciones;
-            case "Reconocimiento": return R.drawable.ic_reconocimientos;
-            default: return R.drawable.ic_check_circle;
-        }
+        if (itemType == null) return R.drawable.ic_check_circle;
+        String tipo = itemType.toLowerCase().trim();
+
+        if (tipo.contains("derecho")) return R.drawable.ic_derechos;
+        if (tipo.contains("obligaci")) return R.drawable.ic_obligaciones;
+        if (tipo.contains("prohibici")) return R.drawable.ic_prohibiciones;
+        if (tipo.contains("sanci")) return R.drawable.ic_sanciones;
+        if (tipo.contains("reconocimiento")) return R.drawable.ic_reconocimientos;
+
+        return R.drawable.ic_check_circle;
     }
 
-    // Método auxiliar para colores principales (Texto e Iconos fuertes)
     private int getColorForItemType(String itemType) {
-        switch (itemType) {
-            case "Derecho": return R.color.upp_primary; // Morado
-            case "Obligación": return R.color.status_green; // Verde
-            case "Prohibición": return R.color.game_fail; // Rojo
-            case "Sanción": return R.color.upp_secondary; // Morado oscuro/Marron
-            case "Reconocimiento": return R.color.upp_accent; // Dorado/Magenta
-            default: return R.color.upp_primary;
-        }
+        if (itemType == null) return R.color.upp_primary;
+        String tipo = itemType.toLowerCase().trim();
+
+        if (tipo.contains("derecho")) return R.color.upp_primary;
+        if (tipo.contains("obligaci")) return R.color.status_green;
+        if (tipo.contains("prohibici")) return R.color.game_fail;
+        if (tipo.contains("sanci")) return R.color.upp_secondary;
+        if (tipo.contains("reconocimiento")) return R.color.upp_accent;
+
+        return R.color.upp_primary;
     }
 
-    // Método auxiliar para fondos suaves (Pasteles)
     private int getBgTintForItemType(String itemType) {
-        switch (itemType) {
-            case "Derecho": return R.color.app_bg; // Lila suave
-            case "Obligación": return R.color.status_green_bg; // Verde suave
-            case "Prohibición": return R.color.game_fail_bg; // Rojo suave
-            case "Sanción": return R.color.game_fail_bg; // Similar a alerta
-            case "Reconocimiento": return R.color.game_success_bg; // Similar a éxito
-            default: return R.color.app_bg;
-        }
+        if (itemType == null) return R.color.app_bg;
+        String tipo = itemType.toLowerCase().trim();
+
+        if (tipo.contains("derecho")) return R.color.app_bg;
+        if (tipo.contains("obligaci")) return R.color.status_green_bg;
+        if (tipo.contains("prohibici")) return R.color.game_fail_bg;
+        if (tipo.contains("sanci")) return R.color.game_fail_bg;
+        if (tipo.contains("reconocimiento")) return R.color.game_success_bg;
+
+        return R.color.app_bg;
     }
 
     @Override
@@ -142,7 +149,7 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
         public final MaterialCardView cardRoot;
         public final MaterialButton btnCaseStudy;
         public final ImageView itemIcon;
-        public final FrameLayout iconContainer; // Referencia al contenedor para cambiar color
+        public final FrameLayout iconContainer;
 
         public ViewHolder(View view) {
             super(view);
