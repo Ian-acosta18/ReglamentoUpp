@@ -6,97 +6,118 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/bottom_sheet_background"
-    android:padding="24dp"
-    app:behavior_peekHeight="400dp"
+    android:padding="28dp"
+    app:behavior_peekHeight="450dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
+    <!-- Barra de arrastre -->
     <com.google.android.material.bottomsheet.BottomSheetDragHandleView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:tint="@color/game_locked"/>
 
+    <!-- Título del Quiz -->
     <TextView
         android:id="@+id/tv_quiz_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="Quiz Rápido"
-        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         android:textColor="@color/upp_primary_dark"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
 
+    <!-- Texto de la pregunta -->
     <TextView
         android:id="@+id/tv_quiz_pregunta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginBottom="24dp"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         android:textColor="@color/text_primary"
-        android:lineSpacingMultiplier="1.1"
-        android:minHeight="60dp"
+        android:lineSpacingMultiplier="1.3"
+        android:minHeight="80dp"
+        android:gravity="center"
+        android:textSize="18sp"
         tools:text="¿Cuál de las siguientes opciones es considerada una obligación del estudiante?" />
 
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progress_bar_quiz"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="40dp"
         android:visibility="gone"
         tools:visibility="visible" />
 
+    <!-- Contenedor de opciones -->
     <LinearLayout
         android:id="@+id/quiz_options_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Opción A -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_opcion_a"
             style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:minHeight="60dp"
+            android:layout_marginTop="12dp"
             android:backgroundTint="@color/upp_primary"
             android:textColor="@color/white"
             android:textStyle="bold"
-            android:padding="12dp"
+            android:textSize="16sp"
+            android:paddingVertical="16dp"
+            app:cornerRadius="18dp"
             tools:text="Opción A" />
 
+        <!-- Opción B -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_opcion_b"
             style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:minHeight="60dp"
+            android:layout_marginTop="12dp"
             android:backgroundTint="@color/upp_primary"
             android:textColor="@color/white"
             android:textStyle="bold"
-            android:padding="12dp"
+            android:textSize="16sp"
+            android:paddingVertical="16dp"
+            app:cornerRadius="18dp"
             tools:text="Opción B" />
 
+        <!-- Opción C -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_opcion_c"
             style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:minHeight="60dp"
+            android:layout_marginTop="12dp"
             android:backgroundTint="@color/upp_primary"
             android:textColor="@color/white"
             android:textStyle="bold"
-            android:padding="12dp"
+            android:textSize="16sp"
+            android:paddingVertical="16dp"
+            app:cornerRadius="18dp"
             tools:text="Opción C" />
 
     </LinearLayout>
 
+    <!-- Feedback del resultado -->
     <TextView
         android:id="@+id/tv_quiz_feedback"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
-        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:layout_marginTop="24dp"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
         android:textStyle="bold"
         android:visibility="gone"
         tools:text="¡Correcto!"
