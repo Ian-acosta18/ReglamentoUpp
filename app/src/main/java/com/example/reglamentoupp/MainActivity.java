@@ -91,9 +91,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
                         Log.d(TAG, "Usuario cargado. Puntaje: " + userPuntaje + ", Nivel Desbloqueado: " + userNivel);
 
-                        // --- Actualizar Insignias ---
-                        actualizarInsignias(userPuntaje);
-
                         // --- Configurar Listeners de Juegos Arcade ---
                         binding.btnJugarModoDesafio.setOnClickListener(v -> {
                             startActivity(new Intent(MainActivity.this, QuizActivity.class));
@@ -107,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                             startActivity(new Intent(MainActivity.this, HangmanActivity.class));
                         });
 
-                        // --- Configurar botones de Nivel (Grid) ---
+                        // --- Configurar botones de Nivel (Lista Vertical) ---
                         // Configuración para Nivel 1: Derechos
                         setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos,
                                 "Derechos", 1, R.color.upp_primary, R.color.text_primary);
@@ -152,25 +149,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         }
     }
 
-    private void actualizarInsignias(long puntaje) {
-        actualizarEstadoInsignia(binding.ivBadge1, puntaje >= 50, "¡Insignia: Principiante (50 XP)!");
-        actualizarEstadoInsignia(binding.ivBadge2, puntaje >= 150, "¡Insignia: Experto (150 XP)!");
-        actualizarEstadoInsignia(binding.ivBadge3, puntaje >= 300, "¡Insignia: Maestro (300 XP)!");
-    }
-
-    private void actualizarEstadoInsignia(ImageView badge, boolean desbloqueada, String mensaje) {
-        if (desbloqueada) {
-            badge.setAlpha(1.0f);
-            badge.setOnClickListener(v -> Toast.makeText(this, mensaje, Toast.LENGTH_SHORT).show());
-        } else {
-            badge.setAlpha(0.3f);
-            badge.setOnClickListener(null);
-        }
-    }
-
-    /**
-     * Configura el aspecto visual y funcional de un botón de nivel.
-     */
     /**
      * Configura el aspecto visual y funcional de un botón de nivel.
      */
@@ -202,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             textView.setTextColor(colorTextoDesbloqueado);
             textView.setText(nivelNombre);
 
-            // --- CORRECCIÓN: MOSTRAR ICONO ORIGINAL (SIN TINT) ---
+            // --- MOSTRAR ICONO ORIGINAL (SIN TINT) ---
             iconView.clearColorFilter(); // Limpia el filtro gris/morado
             iconView.setImageTintList(null); // Asegura que no haya tinte
 
@@ -253,8 +231,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         finish();
     }
 
-    // Métodos de la interfaz ReglamentoInteractionListener (No usados aquí directamente,
-    // pero requeridos si MainActivity actuara como host directo de fragmentos de reglas en tabletas, etc.)
+    // Métodos de la interfaz ReglamentoInteractionListener
     @Override
     public void onQuizClick(String itemText, String itemType) {
         Log.d(TAG, "Clic en Quiz (ignorado en MainActivity): " + itemType);
