@@ -1,6 +1,7 @@
 package com.example.reglamentoupp;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -19,7 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.button.MaterialButton; // Importante para setStrokeColor
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -37,12 +37,11 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
     private OnQuizCompleteListener mListener;
 
     private TextView tvPregunta, tvQuizTitle, tvQuizFeedback;
-    // Cambiamos a MaterialButton para usar métodos específicos de borde
+    // Usamos MaterialButton para poder cambiar bordes y colores fácilmente
     private MaterialButton btnOpcionA, btnOpcionB, btnOpcionC;
     private ProgressBar progressBar;
     private LinearLayout optionsContainer;
 
-    // Interfaz para comunicarnos con GameLevelActivity
     public interface OnQuizCompleteListener {
         void onQuizComplete(int puntos, boolean esCorrecto);
     }
@@ -58,7 +57,6 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        // La actividad que hospeda (GameLevelActivity) debe implementar esta interfaz
         if (context instanceof OnQuizCompleteListener) {
             mListener = (OnQuizCompleteListener) context;
         } else {
@@ -73,7 +71,7 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
             categoriaJuego = getArguments().getString(ARG_CATEGORIA);
         }
         mStore = FirebaseFirestore.getInstance();
-        setCancelable(false); // Evita que el usuario cierre el quiz a la mitad
+        setCancelable(false);
     }
 
     @Nullable
@@ -85,7 +83,7 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
         tvQuizTitle = view.findViewById(R.id.tv_quiz_title);
         tvQuizFeedback = view.findViewById(R.id.tv_quiz_feedback);
 
-        // Casting a MaterialButton
+        // Inicializamos como MaterialButton
         btnOpcionA = view.findViewById(R.id.btn_opcion_a);
         btnOpcionB = view.findViewById(R.id.btn_opcion_b);
         btnOpcionC = view.findViewById(R.id.btn_opcion_c);
@@ -105,31 +103,23 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
 
     private void loadQuestion() {
         setLoading(true);
-
         mStore.collection("preguntas")
                 .whereEqualTo("categoria", categoriaJuego)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        Log.w(TAG, "No se encontraron preguntas para la categoría: " + categoriaJuego);
-                        Toast.makeText(getContext(), "No hay preguntas para este nivel.", Toast.LENGTH_SHORT).show();
                         dismiss();
                         return;
                     }
-
                     List<Pregunta> preguntas = new ArrayList<>();
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         preguntas.add(doc.toObject(Pregunta.class));
                     }
-
-                    // Selecciona una pregunta al azar
                     Collections.shuffle(preguntas);
                     preguntaActual = preguntas.get(0);
                     displayQuestion();
-
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error al cargar preguntas: ", e);
                     Toast.makeText(getContext(), "Error al cargar el quiz.", Toast.LENGTH_SHORT).show();
                     dismiss();
                 });
@@ -155,76 +145,65 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
         btnOpcionB.setText(preguntaActual.getOpcionB());
         btnOpcionC.setText(preguntaActual.getOpcionC());
 
-        // Restaurar estado visual de los botones
-        resetButtonStyles();
+        resetButtonStyles(); // Esto pondrá los colores por defecto (Morado + Blanco)
         setLoading(false);
     }
 
     @Override
     public void onClick(View v) {
         if (preguntaActual == null) return;
-
         MaterialButton clickedButton = (MaterialButton) v;
         String respuestaElegida = clickedButton.getText().toString();
         String respuestaCorrecta = preguntaActual.getRespuestaCorrecta();
 
-        // Deshabilitar botones para evitar doble clic
         setButtonsEnabled(false);
 
         if (respuestaElegida.equals(respuestaCorrecta)) {
-            // --- Respuesta Correcta ---
             showFeedback(true, clickedButton);
-            mListener.onQuizComplete(10, true); // Enviar 10 puntos
+            mListener.onQuizComplete(10, true);
         } else {
-            // --- Respuesta Incorrecta ---
             showFeedback(false, clickedButton);
-            mListener.onQuizComplete(0, false); // Enviar 0 puntos
+            mListener.onQuizComplete(0, false);
         }
 
-        // Cerrar el panel después de 2 segundos
         new Handler(Looper.getMainLooper()).postDelayed(this::dismiss, 2000);
     }
 
-    // --- MÉTODOS CORREGIDOS (Solución al error de compilación y colores) ---
+    // ================================================================
+    //  CORRECCIÓN DE COLORES AQUÍ
+    // ================================================================
 
     private void showFeedback(boolean isCorrect, MaterialButton clickedButton) {
         tvQuizFeedback.setVisibility(View.VISIBLE);
 
-        // Convertir 2dp a pixeles para el borde
-        int strokeWidthPx = (int) (2 * getResources().getDisplayMetrics().density);
-
         if (isCorrect) {
             tvQuizFeedback.setText("¡Correcto!");
-            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_success));
+            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_success)); // Texto verde
 
-            // Estilo CORRECTO (Fondo verde claro, Texto verde oscuro, Borde verde)
-            clickedButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.game_success_bg));
-            clickedButton.setTextColor(ContextCompat.getColor(getContext(), R.color.game_success));
-            clickedButton.setStrokeColor(ContextCompat.getColorStateList(getContext(), R.color.game_success));
-            clickedButton.setStrokeWidth(strokeWidthPx);
+            // FONDO VERDE - TEXTO BLANCO
+            setButtonColor(clickedButton, R.color.game_success, R.color.white);
 
         } else {
             tvQuizFeedback.setText("Incorrecto");
-            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_fail));
+            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_fail)); // Texto rojo
 
-            // Estilo INCORRECTO (Fondo rojo claro, Texto rojo, Borde rojo)
-            clickedButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.game_fail_bg));
-            clickedButton.setTextColor(ContextCompat.getColor(getContext(), R.color.game_fail));
-            clickedButton.setStrokeColor(ContextCompat.getColorStateList(getContext(), R.color.game_fail));
-            clickedButton.setStrokeWidth(strokeWidthPx);
+            // FONDO ROJO - TEXTO BLANCO
+            setButtonColor(clickedButton, R.color.game_fail, R.color.white);
 
-            // RESALTAR LA RESPUESTA CORRECTA AUTOMÁTICAMENTE
-            MaterialButton btnCorrecto = null;
-            if (btnOpcionA.getText().toString().equals(preguntaActual.getRespuestaCorrecta())) btnCorrecto = btnOpcionA;
-            else if (btnOpcionB.getText().toString().equals(preguntaActual.getRespuestaCorrecta())) btnCorrecto = btnOpcionB;
-            else if (btnOpcionC.getText().toString().equals(preguntaActual.getRespuestaCorrecta())) btnCorrecto = btnOpcionC;
+            // Buscar la respuesta correcta para pintarla de verde
+            highlightCorrectAnswer();
+        }
+    }
 
-            if (btnCorrecto != null) {
-                btnCorrecto.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.game_success_bg));
-                btnCorrecto.setTextColor(ContextCompat.getColor(getContext(), R.color.game_success));
-                btnCorrecto.setStrokeColor(ContextCompat.getColorStateList(getContext(), R.color.game_success));
-                btnCorrecto.setStrokeWidth(strokeWidthPx);
-            }
+    private void highlightCorrectAnswer() {
+        MaterialButton correctBtn = null;
+        if (btnOpcionA.getText().toString().equals(preguntaActual.getRespuestaCorrecta())) correctBtn = btnOpcionA;
+        else if (btnOpcionB.getText().toString().equals(preguntaActual.getRespuestaCorrecta())) correctBtn = btnOpcionB;
+        else if (btnOpcionC.getText().toString().equals(preguntaActual.getRespuestaCorrecta())) correctBtn = btnOpcionC;
+
+        if (correctBtn != null) {
+            // FONDO VERDE - TEXTO BLANCO
+            setButtonColor(correctBtn, R.color.game_success, R.color.white);
         }
     }
 
@@ -234,11 +213,25 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
 
         MaterialButton[] buttons = {btnOpcionA, btnOpcionB, btnOpcionC};
         for (MaterialButton btn : buttons) {
-            // RESTAURAR ESTILO ORIGINAL (Fondo Morado, Texto Blanco, Sin borde)
-            btn.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.upp_primary));
-            btn.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
-            btn.setStrokeWidth(0); // Eliminar el borde de correcto/incorrecto
+            // ESTADO NORMAL: FONDO MORADO (Primary) - TEXTO BLANCO
+            setButtonColor(btn, R.color.upp_primary, R.color.white);
+            btn.setStrokeWidth(0);
         }
+    }
+
+    // Método auxiliar para asegurar que el contraste siempre sea correcto
+    private void setButtonColor(MaterialButton btn, int bgColorRes, int textColorRes) {
+        Context ctx = getContext();
+        if (ctx == null) return;
+
+        // Establece el color de fondo (Tint)
+        btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(ctx, bgColorRes)));
+
+        // Establece el color del texto
+        btn.setTextColor(ContextCompat.getColor(ctx, textColorRes));
+
+        // Nos aseguramos de que el icono (si tuviera) también se pinte
+        btn.setIconTint(ColorStateList.valueOf(ContextCompat.getColor(ctx, textColorRes)));
     }
 
     private void setButtonsEnabled(boolean enabled) {

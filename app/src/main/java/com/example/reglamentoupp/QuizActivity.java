@@ -2,11 +2,10 @@ package com.example.reglamentoupp;
 
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.media.MediaPlayer; // Importar MediaPlayer
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -17,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.reglamentoupp.databinding.ActivityQuizBinding;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -62,7 +62,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
-                        crearPreguntasDesafio();
+                        Toast.makeText(this, "No hay preguntas disponibles.", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
@@ -81,17 +81,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 });
     }
 
-    private void crearPreguntasDesafio() {
-        List<Pregunta> nuevas = new ArrayList<>();
-        // (Aquí va tu lista de preguntas, omitida para ahorrar espacio,
-        // pero el código funciona con las que ya tienes en Firebase o
-        // si copias el método del mensaje anterior)
-
-        // Si necesitas regenerarlas, copia el contenido de crearPreguntasDesafio
-        // del mensaje anterior aquí.
-        Toast.makeText(this, "Base de datos vacía. Agregando preguntas...", Toast.LENGTH_SHORT).show();
-    }
-
     private void iniciarQuiz() {
         indicePreguntaActual = 0;
         puntaje = 0;
@@ -102,7 +91,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private void mostrarSiguientePregunta() {
         if (indicePreguntaActual < listaDePreguntas.size()) {
             botonesBloqueados = false;
-            restaurarBotones();
+            restaurarBotones(); // Aquí se aplican los colores correctos
             preguntaActual = listaDePreguntas.get(indicePreguntaActual);
 
             binding.tvQuizQuestion.setText(preguntaActual.getPregunta());
@@ -131,12 +120,14 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         if (respuestaElegida.equals(preguntaActual.getRespuestaCorrecta())) {
             // --- CORRECTO ---
             puntaje += 10;
-            reproducirSonido(R.raw.correct_ding); // SONIDO
+            reproducirSonido(R.raw.correct_ding);
+            // Fondo Verde
             botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
         } else {
             // --- INCORRECTO ---
             vidas--;
-            reproducirSonido(R.raw.megaman_x_error); // SONIDO
+            reproducirSonido(R.raw.megaman_x_error);
+            // Fondo Rojo
             botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
 
             // Animación de sacudida (Shake)
@@ -154,7 +145,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    // --- MÉTODO PARA REPRODUCIR SONIDOS ---
     private void reproducirSonido(int soundResource) {
         try {
             MediaPlayer mp = MediaPlayer.create(this, soundResource);
@@ -167,20 +157,33 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // --- CORRECCIÓN PRINCIPAL AQUÍ ---
     private void restaurarBotones() {
-        binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
-        binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
-        binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+        // Usamos el color semitransparente (#33FFFFFF) igual que en el XML
+        // Esto asegura que el texto blanco se vea sobre el fondo semitransparente oscuro/degradado
+        int colorOriginal = Color.parseColor("#33FFFFFF");
+
+        binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
+        binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
+        binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
+
+        // Nos aseguramos de que el texto siga siendo blanco
+        int colorTexto = ContextCompat.getColor(this, R.color.white);
+        binding.btnQuizOptionA.setTextColor(colorTexto);
+        binding.btnQuizOptionB.setTextColor(colorTexto);
+        binding.btnQuizOptionC.setTextColor(colorTexto);
     }
 
     private void resaltarRespuestaCorrecta() {
         String correcta = preguntaActual.getRespuestaCorrecta();
+        int colorVerde = ContextCompat.getColor(this, R.color.game_success);
+
         if (binding.btnQuizOptionA.getText().toString().equals(correcta)) {
-            binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
+            binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
         } else if (binding.btnQuizOptionB.getText().toString().equals(correcta)) {
-            binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
+            binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
         } else if (binding.btnQuizOptionC.getText().toString().equals(correcta)) {
-            binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
+            binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
         }
     }
 
@@ -190,7 +193,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                     .update("puntaje", FieldValue.increment(puntaje));
         }
 
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("¡Juego Terminado!")
                 .setMessage("Tu puntaje final es: " + puntaje)
                 .setPositiveButton("Genial", (dialog, which) -> finish())
