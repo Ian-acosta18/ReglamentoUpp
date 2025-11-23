@@ -58,8 +58,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:backgroundTint="@color/game_button_default"
-            android:textColor="@color/game_button_default_text"
+            android:backgroundTint="@color/upp_primary"
+            android:textColor="@color/white"
             android:textStyle="bold"
             android:padding="12dp"
             tools:text="Opción A" />
@@ -70,8 +70,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:backgroundTint="@color/game_button_default"
-            android:textColor="@color/game_button_default_text"
+            android:backgroundTint="@color/upp_primary"
+            android:textColor="@color/white"
             android:textStyle="bold"
             android:padding="12dp"
             tools:text="Opción B" />
@@ -82,8 +82,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:backgroundTint="@color/game_button_default"
-            android:textColor="@color/game_button_default_text"
+            android:backgroundTint="@color/upp_primary"
+            android:textColor="@color/white"
             android:textStyle="bold"
             android:padding="12dp"
             tools:text="Opción C" />
