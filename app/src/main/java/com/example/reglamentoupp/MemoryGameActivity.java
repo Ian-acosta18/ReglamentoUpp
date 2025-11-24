@@ -11,11 +11,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.view.ContextThemeWrapper; // Importante para evitar crash de temas
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.gridlayout.widget.GridLayout; // Asegúrate de tener esta dependencia o usa android.widget.GridLayout
+import androidx.gridlayout.widget.GridLayout;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.button.MaterialButton;
@@ -28,9 +32,8 @@ import java.util.List;
 public class MemoryGameActivity extends AppCompatActivity {
 
     // --- Configuración ---
-    private static final int COLUMNS = 3;
     private static final int TOTAL_PAIRS = 6; // 12 cartas en total (3x4)
-    private static final long GAME_TIME_MS = 60000; // 60 segundos para resolverlo
+    private static final long GAME_TIME_MS = 60000; // 60 segundos
 
     // UI
     private GridLayout glCards;
@@ -43,13 +46,13 @@ public class MemoryGameActivity extends AppCompatActivity {
     private List<MemoryCard> cards;
     private MemoryCard selectedDetails1 = null;
     private MaterialButton selectedButton1 = null;
-    private boolean isProcessing = false; // Bloquear toques mientras anima
+    private boolean isProcessing = false;
     private int score = 0;
     private int lives = 5;
     private int pairsFound = 0;
     private int racha = 0;
 
-    // Datos (Reutilizando conceptos del Reglamento)
+    // Datos
     private String[][] dataPairs = {
             {"Tutor", "Guía"},
             {"Beca", "Apoyo"},
@@ -66,15 +69,27 @@ public class MemoryGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memory_game);
 
-        // Inicializar vistas
+        // Inicializar vistas con seguridad
         glCards = findViewById(R.id.glCards);
         tvScore = findViewById(R.id.tvScore);
         tvLives = findViewById(R.id.tvLives);
         tvMessage = findViewById(R.id.tvMessage);
         lottieMascot = findViewById(R.id.lottieMascot);
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
-        findViewById(R.id.toolbarMemory).setOnClickListener(v -> finish());
+        // Inicializar Vibrator de forma segura
+        try {
+            vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        } catch (Exception e) {
+            e.printStackTrace(); // Evita crash si falla el servicio
+        }
+
+        // Configurar Toolbar (Botón de salir)
+        View toolbar = findViewById(R.id.toolbarMemory);
+        if (toolbar instanceof Toolbar) {
+            ((Toolbar) toolbar).setNavigationOnClickListener(v -> finish());
+        } else {
+            toolbar.setOnClickListener(v -> finish());
+        }
 
         startNewGame();
     }
@@ -97,43 +112,55 @@ public class MemoryGameActivity extends AppCompatActivity {
         glCards.removeAllViews();
         cards = new ArrayList<>();
 
-        // 1. Seleccionar pares aleatorios
+        // 1. Seleccionar pares
         List<String[]> selectedPairs = new ArrayList<>();
         List<Integer> indices = new ArrayList<>();
         for (int i = 0; i < dataPairs.length; i++) indices.add(i);
         Collections.shuffle(indices);
 
-        for (int i = 0; i < TOTAL_PAIRS; i++) {
+        // Asegurarnos de no exceder el tamaño del array
+        int pairsToUse = Math.min(TOTAL_PAIRS, dataPairs.length);
+        for (int i = 0; i < pairsToUse; i++) {
             selectedPairs.add(dataPairs[indices.get(i)]);
         }
 
-        // 2. Crear cartas (Concepto y Definición)
+        // 2. Crear cartas
         int idCounter = 0;
         for (String[] pair : selectedPairs) {
-            // Carta A (Concepto)
-            cards.add(new MemoryCard(idCounter, pair[0], true, idCounter)); // ID compartido para par
-            // Carta B (Definición)
+            cards.add(new MemoryCard(idCounter, pair[0], true, idCounter));
             cards.add(new MemoryCard(idCounter + 100, pair[1], false, idCounter));
             idCounter++;
         }
         Collections.shuffle(cards);
 
         // 3. Añadir botones al Grid
-        for (MemoryCard card : cards) {
-            MaterialButton btn = new MaterialButton(this);
+        // CORRECCIÓN: Usamos un ContextThemeWrapper para evitar crash por Tema
+        Context themeContext = new ContextThemeWrapper(this, com.google.android.material.R.style.Theme_MaterialComponents_DayNight_NoActionBar);
 
-            // Estilo inicial (Boca abajo)
+        for (MemoryCard card : cards) {
+            MaterialButton btn = new MaterialButton(themeContext);
+
             btn.setText("?");
             btn.setTextSize(24);
-            btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.upp_primary)));
+            try {
+                btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.upp_primary)));
+            } catch (Exception e) {
+                btn.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE)); // Color fallback
+            }
             btn.setTextColor(Color.WHITE);
             btn.setCornerRadius(16);
-            btn.setTag(card); // Guardar objeto en el tag
+            btn.setTag(card);
 
-            // Layout Params para grid (peso equitativo)
+            // Eliminar sombra/stroke por defecto si causa problemas visuales
+            btn.setStateListAnimator(null);
+            btn.setInsetTop(0);
+            btn.setInsetBottom(0);
+
+            // Layout Params para grid
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            // En GridLayout de AndroidX, usa width 0 para weights, pero asignamos tamaño fijo para asegurar visibilidad en ScrollView
             params.width = 0;
-            params.height = 250; // Altura fija o dinámica
+            params.height = 250;
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.setMargins(8, 8, 8, 8);
@@ -148,17 +175,14 @@ public class MemoryGameActivity extends AppCompatActivity {
         if (isProcessing) return;
         MemoryCard cardData = (MemoryCard) btn.getTag();
 
-        if (cardData.isMatched || cardData == selectedDetails1) return; // Ya resuelta o es la misma
+        if (cardData.isMatched || cardData == selectedDetails1) return;
 
-        // Voltear carta (Animación visual)
         flipCard(btn, cardData, true);
 
         if (selectedDetails1 == null) {
-            // Primera carta seleccionada
             selectedDetails1 = cardData;
             selectedButton1 = btn;
         } else {
-            // Segunda carta seleccionada -> Comprobar Match
             isProcessing = true;
             checkMatch(btn, cardData);
         }
@@ -166,34 +190,34 @@ public class MemoryGameActivity extends AppCompatActivity {
 
     private void checkMatch(MaterialButton btn2, MemoryCard cardData2) {
         if (selectedDetails1.pairId == cardData2.pairId) {
-            // --- ACIERTO ---
             handleMatch(selectedButton1, btn2);
         } else {
-            // --- ERROR ---
             handleMismatch(selectedButton1, btn2);
         }
     }
 
     private void handleMatch(MaterialButton btn1, MaterialButton btn2) {
         racha++;
-        score += (10 + (racha * 2)); // Bonus racha
+        score += (10 + (racha * 2));
         pairsFound++;
 
         playSound(R.raw.correct_ding);
-        vibrar(50);
+        vibrarSafe(50); // Usar método seguro
 
         MemoryCard c1 = (MemoryCard) btn1.getTag();
         MemoryCard c2 = (MemoryCard) btn2.getTag();
         c1.isMatched = true;
         c2.isMatched = true;
 
-        tvMessage.setText("¡Correcto! " + c1.text + " = " + c2.text);
-        lottieMascot.setAnimation(R.raw.happy_sun);
-        lottieMascot.playAnimation();
+        tvMessage.setText("¡Correcto!");
+        if (lottieMascot != null) {
+            lottieMascot.setAnimation(R.raw.happy_sun);
+            lottieMascot.playAnimation();
+        }
 
-        // Cambiar color a verde (éxito)
-        btn1.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
-        btn2.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
+        int colorVerde = ContextCompat.getColor(this, R.color.game_success);
+        btn1.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
+        btn2.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
 
         selectedDetails1 = null;
         selectedButton1 = null;
@@ -209,25 +233,27 @@ public class MemoryGameActivity extends AppCompatActivity {
         racha = 0;
         lives--;
         playSound(R.raw.megaman_x_error);
-        vibrar(300);
+        vibrarSafe(300); // Usar método seguro
 
         tvMessage.setText("¡No coinciden!");
-        lottieMascot.setAnimation(R.raw.angry_thunderstorm);
-        lottieMascot.playAnimation();
+        if (lottieMascot != null) {
+            lottieMascot.setAnimation(R.raw.angry_thunderstorm);
+            lottieMascot.playAnimation();
+        }
 
-        // Color rojo temporal
-        btn1.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
-        btn2.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
+        int colorRojo = ContextCompat.getColor(this, R.color.game_fail);
+        btn1.setBackgroundTintList(ColorStateList.valueOf(colorRojo));
+        btn2.setBackgroundTintList(ColorStateList.valueOf(colorRojo));
 
-        // Esperar 1 segundo y voltear de nuevo
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (!isFinishing()) {
                 flipCard(btn1, (MemoryCard) btn1.getTag(), false);
                 flipCard(btn2, (MemoryCard) btn2.getTag(), false);
 
-                // Restaurar color original al voltear (se hace en flipCard, pero aseguramos)
-                btn1.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.upp_primary)));
-                btn2.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.upp_primary)));
+                // Restaurar color original
+                int colorOriginal = ContextCompat.getColor(this, R.color.upp_primary);
+                btn1.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
+                btn2.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
 
                 selectedDetails1 = null;
                 selectedButton1 = null;
@@ -240,12 +266,10 @@ public class MemoryGameActivity extends AppCompatActivity {
     }
 
     private void flipCard(MaterialButton btn, MemoryCard data, boolean showFace) {
-        // Animación simple de escala
         btn.animate().scaleX(0f).setDuration(150).withEndAction(() -> {
             if (showFace) {
                 btn.setText(data.text);
-                btn.setTextSize(14); // Texto más pequeño para que quepa
-                // Color de fondo para carta abierta (ej. blanco o gris claro)
+                btn.setTextSize(14);
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.DKGRAY));
             } else {
                 btn.setText("?");
@@ -280,14 +304,20 @@ public class MemoryGameActivity extends AppCompatActivity {
         String msg = win ? "Puntaje final: " + score : "Te quedaste sin vidas o tiempo.";
         int icon = win ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones;
 
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(title)
-                .setMessage(msg)
-                .setIcon(icon)
-                .setCancelable(false)
-                .setPositiveButton("Jugar otra vez", (d, w) -> startNewGame())
-                .setNegativeButton("Salir", (d, w) -> finish())
-                .show();
+        try {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(title)
+                    .setMessage(msg)
+                    .setIcon(icon)
+                    .setCancelable(false)
+                    .setPositiveButton("Jugar otra vez", (d, w) -> startNewGame())
+                    .setNegativeButton("Salir", (d, w) -> finish())
+                    .show();
+        } catch (Exception e) {
+            // Fallback si falla el MaterialAlertDialog
+            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 
     private void updateUI() {
@@ -296,20 +326,29 @@ public class MemoryGameActivity extends AppCompatActivity {
     }
 
     private void playSound(int resId) {
-        MediaPlayer mp = MediaPlayer.create(this, resId);
-        if (mp != null) {
-            mp.start();
-            mp.setOnCompletionListener(MediaPlayer::release);
+        try {
+            MediaPlayer mp = MediaPlayer.create(this, resId);
+            if (mp != null) {
+                mp.start();
+                mp.setOnCompletionListener(MediaPlayer::release);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private void vibrar(long ms) {
-        if (vibrator != null && vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE));
-            } else {
-                vibrator.vibrate(ms);
+    // MÉTODO SEGURO DE VIBRACIÓN
+    private void vibrarSafe(long ms) {
+        try {
+            if (vibrator != null && vibrator.hasVibrator()) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE));
+                } else {
+                    vibrator.vibrate(ms);
+                }
             }
+        } catch (SecurityException e) {
+            // Ignorar error si falta el permiso, para que no cierre la app
         }
     }
 
@@ -319,12 +358,11 @@ public class MemoryGameActivity extends AppCompatActivity {
         if (timer != null) timer.cancel();
     }
 
-    // Clase auxiliar simple
     private static class MemoryCard {
         int id;
         String text;
-        boolean isConcept; // true = Concepto, false = Definición
-        int pairId; // Para identificar match
+        boolean isConcept;
+        int pairId;
         boolean isMatched = false;
 
         public MemoryCard(int id, String text, boolean isConcept, int pairId) {
