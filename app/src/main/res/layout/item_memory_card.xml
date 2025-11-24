@@ -32,7 +32,6 @@
                 android:layout_height="48dp"
                 android:background="@drawable/white_circle_bg"
                 android:backgroundTint="#F3E5F5">
-
                 <ImageView
                     android:id="@+id/iv_card_icon"
                     android:layout_width="26dp"

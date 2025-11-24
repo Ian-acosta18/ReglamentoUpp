@@ -45,7 +45,7 @@ public class MemoryGameActivity extends AppCompatActivity {
     // Estado
     private List<MemoryCard> cards;
     private MemoryCard selectedDetails1 = null;
-    private View selectedView1 = null; // Usamos View genérica en lugar de Button
+    private View selectedView1 = null;
     private boolean isProcessing = false;
     private int score = 0;
     private int lives = 6;
@@ -105,13 +105,11 @@ public class MemoryGameActivity extends AppCompatActivity {
         glCards.setColumnCount(4);
         cards = new ArrayList<>();
 
-        // 1. Preparar lista de definiciones
         List<CardDefinition> selectedDefs = new ArrayList<>();
         for (CardDefinition def : definitions) {
             selectedDefs.add(def);
         }
 
-        // 2. Crear pares
         int idCounter = 0;
         for (CardDefinition def : selectedDefs) {
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textLabel));
@@ -119,21 +117,17 @@ public class MemoryGameActivity extends AppCompatActivity {
         }
         Collections.shuffle(cards);
 
-        // 3. Inflar el diseño XML personalizado
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (MemoryCard card : cards) {
-            // Usamos el nuevo layout item_memory_card.xml
             View cardView = inflater.inflate(R.layout.item_memory_card, glCards, false);
 
-            // Configuramos los datos en la vista "Frontal" (oculta inicialmente)
             TextView tvText = cardView.findViewById(R.id.tv_card_text);
             ImageView ivIcon = cardView.findViewById(R.id.iv_card_icon);
 
             if (tvText != null) tvText.setText(card.textLabel);
             if (ivIcon != null) ivIcon.setImageResource(card.iconResId);
 
-            // Ajustar parámetros para el GridLayout
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
             params.height = dpToPx(110);
@@ -142,7 +136,7 @@ public class MemoryGameActivity extends AppCompatActivity {
             params.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
 
             cardView.setLayoutParams(params);
-            cardView.setTag(card); // Guardamos la data en la vista
+            cardView.setTag(card);
 
             cardView.setOnClickListener(v -> onCardClick(cardView));
 
@@ -156,7 +150,6 @@ public class MemoryGameActivity extends AppCompatActivity {
 
         if (cardData.isMatched || cardData == selectedDetails1) return;
 
-        // Mostrar cara
         flipCard(view, true);
 
         if (selectedDetails1 == null) {
@@ -195,7 +188,6 @@ public class MemoryGameActivity extends AppCompatActivity {
             lottieMascot.playAnimation();
         }
 
-        // Borde verde de éxito
         setCardStroke(view1, R.color.game_success, 3);
         setCardStroke(view2, R.color.game_success, 3);
 
@@ -221,7 +213,6 @@ public class MemoryGameActivity extends AppCompatActivity {
             lottieMascot.playAnimation();
         }
 
-        // Borde rojo de error
         setCardStroke(view1, R.color.game_fail, 3);
         setCardStroke(view2, R.color.game_fail, 3);
 
@@ -230,8 +221,7 @@ public class MemoryGameActivity extends AppCompatActivity {
                 flipCard(view1, false);
                 flipCard(view2, false);
 
-                // Restaurar borde suave
-                setCardStroke(view1, android.R.color.transparent, 0); // O color gris suave
+                setCardStroke(view1, android.R.color.transparent, 0);
                 setCardStroke(view2, android.R.color.transparent, 0);
 
                 selectedDetails1 = null;
@@ -256,7 +246,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         }
     }
 
-    // Animación de volteo
     private void flipCard(View view, boolean showFace) {
         final View front = view.findViewById(R.id.layout_front);
         final View back = view.findViewById(R.id.layout_back);
@@ -337,7 +326,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         if (timer != null) timer.cancel();
     }
 
-    // Clases internas para datos
     private static class CardDefinition {
         int iconRes;
         String textLabel;

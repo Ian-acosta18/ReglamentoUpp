@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                         binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
                         binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
 
-                        // BOTÓN MEMORAMA (Asegúrate de que este ID exista en tu XML activity_main)
+                        // BOTÓN MEMORAMA
                         binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
 
                         // Configurar Niveles
