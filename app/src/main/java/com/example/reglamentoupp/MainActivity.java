@@ -156,7 +156,12 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                         Long nivelDb = documentSnapshot.getLong("nivelDesbloqueado");
                         if (nivelDb != null) {
                             userNivel = nivelDb.intValue();
+                        } else {
+                            userNivel = 1; // Valor por defecto si no existe
                         }
+
+                        // --- ACTUALIZACIÓN: Llamamos a la función para actualizar el icono del nivel ---
+                        actualizarUIdeNivel(userNivel);
 
                         // Listeners de Juegos
                         binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
@@ -182,6 +187,38 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                     binding.tvUserName.setText("Error de conexión");
                     binding.tvUserPuntaje.setText("---");
                 });
+    }
+
+    // --- ACTUALIZACIÓN: Nuevo método para cambiar el icono y texto del nivel ---
+    private void actualizarUIdeNivel(int nivel) {
+        if (binding == null) return;
+
+        // Actualizar texto del nivel
+        binding.tvUserLevel.setText("Nivel " + nivel);
+
+        // Seleccionar icono según el nivel
+        int iconRes;
+        switch (nivel) {
+            case 1:
+                iconRes = R.drawable.ic_derechos;
+                break;
+            case 2:
+                iconRes = R.drawable.ic_obligaciones;
+                break;
+            case 3:
+                iconRes = R.drawable.ic_prohibiciones;
+                break;
+            case 4:
+                iconRes = R.drawable.ic_sanciones;
+                break;
+            case 5:
+                iconRes = R.drawable.ic_reconocimientos;
+                break;
+            default:
+                iconRes = R.drawable.ic_check_circle; // Icono por defecto para niveles superiores o errores
+                break;
+        }
+        binding.ivUserLevelIcon.setImageResource(iconRes);
     }
 
     private void animarMenu() {

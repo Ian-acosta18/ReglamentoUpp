@@ -131,12 +131,14 @@
                             android:gravity="center">
 
                             <ImageView
+                                android:id="@+id/ivUserLevelIcon"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
                                 android:src="@drawable/ic_reconocimientos"
                                 app:tint="#FFD700"/>
 
                             <TextView
+                                android:id="@+id/tvUserLevel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"

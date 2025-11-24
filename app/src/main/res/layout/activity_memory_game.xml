@@ -43,7 +43,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Vidas: 5"
+            android:text="Vidas: 6"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:fontFamily="sans-serif-medium"
@@ -87,12 +87,12 @@
         app:layout_constraintTop_toBottomOf="@id/llMascotArea"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.gridlayout.widget.GridLayout
+        <GridLayout
             android:id="@+id/glCards"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:columnCount="4"
-            app:rowCount="4"
+            android:columnCount="4"
+            android:rowCount="4"
             android:padding="4dp"
             android:layout_gravity="center_horizontal" />
     </ScrollView>
