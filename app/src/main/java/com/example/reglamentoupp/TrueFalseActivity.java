@@ -31,9 +31,21 @@ public class TrueFalseActivity extends AppCompatActivity {
     private int lives = 3;
     private boolean botonesBloqueados = false;
 
-    // Frases Específicas para Verdadero/Falso
+    // --- FRASES MASCOTA ---
     private final String[] frasesExito = {"¡Es Verdad!", "¡Exacto!", "¡Bien visto!", "¡No te engañan!"};
     private final String[] frasesError = {"¡Caíste!", "Era mentira...", "Lee bien...", "¡Ups!"};
+
+    // Mensajes de apoyo rotativos
+    private final String[] frasesApoyo = {
+            "¿Será cierto? 🤔",
+            "¡Cuidado con las trampas! ⚠️",
+            "Analiza bien... 🧐",
+            "¿Verdad o Mentira? ⚖️",
+            "¡Confía en tu memoria! 🧠"
+    };
+
+    private Handler handlerApoyo = new Handler(Looper.getMainLooper());
+    private int indiceApoyo = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +56,7 @@ public class TrueFalseActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         questionList = new ArrayList<>();
 
-        // MENSAJE INICIAL AL ENTRAR AL JUEGO
+        // Mensaje inicial
         binding.tvSpeechBubble.setText("¡Verdadero o Falso!");
         if (binding.lottieCharacter != null) {
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
@@ -55,12 +67,53 @@ public class TrueFalseActivity extends AppCompatActivity {
         binding.btnTrue.setOnClickListener(v -> checkAnswer(true));
         binding.btnFalse.setOnClickListener(v -> checkAnswer(false));
 
-        // --- CORRECCIÓN AQUÍ: Usamos btnBack en lugar de toolbarTf ---
-        binding.btnBack.setOnClickListener(v -> finish());
+        if(binding.btnBack != null) {
+            binding.btnBack.setOnClickListener(v -> finish());
+        }
     }
 
+    // --- LÓGICA MENSAJES ROTATIVOS ---
+    private Runnable runnableApoyo = new Runnable() {
+        @Override
+        public void run() {
+            if (binding != null && binding.tvSpeechBubble != null && !botonesBloqueados) {
+                binding.tvSpeechBubble.animate().alpha(0f).setDuration(300).withEndAction(() -> {
+                    if (binding != null && !botonesBloqueados) {
+                        indiceApoyo = (indiceApoyo + 1) % frasesApoyo.length;
+                        binding.tvSpeechBubble.setText(frasesApoyo[indiceApoyo]);
+                        binding.tvSpeechBubble.animate().alpha(1f).setDuration(300).start();
+                        handlerApoyo.postDelayed(this, 4000);
+                    }
+                }).start();
+            }
+        }
+    };
+
+    private void iniciarMensajesApoyo() {
+        detenerMensajesApoyo();
+        handlerApoyo.postDelayed(runnableApoyo, 3000); // Esperar 3s iniciales
+    }
+
+    private void detenerMensajesApoyo() {
+        handlerApoyo.removeCallbacks(runnableApoyo);
+        binding.tvSpeechBubble.animate().cancel();
+        binding.tvSpeechBubble.setAlpha(1f);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        detenerMensajesApoyo();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        detenerMensajesApoyo();
+    }
+    // --------------------------------
+
     private void loadQuestions() {
-        // Asegúrate de que tu colección en Firebase se llame 'preguntasVF'
         db.collection("preguntasVF")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -78,13 +131,15 @@ public class TrueFalseActivity extends AppCompatActivity {
         if (currentQuestionIndex < questionList.size() && lives > 0) {
             botonesBloqueados = false;
 
-            // Restaurar mascota a estado normal
+            // 1. Restaurar mascota (Nube)
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
 
-            PreguntaVF q = questionList.get(currentQuestionIndex);
+            // 2. Reiniciar mensajes de apoyo
+            binding.tvSpeechBubble.setText("¿Verdad o Mentira?");
+            iniciarMensajesApoyo();
 
-            // Usamos el getter correcto de tu clase PreguntaVF
+            PreguntaVF q = questionList.get(currentQuestionIndex);
             binding.tvQuestion.setText(q.getAfirmacion());
 
             binding.progressBar.setProgress(currentQuestionIndex + 1);
@@ -99,19 +154,20 @@ public class TrueFalseActivity extends AppCompatActivity {
         if (botonesBloqueados) return;
         botonesBloqueados = true;
 
-        // Usamos el getter correcto de tu clase PreguntaVF
-        boolean correctAnswer = questionList.get(currentQuestionIndex).isRespuesta();
+        // IMPORTANTE: Detener mensajes para mostrar resultado
+        detenerMensajesApoyo();
 
+        boolean correctAnswer = questionList.get(currentQuestionIndex).isRespuesta();
         boolean isCorrect = (userSelectedTrue == correctAnswer);
 
         if (isCorrect) {
             score += 10;
             playSound(R.raw.correct_ding);
-            actualizarMascota(true); // Mascota Feliz
+            actualizarMascota(true);
         } else {
             lives--;
             playSound(R.raw.megaman_x_error);
-            actualizarMascota(false); // Mascota Enojada
+            actualizarMascota(false);
         }
 
         currentQuestionIndex++;

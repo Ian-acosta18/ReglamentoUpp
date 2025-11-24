@@ -40,9 +40,21 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private static final int MAX_PREGUNTAS = 10;
     private boolean botonesBloqueados = false;
 
-    // Frases para la mascota
+    // --- VARIABLES PARA LA MASCOTA ---
     private final String[] frasesExito = {"¡Brillante!", "¡Iluminaste el día!", "¡Correcto!", "¡Radiante!"};
     private final String[] frasesError = {"¡Rayos!", "Se nubló...", "Intenta de nuevo", "¡Cuidado!"};
+
+    // Mensajes de apoyo (mientras piensa)
+    private final String[] frasesApoyo = {
+            "¿Cuál será? 🤔",
+            "¡Tú puedes! 💪",
+            "Lee con atención 🧐",
+            "¡Vamos por el 10! 🌟",
+            "Confía en ti ✨"
+    };
+
+    private Handler handlerApoyo = new Handler(Looper.getMainLooper());
+    private int indiceApoyo = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +66,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         mAuth = FirebaseAuth.getInstance();
         listaDePreguntas = new ArrayList<>();
 
+        // Mensaje inicial
         binding.tvSpeechBubble.setText("¡Quiz de Opción Múltiple!");
         binding.tvSpeechBubble.setVisibility(View.VISIBLE);
 
@@ -63,6 +76,52 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
         cargarTodasLasPreguntas();
     }
+
+    // --- LÓGICA DE MENSAJES ROTATIVOS ---
+    private Runnable runnableApoyo = new Runnable() {
+        @Override
+        public void run() {
+            if (binding != null && binding.tvSpeechBubble != null && !botonesBloqueados) {
+                // Animación suave de cambio de texto
+                binding.tvSpeechBubble.animate().alpha(0f).setDuration(300).withEndAction(() -> {
+                    if (binding != null && !botonesBloqueados) { // Doble check por si acaso
+                        indiceApoyo = (indiceApoyo + 1) % frasesApoyo.length;
+                        binding.tvSpeechBubble.setText(frasesApoyo[indiceApoyo]);
+                        binding.tvSpeechBubble.animate().alpha(1f).setDuration(300).start();
+
+                        // Programar siguiente frase en 4 segundos
+                        handlerApoyo.postDelayed(this, 4000);
+                    }
+                }).start();
+            }
+        }
+    };
+
+    private void iniciarMensajesApoyo() {
+        detenerMensajesApoyo(); // Limpiar anteriores
+        // Esperar 3 segundos antes de empezar a rotar frases para dejar leer la pregunta
+        handlerApoyo.postDelayed(runnableApoyo, 3000);
+    }
+
+    private void detenerMensajesApoyo() {
+        handlerApoyo.removeCallbacks(runnableApoyo);
+        binding.tvSpeechBubble.animate().cancel();
+        binding.tvSpeechBubble.setAlpha(1f); // Restaurar visibilidad por si quedó a medias
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        detenerMensajesApoyo();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        detenerMensajesApoyo();
+    }
+
+    // -------------------------------------
 
     private void cargarTodasLasPreguntas() {
         mStore.collection("preguntas")
@@ -92,11 +151,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         indicePreguntaActual = 0;
         puntaje = 0;
         vidas = 3;
-
-        // Iniciar animación por defecto (Nube)
-        binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
-        binding.lottieCharacter.playAnimation();
-
         mostrarSiguientePregunta();
     }
 
@@ -105,10 +159,16 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             botonesBloqueados = false;
             restaurarBotones();
 
-            // Restaurar Mascota a estado normal (Nube) si no lo está
+            // 1. Restaurar Mascota a estado normal (Nube)
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
-            binding.tvSpeechBubble.setVisibility(View.GONE);
+
+            // 2. Mensaje inicial de la pregunta (opcional, o dejar el último)
+            binding.tvSpeechBubble.setText("¿Cuál será la respuesta?");
+            binding.tvSpeechBubble.setVisibility(View.VISIBLE);
+
+            // 3. INICIAR EL CICLO DE MENSAJES DE APOYO
+            iniciarMensajesApoyo();
 
             preguntaActual = listaDePreguntas.get(indicePreguntaActual);
 
@@ -132,40 +192,31 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         if (botonesBloqueados) return;
         botonesBloqueados = true;
 
+        // IMPORTANTE: Detener mensajes de apoyo para mostrar el resultado
+        detenerMensajesApoyo();
+
         Button botonPresionado = (Button) v;
         String respuestaElegida = botonPresionado.getText().toString();
         boolean esCorrecto = respuestaElegida.equals(preguntaActual.getRespuestaCorrecta());
 
         if (esCorrecto) {
-            // --- CORRECTO ---
             puntaje += 10;
             reproducirSonido(R.raw.correct_ding);
             botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
-
-            // Mascota Feliz
             actualizarMascota(true);
-
         } else {
-            // --- INCORRECTO ---
             vidas--;
             reproducirSonido(R.raw.megaman_x_error);
             botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
-
-            // Animaciones de error
             Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake_error);
             botonPresionado.startAnimation(shake);
-            // binding.cardQuestion.startAnimation(shake); // Quitamos el shake de la tarjeta para no marear al personaje
-
             resaltarRespuestaCorrecta();
-
-            // Mascota Triste/Enojada
             actualizarMascota(false);
         }
 
         if (vidas <= 0) {
             new Handler(Looper.getMainLooper()).postDelayed(this::mostrarResultadoFinal, 1500);
         } else {
-            // Damos tiempo para ver la animación antes de cambiar de pregunta
             new Handler(Looper.getMainLooper()).postDelayed(this::mostrarSiguientePregunta, 2500);
         }
     }
@@ -175,20 +226,15 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         int animacionRes;
 
         if (esCorrecto) {
-            // --- GANA: Sale el SOL ---
             frase = frasesExito[(int) (Math.random() * frasesExito.length)];
             animacionRes = R.raw.happy_sun;
         } else {
-            // --- PIERDE: Sale la TORMENTA ---
             frase = frasesError[(int) (Math.random() * frasesError.length)];
             animacionRes = R.raw.angry_thunderstorm;
         }
 
-        // 1. Mostrar frase
         binding.tvSpeechBubble.setText(frase);
         binding.tvSpeechBubble.setVisibility(View.VISIBLE);
-
-        // 2. Cambiar Animación
         binding.lottieCharacter.setAnimation(animacionRes);
         binding.lottieCharacter.playAnimation();
         binding.lottieCharacter.loop(true);
@@ -208,11 +254,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private void restaurarBotones() {
         int colorOriginal = Color.parseColor("#33FFFFFF");
-
         binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
         binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
         binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
-
         int colorTexto = ContextCompat.getColor(this, R.color.white);
         binding.btnQuizOptionA.setTextColor(colorTexto);
         binding.btnQuizOptionB.setTextColor(colorTexto);
@@ -222,7 +266,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private void resaltarRespuestaCorrecta() {
         String correcta = preguntaActual.getRespuestaCorrecta();
         int colorVerde = ContextCompat.getColor(this, R.color.game_success);
-
         if (binding.btnQuizOptionA.getText().toString().equals(correcta)) {
             binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
         } else if (binding.btnQuizOptionB.getText().toString().equals(correcta)) {
@@ -237,7 +280,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             mStore.collection("usuarios").document(mAuth.getCurrentUser().getUid())
                     .update("puntaje", FieldValue.increment(puntaje));
         }
-
         new MaterialAlertDialogBuilder(this)
                 .setTitle("¡Juego Terminado!")
                 .setMessage("Tu puntaje final es: " + puntaje)
