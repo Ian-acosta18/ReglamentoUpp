@@ -22,7 +22,7 @@
             android:orientation="vertical"
             android:background="@drawable/modern_header_gradient"
             android:paddingBottom="40dp"
-            android:elevation="8dp">
+            android:elevation="0dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -35,7 +35,9 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     app:cardCornerRadius="14dp"
-                    app:cardElevation="4dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E0E0E0"
                     app:cardBackgroundColor="@color/white"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -53,7 +55,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     app:cardCornerRadius="14dp"
-                    app:cardElevation="4dp"
+                    app:cardElevation="0dp"
                     app:cardBackgroundColor="#30FFFFFF"
                     app:strokeColor="#60FFFFFF"
                     app:strokeWidth="1dp"
@@ -65,8 +67,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:src="@drawable/ic_lock"
-                        android:rotation="180"
+                        android:src="@drawable/ic_logout"
                         android:padding="12dp"
                         app:tint="@color/white"/>
                 </com.google.android.material.card.MaterialCardView>
@@ -79,7 +80,7 @@
                 android:layout_marginHorizontal="20dp"
                 android:layout_marginTop="20dp"
                 app:cardCornerRadius="20dp"
-                app:cardElevation="8dp"
+                app:cardElevation="0dp"
                 app:cardBackgroundColor="#30FFFFFF"
                 app:strokeColor="#60FFFFFF"
                 app:strokeWidth="1dp">
@@ -188,7 +189,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     app:cardCornerRadius="16dp"
-                    app:cardElevation="4dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E0E0E0"
                     app:cardBackgroundColor="@color/white"
                     app:layout_constraintStart_toEndOf="@id/lottieWelcome"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -240,7 +243,9 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
                         app:cardCornerRadius="24dp"
-                        app:cardElevation="8dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#E5E7EB"
                         app:cardBackgroundColor="@color/white">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -249,34 +254,30 @@
                             android:background="@drawable/gradient_card_purple"
                             android:padding="20dp">
 
-                            <com.google.android.material.card.MaterialCardView
+                            <ImageView
                                 android:id="@+id/iconTrivia"
                                 android:layout_width="64dp"
                                 android:layout_height="64dp"
-                                app:cardCornerRadius="18dp"
-                                app:cardElevation="4dp"
-                                app:cardBackgroundColor="#40FFFFFF"
+                                android:padding="12dp"
+                                android:src="@drawable/ic_game_trivia"
+                                app:tint="@color/white"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent">
-
-                                <ImageView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:padding="14dp"
-                                    android:src="@drawable/ic_reconocimientos"
-                                    app:tint="@color/white"/>
-                            </com.google.android.material.card.MaterialCardView>
+                                app:layout_constraintTop_toTopOf="parent"/>
 
                             <TextView
+                                android:id="@+id/tvTriviaTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="4dp"
+                                android:layout_marginTop="16dp"
                                 android:text="Trivia"
                                 android:textColor="@color/white"
                                 android:textSize="22sp"
                                 android:textStyle="bold"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintBottom_toTopOf="@+id/tvTriviaDesc"/>
+                                app:layout_constraintTop_toBottomOf="@id/iconTrivia"
+                                app:layout_constraintBottom_toTopOf="@+id/tvTriviaDesc"
+                                app:layout_constraintVertical_chainStyle="packed"
+                                app:layout_constraintVertical_bias="1.0"/>
 
                             <TextView
                                 android:id="@+id/tvTriviaDesc"
@@ -286,7 +287,8 @@
                                 android:textColor="#E0FFFFFF"
                                 android:textSize="14sp"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent"/>
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvTriviaTitle"/>
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -300,7 +302,9 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
                         app:cardCornerRadius="24dp"
-                        app:cardElevation="8dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#E5E7EB"
                         app:cardBackgroundColor="@color/white">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -309,34 +313,30 @@
                             android:background="@drawable/gradient_card_blue"
                             android:padding="20dp">
 
-                            <com.google.android.material.card.MaterialCardView
+                            <ImageView
                                 android:id="@+id/iconVF"
                                 android:layout_width="64dp"
                                 android:layout_height="64dp"
-                                app:cardCornerRadius="18dp"
-                                app:cardElevation="4dp"
-                                app:cardBackgroundColor="#40FFFFFF"
+                                android:padding="12dp"
+                                android:src="@drawable/ic_game_vf"
+                                app:tint="@color/white"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent">
-
-                                <ImageView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:padding="14dp"
-                                    android:src="@drawable/ic_check_circle"
-                                    app:tint="@color/white"/>
-                            </com.google.android.material.card.MaterialCardView>
+                                app:layout_constraintTop_toTopOf="parent"/>
 
                             <TextView
+                                android:id="@+id/tvVFTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="4dp"
+                                android:layout_marginTop="16dp"
                                 android:text="V / F"
                                 android:textColor="@color/white"
                                 android:textSize="22sp"
                                 android:textStyle="bold"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintBottom_toTopOf="@+id/tvVFDesc"/>
+                                app:layout_constraintTop_toBottomOf="@id/iconVF"
+                                app:layout_constraintBottom_toTopOf="@+id/tvVFDesc"
+                                app:layout_constraintVertical_chainStyle="packed"
+                                app:layout_constraintVertical_bias="1.0"/>
 
                             <TextView
                                 android:id="@+id/tvVFDesc"
@@ -346,7 +346,8 @@
                                 android:textColor="#E0FFFFFF"
                                 android:textSize="14sp"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent"/>
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvVFTitle"/>
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -359,7 +360,9 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
                         app:cardCornerRadius="24dp"
-                        app:cardElevation="8dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#E5E7EB"
                         app:cardBackgroundColor="@color/white">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -368,34 +371,30 @@
                             android:background="@drawable/gradient_card_pink"
                             android:padding="20dp">
 
-                            <com.google.android.material.card.MaterialCardView
+                            <ImageView
                                 android:id="@+id/iconAhorcado"
                                 android:layout_width="64dp"
                                 android:layout_height="64dp"
-                                app:cardCornerRadius="18dp"
-                                app:cardElevation="4dp"
-                                app:cardBackgroundColor="#40FFFFFF"
+                                android:padding="12dp"
+                                android:src="@drawable/ic_game_hangman"
+                                app:tint="@color/white"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent">
-
-                                <ImageView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="match_parent"
-                                    android:padding="14dp"
-                                    android:src="@drawable/ic_prohibiciones"
-                                    app:tint="@color/white"/>
-                            </com.google.android.material.card.MaterialCardView>
+                                app:layout_constraintTop_toTopOf="parent"/>
 
                             <TextView
+                                android:id="@+id/tvAhorcadoTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="4dp"
+                                android:layout_marginTop="16dp"
                                 android:text="Ahorcado"
                                 android:textColor="@color/white"
                                 android:textSize="22sp"
                                 android:textStyle="bold"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintBottom_toTopOf="@+id/tvAhorcadoDesc"/>
+                                app:layout_constraintTop_toBottomOf="@id/iconAhorcado"
+                                app:layout_constraintBottom_toTopOf="@+id/tvAhorcadoDesc"
+                                app:layout_constraintVertical_chainStyle="packed"
+                                app:layout_constraintVertical_bias="1.0"/>
 
                             <TextView
                                 android:id="@+id/tvAhorcadoDesc"
@@ -405,7 +404,8 @@
                                 android:textColor="#E0FFFFFF"
                                 android:textSize="14sp"
                                 app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintBottom_toBottomOf="parent"/>
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tvAhorcadoTitle"/>
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -439,7 +439,9 @@
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="6dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E5E7EB"
                     app:cardBackgroundColor="@color/white">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -535,7 +537,9 @@
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="6dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E5E7EB"
                     app:cardBackgroundColor="@color/white">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -620,7 +624,9 @@
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="6dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E5E7EB"
                     app:cardBackgroundColor="@color/white">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -705,7 +711,9 @@
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="6dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E5E7EB"
                     app:cardBackgroundColor="@color/white">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -790,7 +798,9 @@
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="20dp"
-                    app:cardElevation="6dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#E5E7EB"
                     app:cardBackgroundColor="@color/white">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
