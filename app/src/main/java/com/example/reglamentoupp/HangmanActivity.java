@@ -1,13 +1,16 @@
 package com.example.reglamentoupp;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.GridLayout;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -21,8 +24,9 @@ import java.util.Random;
 public class HangmanActivity extends AppCompatActivity {
 
     private ActivityHangmanBinding binding;
+    private Vibrator vibrator;
 
-    // Palabras y sus DEFINICIONES (Ahora se mostrarán como pregunta)
+    // Palabras y sus DEFINICIONES
     private String[][] palabrasConPistas = {
             {"REGLAMENTO", "¿Cómo se llama el documento rector con todas las normas?"},
             {"DERECHOS", "¿Qué nombre reciben las facultades y permisos que tienes como alumno?"},
@@ -55,6 +59,8 @@ public class HangmanActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityHangmanBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         iniciarJuego();
 
@@ -129,9 +135,17 @@ public class HangmanActivity extends AppCompatActivity {
 
         if (palabraSecreta.contains(letra)) {
             // --- ACIERTO ---
+            vibrar(50); // Vibración leve
             reproducirSonido(R.raw.correct_ding);
             btn.setBackgroundColor(ContextCompat.getColor(this, R.color.status_green));
             btn.setStrokeColor(ColorStateList.valueOf(Color.TRANSPARENT));
+
+            // Animación de rebote (POP) en el texto de la palabra
+            binding.tvHangmanWord.animate()
+                    .scaleX(1.1f).scaleY(1.1f)
+                    .setDuration(100)
+                    .withEndAction(() -> binding.tvHangmanWord.animate().scaleX(1f).scaleY(1f).start())
+                    .start();
 
             boolean gano = true;
             for (int i = 0; i < palabraSecreta.length(); i++) {
@@ -148,6 +162,7 @@ public class HangmanActivity extends AppCompatActivity {
             }
         } else {
             // --- ERROR ---
+            vibrar(300); // Vibración fuerte
             reproducirSonido(R.raw.megaman_x_error);
             btn.setBackgroundColor(ContextCompat.getColor(this, R.color.game_fail));
             btn.setStrokeColor(ColorStateList.valueOf(Color.TRANSPARENT));
@@ -161,6 +176,16 @@ public class HangmanActivity extends AppCompatActivity {
             }
         }
         actualizarUI();
+    }
+
+    private void vibrar(long milisegundos) {
+        if (vibrator != null && vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(milisegundos, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                vibrator.vibrate(milisegundos);
+            }
+        }
     }
 
     private void reproducirSonido(int soundResource) {

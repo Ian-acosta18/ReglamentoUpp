@@ -1,11 +1,16 @@
 package com.example.reglamentoupp;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -40,27 +45,23 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private static final int MAX_PREGUNTAS = 10;
     private boolean botonesBloqueados = false;
 
-    // --- VARIABLES PARA LA MASCOTA ---
+    // --- VARIABLES DE DINAMISMO (NUEVAS) ---
+    private CountDownTimer temporizador;
+    private static final long TIEMPO_POR_PREGUNTA = 15000; // 15 segundos
+    private int racha = 0; // Contador de respuestas seguidas correctas
+    private Vibrator vibrator;
+
     private final String[] frasesExito = {"¡Brillante!", "¡Iluminaste el día!", "¡Correcto!", "¡Radiante!"};
     private final String[] frasesError = {"¡Rayos!", "Se nubló...", "Intenta de nuevo", "¡Cuidado!"};
-
-    // Mensajes de apoyo (mientras piensa)
-    private final String[] frasesApoyo = {
-            "¿Cuál será? 🤔",
-            "¡Tú puedes! 💪",
-            "Lee con atención 🧐",
-            "¡Vamos por el 10! 🌟",
-            "Confía en ti ✨"
-    };
-
-    private Handler handlerApoyo = new Handler(Looper.getMainLooper());
-    private int indiceApoyo = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityQuizBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Inicializar Vibrator
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         mStore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -76,52 +77,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
         cargarTodasLasPreguntas();
     }
-
-    // --- LÓGICA DE MENSAJES ROTATIVOS ---
-    private Runnable runnableApoyo = new Runnable() {
-        @Override
-        public void run() {
-            if (binding != null && binding.tvSpeechBubble != null && !botonesBloqueados) {
-                // Animación suave de cambio de texto
-                binding.tvSpeechBubble.animate().alpha(0f).setDuration(300).withEndAction(() -> {
-                    if (binding != null && !botonesBloqueados) { // Doble check por si acaso
-                        indiceApoyo = (indiceApoyo + 1) % frasesApoyo.length;
-                        binding.tvSpeechBubble.setText(frasesApoyo[indiceApoyo]);
-                        binding.tvSpeechBubble.animate().alpha(1f).setDuration(300).start();
-
-                        // Programar siguiente frase en 4 segundos
-                        handlerApoyo.postDelayed(this, 4000);
-                    }
-                }).start();
-            }
-        }
-    };
-
-    private void iniciarMensajesApoyo() {
-        detenerMensajesApoyo(); // Limpiar anteriores
-        // Esperar 3 segundos antes de empezar a rotar frases para dejar leer la pregunta
-        handlerApoyo.postDelayed(runnableApoyo, 3000);
-    }
-
-    private void detenerMensajesApoyo() {
-        handlerApoyo.removeCallbacks(runnableApoyo);
-        binding.tvSpeechBubble.animate().cancel();
-        binding.tvSpeechBubble.setAlpha(1f); // Restaurar visibilidad por si quedó a medias
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        detenerMensajesApoyo();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        detenerMensajesApoyo();
-    }
-
-    // -------------------------------------
 
     private void cargarTodasLasPreguntas() {
         mStore.collection("preguntas")
@@ -151,6 +106,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         indicePreguntaActual = 0;
         puntaje = 0;
         vidas = 3;
+        racha = 0;
         mostrarSiguientePregunta();
     }
 
@@ -159,16 +115,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             botonesBloqueados = false;
             restaurarBotones();
 
-            // 1. Restaurar Mascota a estado normal (Nube)
+            // 1. Restaurar Mascota
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
-
-            // 2. Mensaje inicial de la pregunta (opcional, o dejar el último)
-            binding.tvSpeechBubble.setText("¿Cuál será la respuesta?");
-            binding.tvSpeechBubble.setVisibility(View.VISIBLE);
-
-            // 3. INICIAR EL CICLO DE MENSAJES DE APOYO
-            iniciarMensajesApoyo();
 
             preguntaActual = listaDePreguntas.get(indicePreguntaActual);
 
@@ -181,10 +130,44 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             binding.tvQuizLives.setText("Vidas: " + vidas);
             binding.quizProgressBar.setProgress(indicePreguntaActual + 1);
 
+            // INICIAR TEMPORIZADOR PARA ESTA PREGUNTA
+            iniciarTemporizador();
+
             indicePreguntaActual++;
         } else {
             mostrarResultadoFinal();
         }
+    }
+
+    // --- NUEVO: Lógica del Temporizador ---
+    private void iniciarTemporizador() {
+        if (temporizador != null) {
+            temporizador.cancel();
+        }
+
+        binding.tvSpeechBubble.setTextColor(Color.BLACK); // Color normal
+
+        temporizador = new CountDownTimer(TIEMPO_POR_PREGUNTA, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                int segundos = (int) (millisUntilFinished / 1000);
+                binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
+
+                // Efecto de urgencia
+                if (segundos <= 5) {
+                    binding.tvSpeechBubble.setTextColor(Color.RED);
+                    binding.lottieCharacter.setSpeed(1.5f); // Acelerar animación
+                } else {
+                    binding.lottieCharacter.setSpeed(1.0f);
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                binding.tvSpeechBubble.setText("¡Tiempo agotado!");
+                manejarError(null, true); // True indica que fue por tiempo
+            }
+        }.start();
     }
 
     @Override
@@ -192,52 +175,89 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         if (botonesBloqueados) return;
         botonesBloqueados = true;
 
-        // IMPORTANTE: Detener mensajes de apoyo para mostrar el resultado
-        detenerMensajesApoyo();
+        if (temporizador != null) temporizador.cancel(); // Detener reloj
 
         Button botonPresionado = (Button) v;
         String respuestaElegida = botonPresionado.getText().toString();
         boolean esCorrecto = respuestaElegida.equals(preguntaActual.getRespuestaCorrecta());
 
         if (esCorrecto) {
-            puntaje += 10;
-            reproducirSonido(R.raw.correct_ding);
-            botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
-            actualizarMascota(true);
+            manejarAcierto(botonPresionado);
         } else {
-            vidas--;
-            reproducirSonido(R.raw.megaman_x_error);
-            botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
-            Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake_error);
-            botonPresionado.startAnimation(shake);
-            resaltarRespuestaCorrecta();
-            actualizarMascota(false);
+            manejarError(botonPresionado, false);
+        }
+    }
+
+    private void manejarAcierto(Button botonPresionado) {
+        // Lógica de Racha
+        racha++;
+        int puntosGanados = 10;
+
+        // Bonus
+        if (racha >= 3) {
+            puntosGanados += 5;
+            binding.tvSpeechBubble.setText("¡RACHA x" + racha + "! 🔥");
+        } else {
+            binding.tvSpeechBubble.setText(frasesExito[(int) (Math.random() * frasesExito.length)]);
         }
 
+        puntaje += puntosGanados;
+
+        // Efectos
+        vibrar(50); // Vibración corta y agradable
+        reproducirSonido(R.raw.correct_ding);
+
+        botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
+
+        // Animar texto de puntaje
+        binding.tvQuizScore.animate().scaleX(1.2f).scaleY(1.2f).setDuration(200).withEndAction(() ->
+                binding.tvQuizScore.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
+        ).start();
+
+        actualizarMascota(true);
+        postQuestionDelay(true);
+    }
+
+    private void manejarError(Button botonPresionado, boolean porTiempo) {
+        racha = 0; // Romper racha
+        vidas--;
+
+        // Efectos
+        vibrar(400); // Vibración larga de error
+        reproducirSonido(R.raw.megaman_x_error);
+
+        if (!porTiempo && botonPresionado != null) {
+            botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
+            botonPresionado.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
+        }
+
+        resaltarRespuestaCorrecta();
+        actualizarMascota(false);
+        postQuestionDelay(false);
+    }
+
+    private void postQuestionDelay(boolean acerto) {
+        long delay = acerto ? 2000 : 2500;
         if (vidas <= 0) {
             new Handler(Looper.getMainLooper()).postDelayed(this::mostrarResultadoFinal, 1500);
         } else {
-            new Handler(Looper.getMainLooper()).postDelayed(this::mostrarSiguientePregunta, 2500);
+            new Handler(Looper.getMainLooper()).postDelayed(this::mostrarSiguientePregunta, delay);
         }
     }
 
     private void actualizarMascota(boolean esCorrecto) {
-        String frase;
         int animacionRes;
-
         if (esCorrecto) {
-            frase = frasesExito[(int) (Math.random() * frasesExito.length)];
             animacionRes = R.raw.happy_sun;
         } else {
-            frase = frasesError[(int) (Math.random() * frasesError.length)];
+            // Si no hay texto de racha/error seteado, poner frase de error aleatoria
+            if(binding.tvSpeechBubble.getText().toString().contains("Tiempo")) {
+                binding.tvSpeechBubble.setText(frasesError[(int) (Math.random() * frasesError.length)]);
+            }
             animacionRes = R.raw.angry_thunderstorm;
         }
-
-        binding.tvSpeechBubble.setText(frase);
-        binding.tvSpeechBubble.setVisibility(View.VISIBLE);
         binding.lottieCharacter.setAnimation(animacionRes);
         binding.lottieCharacter.playAnimation();
-        binding.lottieCharacter.loop(true);
     }
 
     private void reproducirSonido(int soundResource) {
@@ -249,6 +269,17 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    // Método helper para vibración compatible
+    private void vibrar(long milisegundos) {
+        if (vibrator != null && vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(milisegundos, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                vibrator.vibrate(milisegundos);
+            }
         }
     }
 
@@ -286,5 +317,17 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 .setPositiveButton("Genial", (dialog, which) -> finish())
                 .setCancelable(false)
                 .show();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (temporizador != null) temporizador.cancel();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (temporizador != null) temporizador.cancel();
     }
 }
