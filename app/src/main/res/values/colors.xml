@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Paleta Principal - Gradientes Vibrantes -->
     <color name="upp_primary">#7C4DFF</color>
     <color name="upp_primary_dark">#651FFF</color>
     <color name="upp_primary_light">#B388FF</color>
@@ -12,24 +11,20 @@
     <color name="upp_accent">#FF6E40</color>
     <color name="upp_accent_light">#FF9E80</color>
 
-    <!-- Backgrounds Modernos -->
     <color name="app_bg">#F8F9FE</color>
     <color name="app_bg_dark">#1A1B2E</color>
     <color name="surface_color">#FFFFFF</color>
     <color name="surface_dark">#252641</color>
 
-    <!-- Cards con Glassmorphism -->
     <color name="card_bg">#FFFFFF</color>
     <color name="card_bg_glass">#F5FFFFFF</color>
     <color name="card_overlay">#1A000000</color>
 
-    <!-- Textos Mejorados -->
     <color name="text_primary">#1A1B2E</color>
     <color name="text_secondary">#6B7280</color>
     <color name="text_tertiary">#9CA3AF</color>
     <color name="text_light">#FFFFFF</color>
 
-    <!-- Gradientes para Botones y Cards -->
     <color name="gradient_purple_start">#667EEA</color>
     <color name="gradient_purple_end">#764BA2</color>
 
@@ -42,7 +37,6 @@
     <color name="gradient_orange_start">#FF6B6B</color>
     <color name="gradient_orange_end">#FFD93D</color>
 
-    <!-- Estados del Juego - Más Vibrantes -->
     <color name="game_success">#10B981</color>
     <color name="game_success_bg">#D1FAE5</color>
     <color name="game_success_light">#6EE7B7</color>
@@ -57,17 +51,14 @@
     <color name="game_info">#3B82F6</color>
     <color name="game_info_bg">#DBEAFE</color>
 
-    <!-- Nivel Estados -->
     <color name="level_locked">#E5E7EB</color>
     <color name="level_locked_text">#9CA3AF</color>
     <color name="level_unlocked">#10B981</color>
 
-    <!-- Overlays y Sombras -->
     <color name="overlay_dark">#80000000</color>
     <color name="overlay_light">#40FFFFFF</color>
     <color name="shadow_color">#1A000000</color>
 
-    <!-- Colores Especiales para Categorías -->
     <color name="category_derechos">#8B5CF6</color>
     <color name="category_derechos_bg">#EDE9FE</color>
 
@@ -83,12 +74,18 @@
     <color name="category_reconocimientos">#06B6D4</color>
     <color name="category_reconocimientos_bg">#CFFAFE</color>
 
-    <!-- Utilidades -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="transparent">#00000000</color>
 
-    <!-- Status Bar -->
     <color name="status_bar">#651FFF</color>
     <color name="status_bar_dark">#1A1B2E</color>
+
+    <color name="gradient_start">@color/gradient_purple_start</color>
+    <color name="gradient_end">@color/gradient_purple_end</color>
+    <color name="game_locked">#E5E7EB</color>
+
+    <color name="status_green">#10B981</color>
+    <color name="status_green_bg">#D1FAE5</color>
+    <color name="game_locked_bg">#F3F4F6</color>
 </resources>
