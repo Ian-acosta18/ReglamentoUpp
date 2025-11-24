@@ -34,8 +34,8 @@ import java.util.List;
 public class MemoryGameActivity extends AppCompatActivity {
 
     // --- Configuración ---
-    private static final int TOTAL_PAIRS = 6; // 12 cartas en total
-    private static final long GAME_TIME_MS = 60000; // 60 segundos
+    private static final int TOTAL_PAIRS = 8; // ¡Ahora son 8 pares! (16 cartas)
+    private static final long GAME_TIME_MS = 90000; // 90 seg (más tiempo por más cartas)
 
     // UI
     private GridLayout glCards;
@@ -44,24 +44,26 @@ public class MemoryGameActivity extends AppCompatActivity {
     private CountDownTimer timer;
     private Vibrator vibrator;
 
-    // Estado del Juego
+    // Estado
     private List<MemoryCard> cards;
     private MemoryCard selectedDetails1 = null;
     private MaterialButton selectedButton1 = null;
     private boolean isProcessing = false;
     private int score = 0;
-    private int lives = 5;
+    private int lives = 6; // Una vida extra
     private int pairsFound = 0;
     private int racha = 0;
 
-    // --- DEFINICIÓN DE CARTAS (Icono + Texto) ---
+    // --- DEFINICIÓN DE LAS 8 CARTAS (Todos tus iconos) ---
     private final CardDefinition[] definitions = {
             new CardDefinition(R.drawable.ic_derechos, "Derechos"),
             new CardDefinition(R.drawable.ic_obligaciones, "Obligaciones"),
-            new CardDefinition(R.drawable.ic_prohibiciones, "Prohibiciones"),
+            new CardDefinition(R.drawable.ic_prohibiciones, "Prohibido"),
             new CardDefinition(R.drawable.ic_sanciones, "Sanciones"),
-            new CardDefinition(R.drawable.ic_reconocimientos, "Méritos"), // Texto corto para que quepa
-            new CardDefinition(R.drawable.ic_game_trivia, "Evaluación")
+            new CardDefinition(R.drawable.ic_reconocimientos, "Méritos"),
+            new CardDefinition(R.drawable.ic_game_trivia, "Evaluación"),
+            new CardDefinition(R.drawable.ic_game_vf, "Verdad/Falso"),
+            new CardDefinition(R.drawable.ic_game_hangman, "Ahorcado")
     };
 
     @Override
@@ -69,7 +71,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_memory_game);
 
-        // Inicializar vistas
         glCards = findViewById(R.id.glCards);
         tvScore = findViewById(R.id.tvScore);
         tvLives = findViewById(R.id.tvLives);
@@ -78,24 +79,18 @@ public class MemoryGameActivity extends AppCompatActivity {
 
         try {
             vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
 
-        // Configurar Toolbar
         View toolbar = findViewById(R.id.toolbarMemory);
-        if (toolbar instanceof Toolbar) {
-            ((Toolbar) toolbar).setNavigationOnClickListener(v -> finish());
-        } else {
-            toolbar.setOnClickListener(v -> finish());
-        }
+        if (toolbar instanceof Toolbar) ((Toolbar) toolbar).setNavigationOnClickListener(v -> finish());
+        else toolbar.setOnClickListener(v -> finish());
 
         startNewGame();
     }
 
     private void startNewGame() {
         score = 0;
-        lives = 5;
+        lives = 6;
         pairsFound = 0;
         racha = 0;
         isProcessing = false;
@@ -109,65 +104,55 @@ public class MemoryGameActivity extends AppCompatActivity {
 
     private void setupBoard() {
         glCards.removeAllViews();
+        glCards.setColumnCount(4); // Asegurar 4 columnas por código también
         cards = new ArrayList<>();
 
-        // 1. Preparar lista de definiciones para usar
+        // Usamos TODOS los iconos definidos
         List<CardDefinition> selectedDefs = new ArrayList<>();
-        List<Integer> indices = new ArrayList<>();
-
-        // Asegurar que no pedimos más pares de los que tenemos definidos
-        int pairsToUse = Math.min(TOTAL_PAIRS, definitions.length);
-
-        for (int i = 0; i < definitions.length; i++) indices.add(i);
-        Collections.shuffle(indices);
-
-        for (int i = 0; i < pairsToUse; i++) {
-            selectedDefs.add(definitions[indices.get(i)]);
+        for (CardDefinition def : definitions) {
+            selectedDefs.add(def);
         }
 
-        // 2. Crear las cartas (duplicando para hacer pares)
+        // Crear pares
         int idCounter = 0;
         for (CardDefinition def : selectedDefs) {
-            // Carta A
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textLabel));
-            // Carta B (Par idéntico)
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textLabel));
         }
         Collections.shuffle(cards);
 
-        // 3. Añadir botones al Grid
         Context themeContext = new ContextThemeWrapper(this, com.google.android.material.R.style.Theme_MaterialComponents_DayNight_NoActionBar);
 
         for (MemoryCard card : cards) {
             MaterialButton btn = new MaterialButton(themeContext);
 
-            // --- Estado Inicial (Boca abajo) ---
+            // --- DISEÑO INICIAL ---
             btn.setText("?");
-            btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+            btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
             btn.setIcon(null);
 
-            // Colores iniciales
             try {
                 btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.upp_primary)));
             } catch (Exception e) {
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.BLUE));
             }
             btn.setTextColor(Color.WHITE);
-
-            // Estilo y Layout
-            btn.setCornerRadius(16);
+            btn.setCornerRadius(dpToPx(12));
             btn.setInsetTop(0);
             btn.setInsetBottom(0);
             btn.setPadding(0,0,0,0);
+            btn.setElevation(dpToPx(2));
+            btn.setGravity(Gravity.CENTER);
 
             btn.setTag(card);
 
+            // --- TAMAÑO PARA 4 COLUMNAS ---
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
-            params.height = dpToPx(110); // Altura suficiente para Icono + Texto
+            params.height = dpToPx(100); // Altura compacta pero suficiente
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            params.setMargins(8, 8, 8, 8);
+            params.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4)); // Margen pequeño
             btn.setLayoutParams(params);
 
             btn.setOnClickListener(v -> onCardClick(btn));
@@ -193,7 +178,6 @@ public class MemoryGameActivity extends AppCompatActivity {
     }
 
     private void checkMatch(MaterialButton btn2, MemoryCard cardData2) {
-        // Coincidencia si el texto (y por ende el icono) es el mismo
         if (selectedDetails1.textLabel.equals(cardData2.textLabel)) {
             handleMatch(selectedButton1, btn2);
         } else {
@@ -203,7 +187,7 @@ public class MemoryGameActivity extends AppCompatActivity {
 
     private void handleMatch(MaterialButton btn1, MaterialButton btn2) {
         racha++;
-        score += (10 + (racha * 2));
+        score += (15 + (racha * 5)); // Más puntos!
         pairsFound++;
 
         playSound(R.raw.correct_ding);
@@ -214,13 +198,12 @@ public class MemoryGameActivity extends AppCompatActivity {
         c1.isMatched = true;
         c2.isMatched = true;
 
-        tvMessage.setText("¡" + c1.textLabel + " Correcto!");
+        tvMessage.setText("¡" + c1.textLabel + " Encontrado!");
         if (lottieMascot != null) {
             lottieMascot.setAnimation(R.raw.happy_sun);
             lottieMascot.playAnimation();
         }
 
-        // Pintar borde o fondo verde suave para indicar éxito
         int colorVerde = ContextCompat.getColor(this, R.color.game_success);
         btn1.setStrokeColor(ColorStateList.valueOf(colorVerde));
         btn1.setStrokeWidth(dpToPx(3));
@@ -232,7 +215,7 @@ public class MemoryGameActivity extends AppCompatActivity {
         isProcessing = false;
         updateUI();
 
-        if (pairsFound >= Math.min(TOTAL_PAIRS, definitions.length)) {
+        if (pairsFound == TOTAL_PAIRS) {
             endGame(true);
         }
     }
@@ -241,32 +224,28 @@ public class MemoryGameActivity extends AppCompatActivity {
         racha = 0;
         lives--;
         playSound(R.raw.megaman_x_error);
-        vibrarSafe(300);
+        vibrarSafe(200);
 
-        tvMessage.setText("¡No son iguales!");
+        tvMessage.setText("¡Intenta de nuevo!");
         if (lottieMascot != null) {
             lottieMascot.setAnimation(R.raw.angry_thunderstorm);
             lottieMascot.playAnimation();
         }
 
-        // Color rojo de error temporal
         int colorRojo = ContextCompat.getColor(this, R.color.game_fail);
-        btn1.setBackgroundTintList(ColorStateList.valueOf(colorRojo));
-        btn1.setTextColor(Color.WHITE); // Texto blanco para leer sobre rojo
-
-        btn2.setBackgroundTintList(ColorStateList.valueOf(colorRojo));
-        btn2.setTextColor(Color.WHITE);
+        btn1.setStrokeColor(ColorStateList.valueOf(colorRojo));
+        btn1.setStrokeWidth(dpToPx(3));
+        btn2.setStrokeColor(ColorStateList.valueOf(colorRojo));
+        btn2.setStrokeWidth(dpToPx(3));
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (!isFinishing()) {
                 flipCard(btn1, (MemoryCard) btn1.getTag(), false);
                 flipCard(btn2, (MemoryCard) btn2.getTag(), false);
-
                 selectedDetails1 = null;
                 selectedButton1 = null;
                 isProcessing = false;
                 updateUI();
-
                 if (lives <= 0) endGame(false);
             }
         }, 1000);
@@ -275,30 +254,30 @@ public class MemoryGameActivity extends AppCompatActivity {
     private void flipCard(MaterialButton btn, MemoryCard data, boolean showFace) {
         btn.animate().scaleX(0f).setDuration(150).withEndAction(() -> {
             if (showFace) {
-                // --- MOSTRAR CARA (ICONO + TEXTO) ---
+                // --- CARA VISIBLE ---
                 btn.setText(data.textLabel);
-                btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11); // Texto pequeño
-                btn.setTextColor(ContextCompat.getColor(this, R.color.upp_primary)); // Texto oscuro
+                btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10); // Texto ajustado a la celda
+                btn.setSupportAllCaps(false);
+                btn.setTextColor(ContextCompat.getColor(this, R.color.upp_primary));
+                btn.setGravity(Gravity.CENTER | Gravity.BOTTOM);
 
-                // Configurar Icono
                 btn.setIconResource(data.iconResId);
-                btn.setIconSize(dpToPx(40)); // Tamaño del icono
-                btn.setIconTint(null); // Colores originales
-                btn.setIconGravity(MaterialButton.ICON_GRAVITY_TOP); // Icono arriba, texto abajo
+                btn.setIconSize(dpToPx(45)); // Icono grande para la celda
+                btn.setIconTint(null);
+                btn.setIconGravity(MaterialButton.ICON_GRAVITY_TOP);
+                btn.setIconPadding(dpToPx(2));
 
-                // Fondo Blanco
                 btn.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
                 btn.setStrokeWidth(dpToPx(1));
                 btn.setStrokeColor(ColorStateList.valueOf(Color.LTGRAY));
-
             } else {
-                // --- MOSTRAR DORSO (?) ---
+                // --- DORSO ---
                 btn.setText("?");
-                btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+                btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
                 btn.setTextColor(Color.WHITE);
-                btn.setIcon(null); // Quitar icono
+                btn.setGravity(Gravity.CENTER);
+                btn.setIcon(null);
 
-                // Restaurar color primario
                 btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.upp_primary)));
                 btn.setStrokeWidth(0);
             }
@@ -316,19 +295,15 @@ public class MemoryGameActivity extends AppCompatActivity {
                 if (sec < 10) tvMessage.setTextColor(Color.RED);
                 else tvMessage.setTextColor(ContextCompat.getColor(MemoryGameActivity.this, R.color.upp_primary));
             }
-
             @Override
-            public void onFinish() {
-                endGame(false);
-            }
+            public void onFinish() { endGame(false); }
         }.start();
     }
 
     private void endGame(boolean win) {
         if (timer != null) timer.cancel();
-
         String title = win ? "¡Felicidades!" : "Juego Terminado";
-        String msg = win ? "Completaste el nivel. Puntaje: " + score : "Se acabaron las vidas o el tiempo.";
+        String msg = win ? "¡Encontraste los 8 pares! Puntaje: " + score : "Se acabaron las vidas o el tiempo.";
         int icon = win ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones;
 
         try {
@@ -337,13 +312,10 @@ public class MemoryGameActivity extends AppCompatActivity {
                     .setMessage(msg)
                     .setIcon(icon)
                     .setCancelable(false)
-                    .setPositiveButton("Jugar de nuevo", (d, w) -> startNewGame())
+                    .setPositiveButton("Reintentar", (d, w) -> startNewGame())
                     .setNegativeButton("Salir", (d, w) -> finish())
                     .show();
-        } catch (Exception e) {
-            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-            finish();
-        }
+        } catch (Exception e) { finish(); }
     }
 
     private void updateUI() {
@@ -354,27 +326,17 @@ public class MemoryGameActivity extends AppCompatActivity {
     private void playSound(int resId) {
         try {
             MediaPlayer mp = MediaPlayer.create(this, resId);
-            if (mp != null) {
-                mp.start();
-                mp.setOnCompletionListener(MediaPlayer::release);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            if (mp != null) { mp.start(); mp.setOnCompletionListener(MediaPlayer::release); }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void vibrarSafe(long ms) {
         try {
             if (vibrator != null && vibrator.hasVibrator()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE));
-                } else {
-                    vibrator.vibrate(ms);
-                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) vibrator.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE));
+                else vibrator.vibrate(ms);
             }
-        } catch (Exception e) {
-            // Ignorar error
-        }
+        } catch (Exception e) {}
     }
 
     private int dpToPx(int dp) {
@@ -387,9 +349,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         if (timer != null) timer.cancel();
     }
 
-    // --- CLASES AUXILIARES ---
-
-    // Definición del contenido (Estática)
     private static class CardDefinition {
         int iconRes;
         String textLabel;
@@ -399,13 +358,11 @@ public class MemoryGameActivity extends AppCompatActivity {
         }
     }
 
-    // Instancia de carta en juego
     private static class MemoryCard {
         int id;
         int iconResId;
         String textLabel;
         boolean isMatched = false;
-
         public MemoryCard(int id, int iconResId, String textLabel) {
             this.id = id;
             this.iconResId = iconResId;
