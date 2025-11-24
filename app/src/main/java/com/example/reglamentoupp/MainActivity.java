@@ -1,361 +1,261 @@
 package com.example.reglamentoupp;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.media.MediaPlayer;
-import android.os.Build;
+import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
-import android.util.TypedValue;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
-import android.widget.GridLayout;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
-import com.airbnb.lottie.LottieAnimationView;
+import com.example.reglamentoupp.databinding.ActivityMainBinding;
 import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Calendar;
 
-public class MemoryGameActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements BaseReglamentoFragment.ReglamentoInteractionListener {
 
-    // --- Configuración ---
-    private static final int TOTAL_PAIRS = 8;
-    private static final long GAME_TIME_MS = 90000;
+    private ActivityMainBinding binding;
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore mStore;
+    private String userID;
+    private long userPuntaje = 0;
+    private int userNivel = 1;
 
-    // UI
-    private GridLayout glCards;
-    private TextView tvScore, tvLives, tvMessage;
-    private LottieAnimationView lottieMascot;
-    private CountDownTimer timer;
-    private Vibrator vibrator;
+    public static final String KEY_NIVEL_JUEGO = "nivelJuego";
+    public static final String KEY_PUNTAJE_ACTUAL = "puntajeActual";
+    public static final String KEY_NIVEL_DESBLOQUEADO = "nivelDesbloqueado";
+    private static final String TAG = "MainActivity";
 
-    // Estado
-    private List<MemoryCard> cards;
-    private MemoryCard selectedDetails1 = null;
-    private View selectedView1 = null; // Usamos View genérica en lugar de Button
-    private boolean isProcessing = false;
-    private int score = 0;
-    private int lives = 6;
-    private int pairsFound = 0;
-    private int racha = 0;
-
-    // --- DEFINICIÓN DE LAS CARTAS ---
-    private final CardDefinition[] definitions = {
-            new CardDefinition(R.drawable.ic_derechos, "Derechos"),
-            new CardDefinition(R.drawable.ic_obligaciones, "Obligaciones"),
-            new CardDefinition(R.drawable.ic_prohibiciones, "Prohibido"),
-            new CardDefinition(R.drawable.ic_sanciones, "Sanciones"),
-            new CardDefinition(R.drawable.ic_reconocimientos, "Méritos"),
-            new CardDefinition(R.drawable.ic_game_trivia, "Evaluación"),
-            new CardDefinition(R.drawable.ic_game_vf, "Verdad/Falso"),
-            new CardDefinition(R.drawable.ic_game_hangman, "Ahorcado")
+    // --- Variables para la Rotación de Mensajes ---
+    private Handler handlerRotacion = new Handler(Looper.getMainLooper());
+    private int indiceMensaje = 0;
+    private final String[] mensajesRotativos = {
+            "¡Hola! ¿Listo para aprender?",
+            "Recuerda revisar tus obligaciones.",
+            "¡Gana puntos en los juegos rápidos!",
+            "El saber no ocupa lugar 📚",
+            "¿Ya desbloqueaste el Nivel 2?",
+            "La constancia es la clave del éxito."
     };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_memory_game);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        glCards = findViewById(R.id.glCards);
-        tvScore = findViewById(R.id.tvScore);
-        tvLives = findViewById(R.id.tvLives);
-        tvMessage = findViewById(R.id.tvMessage);
-        lottieMascot = findViewById(R.id.lottieMascot);
+        mAuth = FirebaseAuth.getInstance();
+        mStore = FirebaseFirestore.getInstance();
 
-        try {
-            vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        } catch (Exception e) { e.printStackTrace(); }
-
-        View toolbar = findViewById(R.id.toolbarMemory);
-        if (toolbar instanceof Toolbar) ((Toolbar) toolbar).setNavigationOnClickListener(v -> finish());
-        else toolbar.setOnClickListener(v -> finish());
-
-        startNewGame();
-    }
-
-    private void startNewGame() {
-        score = 0;
-        lives = 6;
-        pairsFound = 0;
-        racha = 0;
-        isProcessing = false;
-        selectedDetails1 = null;
-        selectedView1 = null;
-
-        updateUI();
-        setupBoard();
-        startTimer();
-    }
-
-    private void setupBoard() {
-        glCards.removeAllViews();
-        glCards.setColumnCount(4);
-        cards = new ArrayList<>();
-
-        // 1. Preparar lista de definiciones
-        List<CardDefinition> selectedDefs = new ArrayList<>();
-        for (CardDefinition def : definitions) {
-            selectedDefs.add(def);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            Log.w(TAG, "Usuario no logueado. Regresando a Login.");
+            navigateToLogin();
+            return;
         }
+        userID = currentUser.getUid();
 
-        // 2. Crear pares
-        int idCounter = 0;
-        for (CardDefinition def : selectedDefs) {
-            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textLabel));
-            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textLabel));
-        }
-        Collections.shuffle(cards);
-
-        // 3. Inflar el diseño XML personalizado
-        LayoutInflater inflater = LayoutInflater.from(this);
-
-        for (MemoryCard card : cards) {
-            // Usamos el nuevo layout item_memory_card.xml
-            View cardView = inflater.inflate(R.layout.item_memory_card, glCards, false);
-
-            // Configuramos los datos en la vista "Frontal" (oculta inicialmente)
-            TextView tvText = cardView.findViewById(R.id.tv_card_text);
-            ImageView ivIcon = cardView.findViewById(R.id.iv_card_icon);
-
-            if (tvText != null) tvText.setText(card.textLabel);
-            if (ivIcon != null) ivIcon.setImageResource(card.iconResId);
-
-            // Ajustar parámetros para el GridLayout
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.width = 0;
-            params.height = dpToPx(110);
-            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            params.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
-
-            cardView.setLayoutParams(params);
-            cardView.setTag(card); // Guardamos la data en la vista
-
-            cardView.setOnClickListener(v -> onCardClick(cardView));
-
-            glCards.addView(cardView);
-        }
-    }
-
-    private void onCardClick(View view) {
-        if (isProcessing) return;
-        MemoryCard cardData = (MemoryCard) view.getTag();
-
-        if (cardData.isMatched || cardData == selectedDetails1) return;
-
-        // Mostrar cara
-        flipCard(view, true);
-
-        if (selectedDetails1 == null) {
-            selectedDetails1 = cardData;
-            selectedView1 = view;
-        } else {
-            isProcessing = true;
-            checkMatch(view, cardData);
-        }
-    }
-
-    private void checkMatch(View view2, MemoryCard cardData2) {
-        if (selectedDetails1.textLabel.equals(cardData2.textLabel)) {
-            handleMatch(selectedView1, view2);
-        } else {
-            handleMismatch(selectedView1, view2);
-        }
-    }
-
-    private void handleMatch(View view1, View view2) {
-        racha++;
-        score += (15 + (racha * 5));
-        pairsFound++;
-
-        playSound(R.raw.correct_ding);
-        vibrarSafe(50);
-
-        MemoryCard c1 = (MemoryCard) view1.getTag();
-        MemoryCard c2 = (MemoryCard) view2.getTag();
-        c1.isMatched = true;
-        c2.isMatched = true;
-
-        tvMessage.setText("¡" + c1.textLabel + "!");
-        if (lottieMascot != null) {
-            lottieMascot.setAnimation(R.raw.happy_sun);
-            lottieMascot.playAnimation();
-        }
-
-        // Borde verde de éxito
-        setCardStroke(view1, R.color.game_success, 3);
-        setCardStroke(view2, R.color.game_success, 3);
-
-        selectedDetails1 = null;
-        selectedView1 = null;
-        isProcessing = false;
-        updateUI();
-
-        if (pairsFound == TOTAL_PAIRS) {
-            endGame(true);
-        }
-    }
-
-    private void handleMismatch(View view1, View view2) {
-        racha = 0;
-        lives--;
-        playSound(R.raw.megaman_x_error);
-        vibrarSafe(200);
-
-        tvMessage.setText("¡Intenta de nuevo!");
-        if (lottieMascot != null) {
-            lottieMascot.setAnimation(R.raw.angry_thunderstorm);
-            lottieMascot.playAnimation();
-        }
-
-        // Borde rojo de error
-        setCardStroke(view1, R.color.game_fail, 3);
-        setCardStroke(view2, R.color.game_fail, 3);
-
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (!isFinishing()) {
-                flipCard(view1, false);
-                flipCard(view2, false);
-
-                // Restaurar borde suave
-                setCardStroke(view1, android.R.color.transparent, 0); // O color gris suave
-                setCardStroke(view2, android.R.color.transparent, 0);
-
-                selectedDetails1 = null;
-                selectedView1 = null;
-                isProcessing = false;
-                updateUI();
-                if (lives <= 0) endGame(false);
-            }
-        }, 1000);
-    }
-
-    private void setCardStroke(View view, int colorRes, int widthDp) {
-        if (view instanceof MaterialCardView) {
-            MaterialCardView card = (MaterialCardView) view;
-            if (widthDp > 0) {
-                card.setStrokeColor(ContextCompat.getColor(this, colorRes));
-                card.setStrokeWidth(dpToPx(widthDp));
-            } else {
-                card.setStrokeWidth(dpToPx(1));
-                card.setStrokeColor(Color.parseColor("#E0E0E0"));
-            }
-        }
-    }
-
-    // Animación de volteo
-    private void flipCard(View view, boolean showFace) {
-        final View front = view.findViewById(R.id.layout_front);
-        final View back = view.findViewById(R.id.layout_back);
-
-        view.animate().scaleX(0f).setDuration(150).withEndAction(() -> {
-            if (showFace) {
-                if(front != null) front.setVisibility(View.VISIBLE);
-                if(back != null) back.setVisibility(View.GONE);
-            } else {
-                if(front != null) front.setVisibility(View.GONE);
-                if(back != null) back.setVisibility(View.VISIBLE);
-            }
-            view.animate().scaleX(1f).setDuration(150).start();
-        }).start();
-    }
-
-    private void startTimer() {
-        if (timer != null) timer.cancel();
-        timer = new CountDownTimer(GAME_TIME_MS, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                int sec = (int) (millisUntilFinished / 1000);
-                tvMessage.setText("Tiempo: " + sec + "s");
-                if (sec < 10) tvMessage.setTextColor(Color.RED);
-                else tvMessage.setTextColor(ContextCompat.getColor(MemoryGameActivity.this, R.color.upp_primary));
-            }
-            @Override
-            public void onFinish() { endGame(false); }
-        }.start();
-    }
-
-    private void endGame(boolean win) {
-        if (timer != null) timer.cancel();
-        String title = win ? "¡Felicidades!" : "Juego Terminado";
-        String msg = win ? "¡Encontraste los 8 pares! Puntaje: " + score : "Se acabaron las vidas o el tiempo.";
-        int icon = win ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones;
-
-        try {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle(title)
-                    .setMessage(msg)
-                    .setIcon(icon)
-                    .setCancelable(false)
-                    .setPositiveButton("Reintentar", (d, w) -> startNewGame())
-                    .setNegativeButton("Salir", (d, w) -> finish())
-                    .show();
-        } catch (Exception e) { finish(); }
-    }
-
-    private void updateUI() {
-        tvScore.setText("Puntos: " + score);
-        tvLives.setText("Vidas: " + lives);
-    }
-
-    private void playSound(int resId) {
-        try {
-            MediaPlayer mp = MediaPlayer.create(this, resId);
-            if (mp != null) { mp.start(); mp.setOnCompletionListener(MediaPlayer::release); }
-        } catch (Exception e) { e.printStackTrace(); }
-    }
-
-    private void vibrarSafe(long ms) {
-        try {
-            if (vibrator != null && vibrator.hasVibrator()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) vibrator.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE));
-                else vibrator.vibrate(ms);
-            }
-        } catch (Exception e) {}
-    }
-
-    private int dpToPx(int dp) {
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics()));
+        binding.btnLogout.setOnClickListener(v -> {
+            mAuth.signOut();
+            navigateToLogin();
+        });
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (timer != null) timer.cancel();
+    protected void onResume() {
+        super.onResume();
+        actualizarSaludoInicial();
+        iniciarRotacionMensajes();
+        loadUserData();
+        animarMenu();
     }
 
-    // Clases internas para datos
-    private static class CardDefinition {
-        int iconRes;
-        String textLabel;
-        public CardDefinition(int iconRes, String textLabel) {
-            this.iconRes = iconRes;
-            this.textLabel = textLabel;
+    @Override
+    protected void onPause() {
+        super.onPause();
+        detenerRotacionMensajes();
+    }
+
+    // --- Lógica de Mensajes Rotativos ---
+    private void iniciarRotacionMensajes() {
+        handlerRotacion.postDelayed(runnableRotacion, 4000);
+    }
+
+    private void detenerRotacionMensajes() {
+        handlerRotacion.removeCallbacks(runnableRotacion);
+    }
+
+    private Runnable runnableRotacion = new Runnable() {
+        @Override
+        public void run() {
+            if (binding != null && binding.tvWelcomeBubble != null) {
+                binding.tvWelcomeBubble.animate().alpha(0f).setDuration(300).withEndAction(() -> {
+                    indiceMensaje = (indiceMensaje + 1) % mensajesRotativos.length;
+                    binding.tvWelcomeBubble.setText(mensajesRotativos[indiceMensaje]);
+                    binding.tvWelcomeBubble.animate().alpha(1f).setDuration(300).start();
+                }).start();
+                handlerRotacion.postDelayed(this, 4000);
+            }
+        }
+    };
+
+    private void actualizarSaludoInicial() {
+        Calendar calendar = Calendar.getInstance();
+        int hora = calendar.get(Calendar.HOUR_OF_DAY);
+        String saludo;
+
+        if (hora >= 5 && hora < 12) {
+            saludo = "¡Buenos días! ☀️\n¿Listo para aprender?";
+        } else if (hora >= 12 && hora < 19) {
+            saludo = "¡Buenas tardes! 🌤️\nRepasemos un poco.";
+        } else {
+            saludo = "¡Buenas noches! 🌙\nNunca es tarde para estudiar.";
+        }
+
+        if (binding.tvWelcomeBubble != null) {
+            binding.tvWelcomeBubble.setText(saludo);
+            binding.tvWelcomeBubble.setAlpha(1f);
+        }
+
+        if (binding.lottieWelcome != null) {
+            binding.lottieWelcome.playAnimation();
         }
     }
 
-    private static class MemoryCard {
-        int id;
-        int iconResId;
-        String textLabel;
-        boolean isMatched = false;
-        public MemoryCard(int id, int iconResId, String textLabel) {
-            this.id = id;
-            this.iconResId = iconResId;
-            this.textLabel = textLabel;
+    private void loadUserData() {
+        if (userID == null) return;
+
+        mStore.collection("usuarios").document(userID).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String nombre = documentSnapshot.getString("nombre");
+                        if (nombre != null && !nombre.isEmpty()) {
+                            binding.tvUserName.setText("Hola, " + nombre);
+                        } else {
+                            binding.tvUserName.setText(documentSnapshot.getString("email"));
+                        }
+
+                        Long puntajeDb = documentSnapshot.getLong("puntaje");
+                        if (puntajeDb != null) {
+                            userPuntaje = puntajeDb;
+                        }
+                        binding.tvUserPuntaje.setText(userPuntaje + " XP");
+
+                        Long nivelDb = documentSnapshot.getLong("nivelDesbloqueado");
+                        if (nivelDb != null) {
+                            userNivel = nivelDb.intValue();
+                        }
+
+                        // Listeners de Juegos
+                        binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
+                        binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
+                        binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
+
+                        // BOTÓN MEMORAMA (Asegúrate de que este ID exista en tu XML activity_main)
+                        binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
+
+                        // Configurar Niveles
+                        setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos, "Derechos", 1, R.color.upp_primary, R.color.text_primary);
+                        setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones, "Obligaciones", 2, R.color.upp_primary, R.color.text_primary);
+                        setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones, "Prohibiciones", 3, R.color.upp_primary, R.color.text_primary);
+                        setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones, "Sanciones", 4, R.color.upp_primary, R.color.text_primary);
+                        setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos, "Reconocimientos", 5, R.color.upp_primary, R.color.text_primary);
+
+                    } else {
+                        mAuth.signOut();
+                        navigateToLogin();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    binding.tvUserName.setText("Error de conexión");
+                    binding.tvUserPuntaje.setText("---");
+                });
+    }
+
+    private void animarMenu() {
+        LinearLayout menuContainer = binding.llMenuContainer;
+        for (int i = 0; i < menuContainer.getChildCount(); i++) {
+            View child = menuContainer.getChildAt(i);
+            Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+            anim.setStartOffset(i * 100L);
+            child.startAnimation(anim);
         }
     }
+
+    private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
+                                  String nivelNombre, int nivelRequerido, int colorDesbloqueado, int textColorDesbloqueado) {
+
+        int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked);
+        int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg);
+        int colorTextoDesbloqueado = ContextCompat.getColor(this, textColorDesbloqueado);
+        int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.white);
+
+        if (userNivel >= nivelRequerido) {
+            button.setEnabled(true);
+            button.setClickable(true);
+            button.setCardBackgroundColor(colorBgDesbloqueado);
+            button.setStrokeWidth(0);
+            button.setCardElevation(12f);
+
+            if (lockIcon != null) lockIcon.setVisibility(View.GONE);
+
+            textView.setTextColor(colorTextoDesbloqueado);
+            textView.setText(nivelNombre);
+
+            iconView.clearColorFilter();
+            iconView.setImageTintList(null);
+            iconView.setBackgroundResource(R.drawable.white_circle_bg);
+            iconView.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.app_bg)));
+
+            button.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
+                intent.putExtra(KEY_NIVEL_JUEGO, nivelNombre);
+                intent.putExtra(KEY_PUNTAJE_ACTUAL, userPuntaje);
+                intent.putExtra(KEY_NIVEL_DESBLOQUEADO, userNivel);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_up, R.anim.fade_in);
+            });
+
+        } else {
+            button.setEnabled(false);
+            button.setClickable(false);
+            button.setCardBackgroundColor(colorBgBloqueado);
+            button.setStrokeWidth(0);
+            button.setCardElevation(0f);
+
+            if (lockIcon != null) {
+                lockIcon.setVisibility(View.VISIBLE);
+                lockIcon.setImageTintList(ColorStateList.valueOf(colorBloqueado));
+            }
+
+            textView.setTextColor(colorBloqueado);
+            iconView.setColorFilter(colorBloqueado);
+            iconView.setBackground(null);
+        }
+    }
+
+    private void navigateToLogin() {
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void onQuizClick(String itemText, String itemType) {}
+
+    @Override
+    public void onCaseStudyClick(String itemText, String itemType) {}
 }
