@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
         setupStaticGameListeners();
 
-        // --- DESCOMENTAR UNA VEZ PARA SUBIR PREGUNTAS UPP A FIREBASE ---
+        // --- DESCOMENTAR ESTA LÍNEA SOLO UNA VEZ PARA SUBIR LAS NUEVAS PREGUNTAS ---
         // cargarPreguntasRealesUPP();
     }
 
@@ -277,27 +277,68 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         finish();
     }
 
+    // --- MÉTODO PARA CARGAR PREGUNTAS ESPECÍFICAS UPP A FIREBASE ---
     private void cargarPreguntasRealesUPP() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 1. TRIVIA (QUIZ) - Datos técnicos del reglamento
         List<Pregunta> quizUPP = new ArrayList<>();
-        quizUPP.add(new Pregunta("¿Quién es la máxima autoridad ejecutiva de la UPP?", "El Abogado General", "El Rector", "El Consejo Social", "El Rector"));
-        quizUPP.add(new Pregunta("¿Cuál es el plazo máximo para una baja temporal?", "1 año", "3 cuatrimestres", "Indefinido", "3 cuatrimestres"));
-        quizUPP.add(new Pregunta("¿Cómo se pierde oficialmente la 'Calidad de Alumno'?", "Por baja definitiva", "Por reprobar un parcial", "Por llegar tarde", "Por baja definitiva"));
-        quizUPP.add(new Pregunta("¿Qué se requiere para el proceso de reinscripción?", "Solo pagar", "Aceptar carga académica", "Enviar carta al rector", "Aceptar carga académica"));
-        quizUPP.add(new Pregunta("¿Qué sanción aplica por documentación apócrifa?", "Suspensión temporal", "Baja definitiva", "Multa económica", "Baja definitiva"));
-        quizUPP.add(new Pregunta("¿Qué órgano apoya en la gestión y vinculación social?", "Consejo de Calidad", "Consejo Social", "Junta Directiva", "Consejo Social"));
 
-        for (Pregunta p : quizUPP) { db.collection("preguntas").add(p); }
+        quizUPP.add(new Pregunta(
+                "¿Calificación mínima aprobatoria en la UPP (escala 0-10)?",
+                "6.0", "7.0", "8.0",
+                "7.0" //
+        ));
 
+        quizUPP.add(new Pregunta(
+                "¿Duración mínima de la Estadía para Licenciatura?",
+                "480 horas", "500 horas", "600 horas",
+                "600 horas" //
+        ));
+
+        quizUPP.add(new Pregunta(
+                "¿Qué causa baja definitiva inmediata (sin amonestación)?",
+                "Reprobar 1 parcial", "Faltar 2 semanas consecutivas", "Llegar tarde 3 veces",
+                "Faltar 2 semanas consecutivas" //
+        ));
+
+        quizUPP.add(new Pregunta(
+                "¿Nivel de inglés requerido para la titulación?",
+                "Básico A2", "Intermedio B1", "Avanzado C1",
+                "Intermedio B1" //
+        ));
+
+        quizUPP.add(new Pregunta(
+                "¿Quién sanciona el plagio en proyectos de Estadía?",
+                "El Rector", "Servicios Escolares", "Consejo de Calidad",
+                "Consejo de Calidad" //
+        ));
+
+        quizUPP.add(new Pregunta(
+                "¿Porcentaje de asistencia para tener derecho a evaluación ordinaria?",
+                "60%", "80%", "100%",
+                "80%" //
+        ));
+
+        for (Pregunta p : quizUPP) {
+            db.collection("preguntas").add(p);
+        }
+
+        // 2. VERDADERO O FALSO - Situaciones reglamentarias
         List<PreguntaVF> vfUPP = new ArrayList<>();
-        vfUPP.add(new PreguntaVF("¿La UPP cuenta con programas de Becas Institucionales?", true));
-        vfUPP.add(new PreguntaVF("¿Se puede autorizar baja temporal extemporánea por embarazo?", true));
-        vfUPP.add(new PreguntaVF("¿El alumno puede renunciar a la universidad voluntariamente?", true));
-        vfUPP.add(new PreguntaVF("¿La estadía profesional es opcional para titularse?", false));
-        vfUPP.add(new PreguntaVF("¿El Rector es designado por votación de los alumnos?", false));
 
-        for (PreguntaVF p : vfUPP) { db.collection("preguntasVF").add(p); }
-        Toast.makeText(this, "¡Preguntas UPP subidas!", Toast.LENGTH_LONG).show();
+        vfUPP.add(new PreguntaVF("¿La Estadía Profesional se realiza en el primer cuatrimestre?", false));
+        vfUPP.add(new PreguntaVF("¿Debes liberar el Servicio Social antes de iniciar la Estadía?", true)); //
+        vfUPP.add(new PreguntaVF("¿La calificación mínima aprobatoria es 6.0?", false)); // Es 7.0
+        vfUPP.add(new PreguntaVF("¿Cometer plagio en la Estadía suspende tu proceso de titulación?", true)); //
+        vfUPP.add(new PreguntaVF("¿Es posible solicitar una baja temporal por motivos de salud/embarazo?", true)); //
+        vfUPP.add(new PreguntaVF("¿El Rector es elegido por votación directa de los alumnos?", false)); // Designado por Junta Directiva
+
+        for (PreguntaVF p : vfUPP) {
+            db.collection("preguntasVF").add(p);
+        }
+
+        Toast.makeText(this, "¡Preguntas UPP Experto subidas!", Toast.LENGTH_LONG).show();
     }
 
     @Override

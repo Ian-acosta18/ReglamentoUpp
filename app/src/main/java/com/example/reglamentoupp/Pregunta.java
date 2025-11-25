@@ -9,30 +9,19 @@ public class Pregunta {
     private String respuestaCorrecta;
     private String categoria;
 
-    // Constructor vacío (requerido por Firestore)
+    // Constructor vacío (Requerido por Firebase Firestore)
     public Pregunta() {}
 
-    // --- CONSTRUCTOR AGREGADO (Soluciona tu error en MainActivity) ---
+    // --- CONSTRUCTOR CLAVE (Este soluciona tu error de compilación) ---
     public Pregunta(String pregunta, String opcionA, String opcionB, String opcionC, String respuestaCorrecta) {
         this.pregunta = pregunta;
         this.opcionA = opcionA;
         this.opcionB = opcionB;
         this.opcionC = opcionC;
         this.respuestaCorrecta = respuestaCorrecta;
-        this.categoria = "General"; // Asigna una categoría por defecto
+        this.categoria = "Reglamento UPP"; // Categoría por defecto
     }
 
-    // Constructor completo (con categoría explícita)
-    public Pregunta(String categoria, String pregunta, String opcionA, String opcionB, String opcionC, String respuestaCorrecta) {
-        this.categoria = categoria;
-        this.pregunta = pregunta;
-        this.opcionA = opcionA;
-        this.opcionB = opcionB;
-        this.opcionC = opcionC;
-        this.respuestaCorrecta = respuestaCorrecta;
-    }
-
-    // --- Getters ---
     public String getPregunta() { return pregunta; }
     public String getOpcionA() { return opcionA; }
     public String getOpcionB() { return opcionB; }

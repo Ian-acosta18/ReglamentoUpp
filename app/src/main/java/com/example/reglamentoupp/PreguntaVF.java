@@ -2,9 +2,9 @@ package com.example.reglamentoupp;
 
 public class PreguntaVF {
     private String afirmacion;
-    private boolean respuesta; // true para Verdadero, false para Falso
+    private boolean respuesta; // true = Verdadero, false = Falso
 
-    public PreguntaVF() {} // Constructor vacío para Firestore
+    public PreguntaVF() {} // Constructor vacío para Firebase
 
     public PreguntaVF(String afirmacion, boolean respuesta) {
         this.afirmacion = afirmacion;
