@@ -12,7 +12,6 @@ import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.Toast;
@@ -45,11 +44,11 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private static final int MAX_PREGUNTAS = 10;
     private boolean botonesBloqueados = false;
 
-    // --- VARIABLES DE DINAMISMO (NUEVAS) ---
     private CountDownTimer temporizador;
-    private static final long TIEMPO_POR_PREGUNTA = 15000; // 15 segundos
-    private int racha = 0; // Contador de respuestas seguidas correctas
+    private static final long TIEMPO_POR_PREGUNTA = 15000;
+    private int racha = 0;
     private Vibrator vibrator;
+    private MediaPlayer mediaPlayer; // Referencia para liberar memoria
 
     private final String[] frasesExito = {"¡Brillante!", "¡Iluminaste el día!", "¡Correcto!", "¡Radiante!"};
     private final String[] frasesError = {"¡Rayos!", "Se nubló...", "Intenta de nuevo", "¡Cuidado!"};
@@ -60,14 +59,11 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding = ActivityQuizBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Inicializar Vibrator
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
         mStore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         listaDePreguntas = new ArrayList<>();
 
-        // Mensaje inicial
         binding.tvSpeechBubble.setText("¡Quiz de Opción Múltiple!");
         binding.tvSpeechBubble.setVisibility(View.VISIBLE);
 
@@ -87,14 +83,20 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                         return;
                     }
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        listaDePreguntas.add(doc.toObject(Pregunta.class));
+                        try {
+                            listaDePreguntas.add(doc.toObject(Pregunta.class));
+                        } catch (Exception e) {
+                            // Ignorar preguntas mal formadas
+                        }
                     }
                     Collections.shuffle(listaDePreguntas);
                     if (listaDePreguntas.size() > MAX_PREGUNTAS) {
                         listaDePreguntas = listaDePreguntas.subList(0, MAX_PREGUNTAS);
                     }
-                    binding.quizProgressBar.setMax(listaDePreguntas.size());
-                    iniciarQuiz();
+                    if (!listaDePreguntas.isEmpty()) {
+                        binding.quizProgressBar.setMax(listaDePreguntas.size());
+                        iniciarQuiz();
+                    }
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "Error al cargar preguntas.", Toast.LENGTH_SHORT).show();
@@ -111,11 +113,12 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void mostrarSiguientePregunta() {
+        if (isFinishing() || isDestroyed()) return;
+
         if (indicePreguntaActual < listaDePreguntas.size()) {
             botonesBloqueados = false;
             restaurarBotones();
 
-            // 1. Restaurar Mascota
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
 
@@ -130,33 +133,31 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             binding.tvQuizLives.setText("Vidas: " + vidas);
             binding.quizProgressBar.setProgress(indicePreguntaActual + 1);
 
-            // INICIAR TEMPORIZADOR PARA ESTA PREGUNTA
             iniciarTemporizador();
-
             indicePreguntaActual++;
         } else {
             mostrarResultadoFinal();
         }
     }
 
-    // --- NUEVO: Lógica del Temporizador ---
     private void iniciarTemporizador() {
         if (temporizador != null) {
             temporizador.cancel();
         }
 
-        binding.tvSpeechBubble.setTextColor(Color.BLACK); // Color normal
+        binding.tvSpeechBubble.setTextColor(Color.BLACK);
 
         temporizador = new CountDownTimer(TIEMPO_POR_PREGUNTA, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
+                if (isFinishing()) { cancel(); return; } // Seguridad extra
+
                 int segundos = (int) (millisUntilFinished / 1000);
                 binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
 
-                // Efecto de urgencia
                 if (segundos <= 5) {
                     binding.tvSpeechBubble.setTextColor(Color.RED);
-                    binding.lottieCharacter.setSpeed(1.5f); // Acelerar animación
+                    binding.lottieCharacter.setSpeed(1.5f);
                 } else {
                     binding.lottieCharacter.setSpeed(1.0f);
                 }
@@ -164,8 +165,10 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onFinish() {
-                binding.tvSpeechBubble.setText("¡Tiempo agotado!");
-                manejarError(null, true); // True indica que fue por tiempo
+                if (!isFinishing()) {
+                    binding.tvSpeechBubble.setText("¡Tiempo agotado!");
+                    manejarError(null, true);
+                }
             }
         }.start();
     }
@@ -175,11 +178,14 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         if (botonesBloqueados) return;
         botonesBloqueados = true;
 
-        if (temporizador != null) temporizador.cancel(); // Detener reloj
+        if (temporizador != null) temporizador.cancel();
 
         Button botonPresionado = (Button) v;
         String respuestaElegida = botonPresionado.getText().toString();
-        boolean esCorrecto = respuestaElegida.equals(preguntaActual.getRespuestaCorrecta());
+
+        // Protección contra nulos
+        String correcta = preguntaActual.getRespuestaCorrecta() != null ? preguntaActual.getRespuestaCorrecta() : "";
+        boolean esCorrecto = respuestaElegida.equals(correcta);
 
         if (esCorrecto) {
             manejarAcierto(botonPresionado);
@@ -189,11 +195,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void manejarAcierto(Button botonPresionado) {
-        // Lógica de Racha
         racha++;
         int puntosGanados = 10;
-
-        // Bonus
         if (racha >= 3) {
             puntosGanados += 5;
             binding.tvSpeechBubble.setText("¡RACHA x" + racha + "! 🔥");
@@ -202,14 +205,11 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         puntaje += puntosGanados;
-
-        // Efectos
-        vibrar(50); // Vibración corta y agradable
+        vibrar(50);
         reproducirSonido(R.raw.correct_ding);
 
         botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
 
-        // Animar texto de puntaje
         binding.tvQuizScore.animate().scaleX(1.2f).scaleY(1.2f).setDuration(200).withEndAction(() ->
                 binding.tvQuizScore.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
         ).start();
@@ -219,11 +219,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void manejarError(Button botonPresionado, boolean porTiempo) {
-        racha = 0; // Romper racha
+        racha = 0;
         vidas--;
-
-        // Efectos
-        vibrar(400); // Vibración larga de error
+        vibrar(400);
         reproducirSonido(R.raw.megaman_x_error);
 
         if (!porTiempo && botonPresionado != null) {
@@ -238,11 +236,17 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private void postQuestionDelay(boolean acerto) {
         long delay = acerto ? 2000 : 2500;
-        if (vidas <= 0) {
-            new Handler(Looper.getMainLooper()).postDelayed(this::mostrarResultadoFinal, 1500);
-        } else {
-            new Handler(Looper.getMainLooper()).postDelayed(this::mostrarSiguientePregunta, delay);
-        }
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            // --- CORRECCIÓN CRÍTICA ---
+            // Si el usuario salió de la actividad, no intentamos tocar la UI
+            if (isFinishing() || isDestroyed()) return;
+
+            if (vidas <= 0) {
+                mostrarResultadoFinal();
+            } else {
+                mostrarSiguientePregunta();
+            }
+        }, delay);
     }
 
     private void actualizarMascota(boolean esCorrecto) {
@@ -250,7 +254,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         if (esCorrecto) {
             animacionRes = R.raw.happy_sun;
         } else {
-            // Si no hay texto de racha/error seteado, poner frase de error aleatoria
             if(binding.tvSpeechBubble.getText().toString().contains("Tiempo")) {
                 binding.tvSpeechBubble.setText(frasesError[(int) (Math.random() * frasesError.length)]);
             }
@@ -262,17 +265,19 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private void reproducirSonido(int soundResource) {
         try {
-            MediaPlayer mp = MediaPlayer.create(this, soundResource);
-            if (mp != null) {
-                mp.start();
-                mp.setOnCompletionListener(MediaPlayer::release);
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+            }
+            mediaPlayer = MediaPlayer.create(this, soundResource);
+            if (mediaPlayer != null) {
+                mediaPlayer.start();
+                mediaPlayer.setOnCompletionListener(MediaPlayer::release);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Método helper para vibración compatible
     private void vibrar(long milisegundos) {
         if (vibrator != null && vibrator.hasVibrator()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -295,8 +300,10 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void resaltarRespuestaCorrecta() {
+        if (preguntaActual == null) return;
         String correcta = preguntaActual.getRespuestaCorrecta();
         int colorVerde = ContextCompat.getColor(this, R.color.game_success);
+
         if (binding.btnQuizOptionA.getText().toString().equals(correcta)) {
             binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
         } else if (binding.btnQuizOptionB.getText().toString().equals(correcta)) {
@@ -307,10 +314,13 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void mostrarResultadoFinal() {
+        if (isFinishing()) return; // Evitar BadTokenException
+
         if (mAuth.getCurrentUser() != null && puntaje > 0) {
             mStore.collection("usuarios").document(mAuth.getCurrentUser().getUid())
                     .update("puntaje", FieldValue.increment(puntaje));
         }
+
         new MaterialAlertDialogBuilder(this)
                 .setTitle("¡Juego Terminado!")
                 .setMessage("Tu puntaje final es: " + puntaje)
@@ -323,6 +333,10 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause() {
         super.onPause();
         if (temporizador != null) temporizador.cancel();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 
     @Override

@@ -71,6 +71,17 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             mAuth.signOut();
             navigateToLogin();
         });
+
+        // --- OPTIMIZACIÓN: Listeners estáticos movidos a onCreate ---
+        // Estos botones no dependen de los datos del usuario, así que se configuran una sola vez.
+        setupStaticGameListeners();
+    }
+
+    private void setupStaticGameListeners() {
+        binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
+        binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
+        binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
+        binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
     }
 
     @Override
@@ -90,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
     // --- Lógica de Mensajes Rotativos ---
     private void iniciarRotacionMensajes() {
+        // Evitamos duplicar runnables si se llama múltiples veces
+        handlerRotacion.removeCallbacks(runnableRotacion);
         handlerRotacion.postDelayed(runnableRotacion, 4000);
     }
 
@@ -100,11 +113,14 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     private Runnable runnableRotacion = new Runnable() {
         @Override
         public void run() {
-            if (binding != null && binding.tvWelcomeBubble != null) {
+            // Verificación de seguridad para evitar crashes si la vista ya no existe
+            if (!isFinishing() && binding != null && binding.tvWelcomeBubble != null) {
                 binding.tvWelcomeBubble.animate().alpha(0f).setDuration(300).withEndAction(() -> {
-                    indiceMensaje = (indiceMensaje + 1) % mensajesRotativos.length;
-                    binding.tvWelcomeBubble.setText(mensajesRotativos[indiceMensaje]);
-                    binding.tvWelcomeBubble.animate().alpha(1f).setDuration(300).start();
+                    if (!isFinishing() && binding != null && binding.tvWelcomeBubble != null) {
+                        indiceMensaje = (indiceMensaje + 1) % mensajesRotativos.length;
+                        binding.tvWelcomeBubble.setText(mensajesRotativos[indiceMensaje]);
+                        binding.tvWelcomeBubble.animate().alpha(1f).setDuration(300).start();
+                    }
                 }).start();
                 handlerRotacion.postDelayed(this, 4000);
             }
@@ -139,6 +155,9 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
         mStore.collection("usuarios").document(userID).get()
                 .addOnSuccessListener(documentSnapshot -> {
+                    // --- CORRECCIÓN CRÍTICA: Verificar si la actividad sigue viva ---
+                    if (isFinishing() || isDestroyed() || binding == null) return;
+
                     if (documentSnapshot.exists()) {
                         String nombre = documentSnapshot.getString("nombre");
                         if (nombre != null && !nombre.isEmpty()) {
@@ -157,21 +176,12 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                         if (nivelDb != null) {
                             userNivel = nivelDb.intValue();
                         } else {
-                            userNivel = 1; // Valor por defecto si no existe
+                            userNivel = 1;
                         }
 
-                        // --- ACTUALIZACIÓN: Llamamos a la función para actualizar el icono del nivel ---
                         actualizarUIdeNivel(userNivel);
 
-                        // Listeners de Juegos
-                        binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
-                        binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
-                        binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
-
-                        // BOTÓN MEMORAMA
-                        binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
-
-                        // Configurar Niveles
+                        // Configurar Niveles (Esto sí depende de los datos, así que se queda aquí)
                         setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos, "Derechos", 1, R.color.upp_primary, R.color.text_primary);
                         setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones, "Obligaciones", 2, R.color.upp_primary, R.color.text_primary);
                         setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones, "Prohibiciones", 3, R.color.upp_primary, R.color.text_primary);
@@ -184,55 +194,48 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                     }
                 })
                 .addOnFailureListener(e -> {
+                    if (isFinishing() || isDestroyed() || binding == null) return;
                     binding.tvUserName.setText("Error de conexión");
                     binding.tvUserPuntaje.setText("---");
                 });
     }
 
-    // --- ACTUALIZACIÓN: Nuevo método para cambiar el icono y texto del nivel ---
     private void actualizarUIdeNivel(int nivel) {
         if (binding == null) return;
 
-        // Actualizar texto del nivel
         binding.tvUserLevel.setText("Nivel " + nivel);
 
-        // Seleccionar icono según el nivel
         int iconRes;
         switch (nivel) {
-            case 1:
-                iconRes = R.drawable.ic_derechos;
-                break;
-            case 2:
-                iconRes = R.drawable.ic_obligaciones;
-                break;
-            case 3:
-                iconRes = R.drawable.ic_prohibiciones;
-                break;
-            case 4:
-                iconRes = R.drawable.ic_sanciones;
-                break;
-            case 5:
-                iconRes = R.drawable.ic_reconocimientos;
-                break;
-            default:
-                iconRes = R.drawable.ic_check_circle; // Icono por defecto para niveles superiores o errores
-                break;
+            case 1: iconRes = R.drawable.ic_derechos; break;
+            case 2: iconRes = R.drawable.ic_obligaciones; break;
+            case 3: iconRes = R.drawable.ic_prohibiciones; break;
+            case 4: iconRes = R.drawable.ic_sanciones; break;
+            case 5: iconRes = R.drawable.ic_reconocimientos; break;
+            default: iconRes = R.drawable.ic_check_circle; break;
         }
         binding.ivUserLevelIcon.setImageResource(iconRes);
     }
 
     private void animarMenu() {
+        if (binding == null) return;
         LinearLayout menuContainer = binding.llMenuContainer;
         for (int i = 0; i < menuContainer.getChildCount(); i++) {
             View child = menuContainer.getChildAt(i);
-            Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-            anim.setStartOffset(i * 100L);
-            child.startAnimation(anim);
+            // Evitar animar si la vista no es visible o layout no está listo
+            if (child.getVisibility() == View.VISIBLE) {
+                Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+                anim.setStartOffset(i * 100L);
+                child.startAnimation(anim);
+            }
         }
     }
 
     private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
                                   String nivelNombre, int nivelRequerido, int colorDesbloqueado, int textColorDesbloqueado) {
+
+        // Verificación extra
+        if (button == null || textView == null || iconView == null) return;
 
         int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked);
         int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg);

@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.reglamentoupp.databinding.ActivityRegisterBinding; // Importa el nuevo binding
+import com.example.reglamentoupp.databinding.ActivityRegisterBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,7 +17,7 @@ import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private ActivityRegisterBinding binding; // Binding para el nuevo layout
+    private ActivityRegisterBinding binding;
     private FirebaseAuth mAuth;
     private FirebaseFirestore mStore;
     private static final String TAG = "RegisterActivity";
@@ -32,19 +32,23 @@ public class RegisterActivity extends AppCompatActivity {
         mStore = FirebaseFirestore.getInstance();
 
         binding.btnDoRegister.setOnClickListener(v -> validateAndRegisterUser());
-        binding.btnGoToLogin.setOnClickListener(v -> finish()); // Regresa a LoginActivity
+        binding.btnGoToLogin.setOnClickListener(v -> finish());
     }
 
     private void validateAndRegisterUser() {
-        // Obtenemos todos los datos de los campos
-        String nombre = Objects.requireNonNull(binding.etNombre.getText()).toString().trim();
-        String apellidos = Objects.requireNonNull(binding.etApellidos.getText()).toString().trim();
-        String telefono = Objects.requireNonNull(binding.etTelefono.getText()).toString().trim();
-        String email = Objects.requireNonNull(binding.etEmailRegister.getText()).toString().trim();
-        String password = Objects.requireNonNull(binding.etPasswordRegister.getText()).toString().trim();
-        String confirmPassword = Objects.requireNonNull(binding.etConfirmPassword.getText()).toString().trim();
+        // Uso seguro de Objects.requireNonNull para evitar warnings, aunque getText() suele no ser null
+        if (binding.etNombre.getText() == null || binding.etApellidos.getText() == null ||
+                binding.etEmailRegister.getText() == null || binding.etPasswordRegister.getText() == null) {
+            return;
+        }
 
-        // Validaciones
+        String nombre = binding.etNombre.getText().toString().trim();
+        String apellidos = binding.etApellidos.getText().toString().trim();
+        String telefono = binding.etTelefono.getText() != null ? binding.etTelefono.getText().toString().trim() : "";
+        String email = binding.etEmailRegister.getText().toString().trim();
+        String password = binding.etPasswordRegister.getText().toString().trim();
+        String confirmPassword = binding.etConfirmPassword.getText() != null ? binding.etConfirmPassword.getText().toString().trim() : "";
+
         if (nombre.isEmpty() || apellidos.isEmpty() || email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Nombre, Apellidos, Correo y Contraseña son obligatorios", Toast.LENGTH_SHORT).show();
             return;
@@ -70,13 +74,14 @@ public class RegisterActivity extends AppCompatActivity {
                         createNewUserInFirestore(user, nombre, apellidos, telefono);
                     } else {
                         Log.w(TAG, "Fallo createUser: ", task.getException());
-                        Toast.makeText(RegisterActivity.this, "Error al registrar: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(RegisterActivity.this, "Error al registrar: " +
+                                        (task.getException() != null ? task.getException().getMessage() : "Error desconocido"),
+                                Toast.LENGTH_LONG).show();
                         setLoading(false);
                     }
                 });
     }
 
-    // Método MEJORADO para guardar todos los datos que pediste
     private void createNewUserInFirestore(FirebaseUser firebaseUser, String nombre, String apellidos, String telefono) {
         if (firebaseUser == null) {
             setLoading(false);
@@ -89,8 +94,8 @@ public class RegisterActivity extends AppCompatActivity {
         userData.put("nombre", nombre);
         userData.put("apellidos", apellidos);
         userData.put("telefono", telefono);
-        userData.put("puntaje", 0); // Puntaje inicial
-        userData.put("nivelDesbloqueado", 1); // Nivel 1 (Derechos) desbloqueado por defecto
+        userData.put("puntaje", 0);
+        userData.put("nivelDesbloqueado", 1);
 
         mStore.collection("usuarios").document(firebaseUser.getUid())
                 .set(userData)
@@ -99,8 +104,13 @@ public class RegisterActivity extends AppCompatActivity {
                     navigateToMain();
                 })
                 .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error al crear documento en Firestore", e);
-                    Toast.makeText(RegisterActivity.this, "Error al crear perfil: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error al crear documento en Firestore. Eliminando usuario Auth para evitar inconsistencia.", e);
+                    Toast.makeText(RegisterActivity.this, "Error al guardar datos. Intenta de nuevo.", Toast.LENGTH_SHORT).show();
+
+                    // --- CORRECCIÓN CLAVE ---
+                    // Si falla la BD, borramos el usuario de Auth para que no quede "zombie"
+                    firebaseUser.delete();
+
                     setLoading(false);
                 });
     }
@@ -113,6 +123,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void setLoading(boolean isLoading) {
+        if (binding == null) return;
         if (isLoading) {
             binding.progressBarRegister.setVisibility(View.VISIBLE);
             binding.btnDoRegister.setEnabled(false);
