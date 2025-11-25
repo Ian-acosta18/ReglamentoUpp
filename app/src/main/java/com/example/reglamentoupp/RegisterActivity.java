@@ -36,7 +36,6 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void validateAndRegisterUser() {
-        // Uso seguro de Objects.requireNonNull para evitar warnings, aunque getText() suele no ser null
         if (binding.etNombre.getText() == null || binding.etApellidos.getText() == null ||
                 binding.etEmailRegister.getText() == null || binding.etPasswordRegister.getText() == null) {
             return;
@@ -104,13 +103,10 @@ public class RegisterActivity extends AppCompatActivity {
                     navigateToMain();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error al crear documento en Firestore. Eliminando usuario Auth para evitar inconsistencia.", e);
+                    Log.e(TAG, "Error al crear documento en Firestore.", e);
                     Toast.makeText(RegisterActivity.this, "Error al guardar datos. Intenta de nuevo.", Toast.LENGTH_SHORT).show();
-
-                    // --- CORRECCIÓN CLAVE ---
-                    // Si falla la BD, borramos el usuario de Auth para que no quede "zombie"
+                    // ROLLBACK: Borrar el usuario de Auth para evitar inconsistencias
                     firebaseUser.delete();
-
                     setLoading(false);
                 });
     }

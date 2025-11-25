@@ -27,7 +27,6 @@ public class HangmanActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private MediaPlayer mediaPlayer;
 
-    // --- LISTA DE PALABRAS ESPECÍFICAS DEL REGLAMENTO UPP ---
     private String[][] palabrasConPistas = {
             {"ESTADIA", "Práctica profesional obligatoria en el sector productivo para titularse:"},
             {"CALIDAD", "Condición oficial de 'Alumno' que se pierde al reprobar definitivamente:"},
@@ -125,37 +124,32 @@ public class HangmanActivity extends AppCompatActivity {
             btn.setBackgroundColor(ContextCompat.getColor(this, R.color.status_green));
             btn.setStrokeColor(ColorStateList.valueOf(Color.TRANSPARENT));
 
-            binding.tvHangmanWord.animate()
-                    .scaleX(1.1f).scaleY(1.1f)
-                    .setDuration(100)
-                    .withEndAction(() -> binding.tvHangmanWord.animate().scaleX(1f).scaleY(1f).start())
-                    .start();
+            binding.tvHangmanWord.animate().scaleX(1.1f).scaleY(1.1f).setDuration(100)
+                    .withEndAction(() -> binding.tvHangmanWord.animate().scaleX(1f).scaleY(1f).start()).start();
 
             boolean gano = true;
             for (int i = 0; i < palabraSecreta.length(); i++) {
+                if (palabraAdivinada[i] == '_') {
+                    if (palabraSecreta.charAt(i) == letra.charAt(0)) {
+                        palabraAdivinada[i] = letra.charAt(0);
+                    }
+                }
+                // Segunda pasada para asegurar letras repetidas
                 if (palabraSecreta.charAt(i) == letra.charAt(0)) {
                     palabraAdivinada[i] = letra.charAt(0);
                 }
-                if (palabraAdivinada[i] == '_') {
-                    gano = false;
-                }
+                if (palabraAdivinada[i] == '_') gano = false;
             }
 
-            if (gano) {
-                mostrarDialogo("¡Excelente!", "La palabra era: " + palabraSecreta, true);
-            }
+            if (gano) mostrarDialogo("¡Excelente!", "La palabra era: " + palabraSecreta, true);
         } else {
             vibrar(300);
             reproducirSonido(R.raw.megaman_x_error);
             btn.setBackgroundColor(ContextCompat.getColor(this, R.color.game_fail));
             btn.setStrokeColor(ColorStateList.valueOf(Color.TRANSPARENT));
-
             binding.tvHangmanLives.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
-
             vidas--;
-            if (vidas <= 0) {
-                mostrarDialogo("¡Juego Terminado!", "La palabra correcta era: " + palabraSecreta, false);
-            }
+            if (vidas <= 0) mostrarDialogo("¡Juego Terminado!", "La palabra correcta era: " + palabraSecreta, false);
         }
         actualizarUI();
     }
@@ -172,31 +166,24 @@ public class HangmanActivity extends AppCompatActivity {
 
     private void reproducirSonido(int soundResource) {
         try {
-            if (mediaPlayer != null) {
-                mediaPlayer.release();
-            }
+            if(mediaPlayer != null) mediaPlayer.release();
             mediaPlayer = MediaPlayer.create(this, soundResource);
             if (mediaPlayer != null) {
                 mediaPlayer.start();
                 mediaPlayer.setOnCompletionListener(MediaPlayer::release);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void mostrarDialogo(String titulo, String mensaje, boolean ganado) {
         if(isFinishing()) return;
         int icon = ganado ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones;
-
         new MaterialAlertDialogBuilder(this)
                 .setTitle(titulo)
                 .setMessage(mensaje)
                 .setIcon(icon)
-                .setPositiveButton("Jugar Otra vez", (dialog, which) -> {
-                    iniciarJuego();
-                })
-                .setNegativeButton("Salir", (dialog, which) -> finish())
+                .setPositiveButton("Jugar Otra vez", (d, w) -> iniciarJuego())
+                .setNegativeButton("Salir", (d, w) -> finish())
                 .setCancelable(false)
                 .show();
     }
@@ -204,9 +191,6 @@ public class HangmanActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+        if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
     }
 }

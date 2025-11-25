@@ -74,20 +74,21 @@ public class TrueFalseActivity extends AppCompatActivity {
         db.collection("preguntasVF")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if(isFinishing()) return;
                     if (queryDocumentSnapshots.isEmpty()) return;
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        try {
-                            questionList.add(doc.toObject(PreguntaVF.class));
-                        } catch (Exception e) {}
+                        try { questionList.add(doc.toObject(PreguntaVF.class)); } catch (Exception e) {}
                     }
                     Collections.shuffle(questionList);
-                    if (!questionList.isEmpty()) showQuestion();
+                    if(!questionList.isEmpty()) showQuestion();
                 })
-                .addOnFailureListener(e -> Toast.makeText(this, "Error al cargar", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    if(!isFinishing()) Toast.makeText(this, "Error al cargar", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void showQuestion() {
-        if (isFinishing() || isDestroyed()) return;
+        if (isFinishing()) return;
 
         if (currentQuestionIndex < questionList.size() && lives > 0) {
             botonesBloqueados = false;
@@ -104,7 +105,6 @@ public class TrueFalseActivity extends AppCompatActivity {
             binding.tvLives.setText("❤️ " + lives);
 
             iniciarTemporizador();
-
         } else {
             finishGame();
         }
@@ -120,7 +120,6 @@ public class TrueFalseActivity extends AppCompatActivity {
                 if(isFinishing()) { cancel(); return; }
                 int segundos = (int) (millisUntilFinished / 1000);
                 binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
-
                 if (segundos <= 3) {
                     binding.tvSpeechBubble.setTextColor(Color.RED);
                     binding.lottieCharacter.setSpeed(1.5f);
@@ -139,7 +138,6 @@ public class TrueFalseActivity extends AppCompatActivity {
 
     private void checkAnswer(boolean userSelectedTrue) {
         if (botonesBloqueados) return;
-
         if (temporizador != null) temporizador.cancel();
 
         boolean correctAnswer = questionList.get(currentQuestionIndex).isRespuesta();
@@ -176,20 +174,13 @@ public class TrueFalseActivity extends AppCompatActivity {
         }
 
         currentQuestionIndex++;
-
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (isFinishing() || isDestroyed()) return; // FIX
-            showQuestion();
+            if(!isFinishing()) showQuestion();
         }, 2000);
     }
 
     private void actualizarMascota(boolean esCorrecto) {
-        int animacionRes;
-        if (esCorrecto) {
-            animacionRes = R.raw.happy_sun;
-        } else {
-            animacionRes = R.raw.angry_thunderstorm;
-        }
+        int animacionRes = esCorrecto ? R.raw.happy_sun : R.raw.angry_thunderstorm;
         binding.lottieCharacter.setAnimation(animacionRes);
         binding.lottieCharacter.playAnimation();
     }
@@ -202,9 +193,7 @@ public class TrueFalseActivity extends AppCompatActivity {
                 mediaPlayer.start();
                 mediaPlayer.setOnCompletionListener(MediaPlayer::release);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void vibrar(long milisegundos) {
@@ -239,12 +228,6 @@ public class TrueFalseActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         if (temporizador != null) temporizador.cancel();
-        if (mediaPlayer != null) mediaPlayer.release();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (temporizador != null) temporizador.cancel();
+        if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
     }
 }

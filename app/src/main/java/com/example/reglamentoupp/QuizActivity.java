@@ -48,7 +48,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private static final long TIEMPO_POR_PREGUNTA = 15000;
     private int racha = 0;
     private Vibrator vibrator;
-    private MediaPlayer mediaPlayer; // Referencia para liberar memoria
+    private MediaPlayer mediaPlayer;
 
     private final String[] frasesExito = {"¡Brillante!", "¡Iluminaste el día!", "¡Correcto!", "¡Radiante!"};
     private final String[] frasesError = {"¡Rayos!", "Se nubló...", "Intenta de nuevo", "¡Cuidado!"};
@@ -78,29 +78,28 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         mStore.collection("preguntas")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if(isFinishing()) return;
                     if (queryDocumentSnapshots.isEmpty()) {
                         Toast.makeText(this, "No hay preguntas disponibles.", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        try {
-                            listaDePreguntas.add(doc.toObject(Pregunta.class));
-                        } catch (Exception e) {
-                            // Ignorar preguntas mal formadas
-                        }
+                        try { listaDePreguntas.add(doc.toObject(Pregunta.class)); } catch (Exception e) {}
                     }
                     Collections.shuffle(listaDePreguntas);
                     if (listaDePreguntas.size() > MAX_PREGUNTAS) {
                         listaDePreguntas = listaDePreguntas.subList(0, MAX_PREGUNTAS);
                     }
-                    if (!listaDePreguntas.isEmpty()) {
+                    if(!listaDePreguntas.isEmpty()) {
                         binding.quizProgressBar.setMax(listaDePreguntas.size());
                         iniciarQuiz();
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Error al cargar preguntas.", Toast.LENGTH_SHORT).show();
-                    finish();
+                    if(!isFinishing()) {
+                        Toast.makeText(this, "Error al cargar preguntas.", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
                 });
     }
 
@@ -113,7 +112,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void mostrarSiguientePregunta() {
-        if (isFinishing() || isDestroyed()) return;
+        if (isFinishing()) return;
 
         if (indicePreguntaActual < listaDePreguntas.size()) {
             botonesBloqueados = false;
@@ -141,20 +140,15 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void iniciarTemporizador() {
-        if (temporizador != null) {
-            temporizador.cancel();
-        }
-
+        if (temporizador != null) temporizador.cancel();
         binding.tvSpeechBubble.setTextColor(Color.BLACK);
 
         temporizador = new CountDownTimer(TIEMPO_POR_PREGUNTA, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                if (isFinishing()) { cancel(); return; } // Seguridad extra
-
+                if(isFinishing()) { cancel(); return; }
                 int segundos = (int) (millisUntilFinished / 1000);
                 binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
-
                 if (segundos <= 5) {
                     binding.tvSpeechBubble.setTextColor(Color.RED);
                     binding.lottieCharacter.setSpeed(1.5f);
@@ -165,7 +159,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onFinish() {
-                if (!isFinishing()) {
+                if(!isFinishing()) {
                     binding.tvSpeechBubble.setText("¡Tiempo agotado!");
                     manejarError(null, true);
                 }
@@ -177,17 +171,13 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if (botonesBloqueados) return;
         botonesBloqueados = true;
-
         if (temporizador != null) temporizador.cancel();
 
         Button botonPresionado = (Button) v;
         String respuestaElegida = botonPresionado.getText().toString();
+        String correcta = preguntaActual.getRespuestaCorrecta();
 
-        // Protección contra nulos
-        String correcta = preguntaActual.getRespuestaCorrecta() != null ? preguntaActual.getRespuestaCorrecta() : "";
-        boolean esCorrecto = respuestaElegida.equals(correcta);
-
-        if (esCorrecto) {
+        if (respuestaElegida.equals(correcta)) {
             manejarAcierto(botonPresionado);
         } else {
             manejarError(botonPresionado, false);
@@ -210,9 +200,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
         botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
 
-        binding.tvQuizScore.animate().scaleX(1.2f).scaleY(1.2f).setDuration(200).withEndAction(() ->
-                binding.tvQuizScore.animate().scaleX(1f).scaleY(1f).setDuration(200).start()
-        ).start();
+        binding.tvQuizScore.animate().scaleX(1.2f).scaleY(1.2f).setDuration(200)
+                .withEndAction(() -> binding.tvQuizScore.animate().scaleX(1f).scaleY(1f).setDuration(200).start()).start();
 
         actualizarMascota(true);
         postQuestionDelay(true);
@@ -237,10 +226,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private void postQuestionDelay(boolean acerto) {
         long delay = acerto ? 2000 : 2500;
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // --- CORRECCIÓN CRÍTICA ---
-            // Si el usuario salió de la actividad, no intentamos tocar la UI
             if (isFinishing() || isDestroyed()) return;
-
             if (vidas <= 0) {
                 mostrarResultadoFinal();
             } else {
@@ -250,14 +236,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void actualizarMascota(boolean esCorrecto) {
-        int animacionRes;
-        if (esCorrecto) {
-            animacionRes = R.raw.happy_sun;
-        } else {
-            if(binding.tvSpeechBubble.getText().toString().contains("Tiempo")) {
-                binding.tvSpeechBubble.setText(frasesError[(int) (Math.random() * frasesError.length)]);
-            }
-            animacionRes = R.raw.angry_thunderstorm;
+        int animacionRes = esCorrecto ? R.raw.happy_sun : R.raw.angry_thunderstorm;
+        if(!esCorrecto && binding.tvSpeechBubble.getText().toString().contains("Tiempo")) {
+            binding.tvSpeechBubble.setText(frasesError[(int) (Math.random() * frasesError.length)]);
         }
         binding.lottieCharacter.setAnimation(animacionRes);
         binding.lottieCharacter.playAnimation();
@@ -265,17 +246,13 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private void reproducirSonido(int soundResource) {
         try {
-            if (mediaPlayer != null) {
-                mediaPlayer.release();
-            }
+            if(mediaPlayer != null) mediaPlayer.release();
             mediaPlayer = MediaPlayer.create(this, soundResource);
             if (mediaPlayer != null) {
                 mediaPlayer.start();
                 mediaPlayer.setOnCompletionListener(MediaPlayer::release);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void vibrar(long milisegundos) {
@@ -293,34 +270,26 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
         binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
         binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
-        int colorTexto = ContextCompat.getColor(this, R.color.white);
-        binding.btnQuizOptionA.setTextColor(colorTexto);
-        binding.btnQuizOptionB.setTextColor(colorTexto);
-        binding.btnQuizOptionC.setTextColor(colorTexto);
+        binding.btnQuizOptionA.setTextColor(Color.WHITE);
+        binding.btnQuizOptionB.setTextColor(Color.WHITE);
+        binding.btnQuizOptionC.setTextColor(Color.WHITE);
     }
 
     private void resaltarRespuestaCorrecta() {
-        if (preguntaActual == null) return;
+        if(preguntaActual == null) return;
         String correcta = preguntaActual.getRespuestaCorrecta();
         int colorVerde = ContextCompat.getColor(this, R.color.game_success);
-
-        if (binding.btnQuizOptionA.getText().toString().equals(correcta)) {
-            binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
-        } else if (binding.btnQuizOptionB.getText().toString().equals(correcta)) {
-            binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
-        } else if (binding.btnQuizOptionC.getText().toString().equals(correcta)) {
-            binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
-        }
+        if (binding.btnQuizOptionA.getText().toString().equals(correcta)) binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
+        else if (binding.btnQuizOptionB.getText().toString().equals(correcta)) binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
+        else if (binding.btnQuizOptionC.getText().toString().equals(correcta)) binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
     }
 
     private void mostrarResultadoFinal() {
-        if (isFinishing()) return; // Evitar BadTokenException
-
+        if(isFinishing()) return;
         if (mAuth.getCurrentUser() != null && puntaje > 0) {
             mStore.collection("usuarios").document(mAuth.getCurrentUser().getUid())
                     .update("puntaje", FieldValue.increment(puntaje));
         }
-
         new MaterialAlertDialogBuilder(this)
                 .setTitle("¡Juego Terminado!")
                 .setMessage("Tu puntaje final es: " + puntaje)
@@ -333,15 +302,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause() {
         super.onPause();
         if (temporizador != null) temporizador.cancel();
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (temporizador != null) temporizador.cancel();
+        if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
     }
 }
