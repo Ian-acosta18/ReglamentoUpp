@@ -12,6 +12,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -22,7 +23,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements BaseReglamentoFragment.ReglamentoInteractionListener {
 
@@ -72,16 +75,11 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             navigateToLogin();
         });
 
-        // --- OPTIMIZACIÓN: Listeners estáticos movidos a onCreate ---
-        // Estos botones no dependen de los datos del usuario, así que se configuran una sola vez.
+        // Configurar botones que no cambian (Quiz, Ahorcado, etc.)
         setupStaticGameListeners();
-    }
 
-    private void setupStaticGameListeners() {
-        binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
-        binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
-        binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
-        binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
+        // --- IMPORTANTE: Si necesitas subir las preguntas a Firebase, descomenta la siguiente línea UNA VEZ ---
+        // cargarPreguntasRealesUPP();
     }
 
     @Override
@@ -89,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         super.onResume();
         actualizarSaludoInicial();
         iniciarRotacionMensajes();
-        loadUserData();
+        loadUserData(); // Cargar datos del usuario (Nivel y Puntaje)
         animarMenu();
     }
 
@@ -99,9 +97,16 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         detenerRotacionMensajes();
     }
 
+    // --- Configuración de Botones Estáticos ---
+    private void setupStaticGameListeners() {
+        binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
+        binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
+        binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
+        binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
+    }
+
     // --- Lógica de Mensajes Rotativos ---
     private void iniciarRotacionMensajes() {
-        // Evitamos duplicar runnables si se llama múltiples veces
         handlerRotacion.removeCallbacks(runnableRotacion);
         handlerRotacion.postDelayed(runnableRotacion, 4000);
     }
@@ -113,9 +118,10 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     private Runnable runnableRotacion = new Runnable() {
         @Override
         public void run() {
-            // Verificación de seguridad para evitar crashes si la vista ya no existe
+            // Verificación de seguridad: Si la actividad se está cerrando o el binding es nulo, no hacer nada.
             if (!isFinishing() && binding != null && binding.tvWelcomeBubble != null) {
                 binding.tvWelcomeBubble.animate().alpha(0f).setDuration(300).withEndAction(() -> {
+                    // Doble verificación dentro del callback de animación
                     if (!isFinishing() && binding != null && binding.tvWelcomeBubble != null) {
                         indiceMensaje = (indiceMensaje + 1) % mensajesRotativos.length;
                         binding.tvWelcomeBubble.setText(mensajesRotativos[indiceMensaje]);
@@ -140,12 +146,12 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             saludo = "¡Buenas noches! 🌙\nNunca es tarde para estudiar.";
         }
 
-        if (binding.tvWelcomeBubble != null) {
+        if (binding != null && binding.tvWelcomeBubble != null) {
             binding.tvWelcomeBubble.setText(saludo);
             binding.tvWelcomeBubble.setAlpha(1f);
         }
 
-        if (binding.lottieWelcome != null) {
+        if (binding != null && binding.lottieWelcome != null) {
             binding.lottieWelcome.playAnimation();
         }
     }
@@ -155,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
         mStore.collection("usuarios").document(userID).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    // --- CORRECCIÓN CRÍTICA: Verificar si la actividad sigue viva ---
+                    // Verificación crítica para evitar crashes
                     if (isFinishing() || isDestroyed() || binding == null) return;
 
                     if (documentSnapshot.exists()) {
@@ -181,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
                         actualizarUIdeNivel(userNivel);
 
-                        // Configurar Niveles (Esto sí depende de los datos, así que se queda aquí)
+                        // Configurar Niveles (Dependen del nivel desbloqueado)
                         setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos, "Derechos", 1, R.color.upp_primary, R.color.text_primary);
                         setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones, "Obligaciones", 2, R.color.upp_primary, R.color.text_primary);
                         setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones, "Prohibiciones", 3, R.color.upp_primary, R.color.text_primary);
@@ -207,12 +213,24 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
         int iconRes;
         switch (nivel) {
-            case 1: iconRes = R.drawable.ic_derechos; break;
-            case 2: iconRes = R.drawable.ic_obligaciones; break;
-            case 3: iconRes = R.drawable.ic_prohibiciones; break;
-            case 4: iconRes = R.drawable.ic_sanciones; break;
-            case 5: iconRes = R.drawable.ic_reconocimientos; break;
-            default: iconRes = R.drawable.ic_check_circle; break;
+            case 1:
+                iconRes = R.drawable.ic_derechos;
+                break;
+            case 2:
+                iconRes = R.drawable.ic_obligaciones;
+                break;
+            case 3:
+                iconRes = R.drawable.ic_prohibiciones;
+                break;
+            case 4:
+                iconRes = R.drawable.ic_sanciones;
+                break;
+            case 5:
+                iconRes = R.drawable.ic_reconocimientos;
+                break;
+            default:
+                iconRes = R.drawable.ic_check_circle;
+                break;
         }
         binding.ivUserLevelIcon.setImageResource(iconRes);
     }
@@ -222,7 +240,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         LinearLayout menuContainer = binding.llMenuContainer;
         for (int i = 0; i < menuContainer.getChildCount(); i++) {
             View child = menuContainer.getChildAt(i);
-            // Evitar animar si la vista no es visible o layout no está listo
             if (child.getVisibility() == View.VISIBLE) {
                 Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
                 anim.setStartOffset(i * 100L);
@@ -234,7 +251,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
                                   String nivelNombre, int nivelRequerido, int colorDesbloqueado, int textColorDesbloqueado) {
 
-        // Verificación extra
         if (button == null || textView == null || iconView == null) return;
 
         int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked);
@@ -291,6 +307,38 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
+    }
+
+    // --- UTILIDAD: Método para cargar preguntas a Firebase (Usar una vez) ---
+    private void cargarPreguntasRealesUPP() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 1. QUIZ (Opción Múltiple)
+        List<Pregunta> quizUPP = new ArrayList<>();
+        quizUPP.add(new Pregunta("¿Quién es la máxima autoridad ejecutiva de la UPP?", "El Abogado General", "El Rector", "El Consejo Social", "El Rector"));
+        quizUPP.add(new Pregunta("¿Cuál es el plazo máximo para una baja temporal?", "1 año", "3 cuatrimestres", "Indefinido", "3 cuatrimestres"));
+        quizUPP.add(new Pregunta("¿Cómo se pierde oficialmente la 'Calidad de Alumno'?", "Por baja definitiva", "Por reprobar un parcial", "Por llegar tarde", "Por baja definitiva"));
+        quizUPP.add(new Pregunta("¿Qué se requiere para el proceso de reinscripción?", "Solo pagar", "Aceptar carga académica", "Enviar carta al rector", "Aceptar carga académica"));
+        quizUPP.add(new Pregunta("¿Qué sanción aplica por documentación apócrifa (falsa)?", "Suspensión temporal", "Baja definitiva", "Multa económica", "Baja definitiva"));
+        quizUPP.add(new Pregunta("¿Qué órgano apoya en la gestión y vinculación social?", "Consejo de Calidad", "Consejo Social", "Junta Directiva", "Consejo Social"));
+
+        for (Pregunta p : quizUPP) {
+            db.collection("preguntas").add(p);
+        }
+
+        // 2. VERDADERO O FALSO
+        List<PreguntaVF> vfUPP = new ArrayList<>();
+        vfUPP.add(new PreguntaVF("¿La UPP cuenta con programas de Becas Institucionales?", true));
+        vfUPP.add(new PreguntaVF("¿Se puede autorizar baja temporal extemporánea por embarazo?", true));
+        vfUPP.add(new PreguntaVF("¿El alumno puede renunciar a la universidad voluntariamente?", true));
+        vfUPP.add(new PreguntaVF("¿La estadía profesional es opcional para titularse?", false));
+        vfUPP.add(new PreguntaVF("¿El Rector es designado por votación de los alumnos?", false));
+
+        for (PreguntaVF p : vfUPP) {
+            db.collection("preguntasVF").add(p);
+        }
+
+        Toast.makeText(this, "¡Preguntas UPP subidas a la base de datos!", Toast.LENGTH_LONG).show();
     }
 
     @Override
