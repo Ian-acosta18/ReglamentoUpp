@@ -2,10 +2,11 @@ package com.example.reglamentoupp;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,17 +32,20 @@ import java.util.List;
 public class QuizBottomSheetFragment extends BottomSheetDialogFragment implements View.OnClickListener {
 
     private static final String ARG_CATEGORIA = "categoria";
-    private static final String TAG = "QuizBottomSheet";
     private String categoriaJuego;
     private Pregunta preguntaActual;
     private FirebaseFirestore mStore;
     private OnQuizCompleteListener mListener;
 
+    // UI
     private TextView tvPregunta, tvQuizTitle, tvQuizFeedback;
-    // Usamos MaterialButton para poder cambiar bordes y colores fácilmente
     private MaterialButton btnOpcionA, btnOpcionB, btnOpcionC;
     private ProgressBar progressBar;
     private LinearLayout optionsContainer;
+    private LottieAnimationView lottieFeedback;
+
+    // Audio
+    private MediaPlayer mediaPlayer;
 
     public interface OnQuizCompleteListener {
         void onQuizComplete(int puntos, boolean esCorrecto);
@@ -71,7 +76,6 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
             categoriaJuego = getArguments().getString(ARG_CATEGORIA);
         }
         mStore = FirebaseFirestore.getInstance();
-        setCancelable(false);
     }
 
     @Nullable
@@ -82,8 +86,8 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
         tvPregunta = view.findViewById(R.id.tv_quiz_pregunta);
         tvQuizTitle = view.findViewById(R.id.tv_quiz_title);
         tvQuizFeedback = view.findViewById(R.id.tv_quiz_feedback);
+        lottieFeedback = view.findViewById(R.id.lottieFeedback);
 
-        // Inicializamos como MaterialButton
         btnOpcionA = view.findViewById(R.id.btn_opcion_a);
         btnOpcionB = view.findViewById(R.id.btn_opcion_b);
         btnOpcionC = view.findViewById(R.id.btn_opcion_c);
@@ -108,6 +112,7 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
+                        Toast.makeText(getContext(), "No hay preguntas para esta categoría", Toast.LENGTH_SHORT).show();
                         dismiss();
                         return;
                     }
@@ -120,7 +125,7 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
                     displayQuestion();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Error al cargar el quiz.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error al cargar.", Toast.LENGTH_SHORT).show();
                     dismiss();
                 });
     }
@@ -145,7 +150,7 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
         btnOpcionB.setText(preguntaActual.getOpcionB());
         btnOpcionC.setText(preguntaActual.getOpcionC());
 
-        resetButtonStyles(); // Esto pondrá los colores por defecto (Morado + Blanco)
+        resetButtonStyles();
         setLoading(false);
     }
 
@@ -158,39 +163,54 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
 
         setButtonsEnabled(false);
 
-        if (respuestaElegida.equals(respuestaCorrecta)) {
-            showFeedback(true, clickedButton);
-            mListener.onQuizComplete(10, true);
-        } else {
-            showFeedback(false, clickedButton);
-            mListener.onQuizComplete(0, false);
+        boolean esCorrecto = respuestaElegida.equals(respuestaCorrecta);
+        handleResult(esCorrecto, clickedButton);
+
+        // Notificar a la actividad principal
+        if (mListener != null) {
+            mListener.onQuizComplete(esCorrecto ? 10 : 0, esCorrecto);
         }
 
-        new Handler(Looper.getMainLooper()).postDelayed(this::dismiss, 2000);
+        // Cerrar automáticamente después de 2.5 segundos
+        new Handler(Looper.getMainLooper()).postDelayed(this::dismiss, 2500);
     }
 
-    // ================================================================
-    //  CORRECCIÓN DE COLORES AQUÍ
-    // ================================================================
-
-    private void showFeedback(boolean isCorrect, MaterialButton clickedButton) {
+    private void handleResult(boolean isCorrect, MaterialButton clickedButton) {
         tvQuizFeedback.setVisibility(View.VISIBLE);
+        lottieFeedback.setVisibility(View.VISIBLE);
+        tvPregunta.setVisibility(View.GONE); // Ocultar pregunta para dar espacio a la animación
 
         if (isCorrect) {
-            tvQuizFeedback.setText("¡Correcto!");
-            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_success)); // Texto verde
+            // --- RESPUESTA CORRECTA ---
+            playSound(R.raw.correct_ding);
 
-            // FONDO VERDE - TEXTO BLANCO
-            setButtonColor(clickedButton, R.color.game_success, R.color.white);
+            // UI Feedback
+            tvQuizFeedback.setText("¡Excelente! Respuesta Correcta");
+            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_success));
+
+            // Animación
+            lottieFeedback.setAnimation(R.raw.happy_sun);
+            lottieFeedback.playAnimation();
+
+            // Estilo Botón
+            setButtonStyle(clickedButton, R.color.game_success, R.color.white, R.drawable.ic_check_circle);
 
         } else {
-            tvQuizFeedback.setText("Incorrecto");
-            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_fail)); // Texto rojo
+            // --- RESPUESTA INCORRECTA ---
+            playSound(R.raw.megaman_x_error);
 
-            // FONDO ROJO - TEXTO BLANCO
-            setButtonColor(clickedButton, R.color.game_fail, R.color.white);
+            // UI Feedback
+            tvQuizFeedback.setText("¡Oh no! Respuesta Incorrecta");
+            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_fail));
 
-            // Buscar la respuesta correcta para pintarla de verde
+            // Animación
+            lottieFeedback.setAnimation(R.raw.angry_thunderstorm);
+            lottieFeedback.playAnimation();
+
+            // Estilo Botón (Rojo)
+            setButtonStyle(clickedButton, R.color.game_fail, R.color.white, R.drawable.ic_prohibiciones); // Ojo: usa un icono de error si tienes, sino el de prohibiciones funciona
+
+            // Mostrar cuál era la correcta
             highlightCorrectAnswer();
         }
     }
@@ -202,42 +222,70 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
         else if (btnOpcionC.getText().toString().equals(preguntaActual.getRespuestaCorrecta())) correctBtn = btnOpcionC;
 
         if (correctBtn != null) {
-            // FONDO VERDE - TEXTO BLANCO
-            setButtonColor(correctBtn, R.color.game_success, R.color.white);
+            setButtonStyle(correctBtn, R.color.game_success, R.color.white, R.drawable.ic_check_circle);
+        }
+    }
+
+    private void playSound(int soundResId) {
+        try {
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+            }
+            mediaPlayer = MediaPlayer.create(getContext(), soundResId);
+            if (mediaPlayer != null) {
+                mediaPlayer.start();
+                mediaPlayer.setOnCompletionListener(MediaPlayer::release);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private void resetButtonStyles() {
         setButtonsEnabled(true);
         tvQuizFeedback.setVisibility(View.GONE);
+        lottieFeedback.setVisibility(View.GONE);
+        tvPregunta.setVisibility(View.VISIBLE);
 
         MaterialButton[] buttons = {btnOpcionA, btnOpcionB, btnOpcionC};
         for (MaterialButton btn : buttons) {
-            // ESTADO NORMAL: FONDO MORADO (Primary) - TEXTO BLANCO
-            setButtonColor(btn, R.color.upp_primary, R.color.white);
-            btn.setStrokeWidth(0);
+            // Estilo por defecto (Outlined)
+            btn.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+            btn.setTextColor(ContextCompat.getColor(getContext(), R.color.upp_primary_dark));
+            btn.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.upp_primary)));
+            btn.setStrokeWidth(dpToPx(1));
+            btn.setIcon(ContextCompat.getDrawable(getContext(), R.drawable.ic_check_circle)); // Icono por defecto (círculo vacío sería mejor si tuvieras)
+            btn.setIconTint(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.upp_primary_light)));
         }
     }
 
-    // Método auxiliar para asegurar que el contraste siempre sea correcto
-    private void setButtonColor(MaterialButton btn, int bgColorRes, int textColorRes) {
-        Context ctx = getContext();
-        if (ctx == null) return;
-
-        // Establece el color de fondo (Tint)
-        btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(ctx, bgColorRes)));
-
-        // Establece el color del texto
-        btn.setTextColor(ContextCompat.getColor(ctx, textColorRes));
-
-        // Nos aseguramos de que el icono (si tuviera) también se pinte
-        btn.setIconTint(ColorStateList.valueOf(ContextCompat.getColor(ctx, textColorRes)));
+    private void setButtonStyle(MaterialButton btn, int bgColorRes, int textColorRes, int iconRes) {
+        if (getContext() == null) return;
+        btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), bgColorRes)));
+        btn.setTextColor(ContextCompat.getColor(getContext(), textColorRes));
+        btn.setStrokeWidth(0);
+        btn.setIcon(ContextCompat.getDrawable(getContext(), iconRes));
+        btn.setIconTint(ColorStateList.valueOf(ContextCompat.getColor(getContext(), textColorRes)));
     }
 
     private void setButtonsEnabled(boolean enabled) {
         btnOpcionA.setEnabled(enabled);
         btnOpcionB.setEnabled(enabled);
         btnOpcionC.setEnabled(enabled);
+    }
+
+    private int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round((float) dp * density);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 
     @Override
