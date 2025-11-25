@@ -266,13 +266,23 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void restaurarBotones() {
-        int colorOriginal = Color.parseColor("#33FFFFFF");
-        binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
-        binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
-        binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(colorOriginal));
-        binding.btnQuizOptionA.setTextColor(Color.WHITE);
-        binding.btnQuizOptionB.setTextColor(Color.WHITE);
-        binding.btnQuizOptionC.setTextColor(Color.WHITE);
+        // ELIMINAMOS EL TINT GRIS Y PONEMOS EL DISEÑO ORIGINAL
+
+        // 1. Limpiar cualquier filtro de color anterior (verde/rojo)
+        binding.btnQuizOptionA.setBackgroundTintList(null);
+        binding.btnQuizOptionB.setBackgroundTintList(null);
+        binding.btnQuizOptionC.setBackgroundTintList(null);
+
+        // 2. Establecer el diseño del drawable (borde dorado y fondo azul)
+        binding.btnQuizOptionA.setBackgroundResource(R.drawable.button_quiz_default);
+        binding.btnQuizOptionB.setBackgroundResource(R.drawable.button_quiz_default);
+        binding.btnQuizOptionC.setBackgroundResource(R.drawable.button_quiz_default);
+
+        // 3. Restaurar color del texto a blanco
+        int colorTexto = ContextCompat.getColor(this, R.color.white);
+        binding.btnQuizOptionA.setTextColor(colorTexto);
+        binding.btnQuizOptionB.setTextColor(colorTexto);
+        binding.btnQuizOptionC.setTextColor(colorTexto);
     }
 
     private void resaltarRespuestaCorrecta() {

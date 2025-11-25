@@ -27,6 +27,7 @@ public class HangmanActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private MediaPlayer mediaPlayer;
 
+    // --- LISTA DE PALABRAS ESPECÍFICAS DEL REGLAMENTO UPP ---
     private String[][] palabrasConPistas = {
             {"ESTADIA", "Práctica profesional obligatoria en el sector productivo para titularse:"},
             {"CALIDAD", "Condición oficial de 'Alumno' que se pierde al reprobar definitivamente:"},
