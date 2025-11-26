@@ -41,8 +41,10 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private int indicePreguntaActual = 0;
     private int puntaje = 0;
     private int vidas = 3;
-    private static final int MAX_PREGUNTAS = 10;
     private boolean botonesBloqueados = false;
+
+    // --- ESTA VARIABLE FALTABA ---
+    private static final int MAX_PREGUNTAS = 10;
 
     private CountDownTimer temporizador;
     private static final long TIEMPO_POR_PREGUNTA = 15000;
@@ -52,6 +54,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private final String[] frasesExito = {"¡Brillante!", "¡Iluminaste el día!", "¡Correcto!", "¡Radiante!"};
     private final String[] frasesError = {"¡Rayos!", "Se nubló...", "Intenta de nuevo", "¡Cuidado!"};
+
+    // Color Morado Bonito para el texto
+    private static final String COLOR_MORADO_BONITO = "#9C27B0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,7 +121,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
         if (indicePreguntaActual < listaDePreguntas.size()) {
             botonesBloqueados = false;
-            restaurarBotones(); // Aquí se limpian los colores
+            restaurarBotones(); // Restaura a blanco con texto morado
 
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
@@ -198,8 +203,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         vibrar(50);
         reproducirSonido(R.raw.correct_ding);
 
-        // Usamos Tint para el color verde de acierto (temporal)
+        // --- RELLENAR DE VERDE Y TEXTO BLANCO ---
         botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
+        botonPresionado.setTextColor(Color.WHITE);
 
         binding.tvQuizScore.animate().scaleX(1.2f).scaleY(1.2f).setDuration(200)
                 .withEndAction(() -> binding.tvQuizScore.animate().scaleX(1f).scaleY(1f).setDuration(200).start()).start();
@@ -215,8 +221,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         reproducirSonido(R.raw.megaman_x_error);
 
         if (!porTiempo && botonPresionado != null) {
-            // Usamos Tint para el color rojo de error (temporal)
+            // --- RELLENAR DE ROJO Y TEXTO BLANCO ---
             botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
+            botonPresionado.setTextColor(Color.WHITE);
             botonPresionado.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
         }
 
@@ -267,20 +274,20 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    // --- MÉTODO CORREGIDO: Limpia tintes y restaura el drawable original ---
+    // --- MÉTODO ACTUALIZADO: Restaura el diseño blanco y texto negro ---
     private void restaurarBotones() {
-        // 1. Quitar el tinte (verde/rojo)
+        // 1. Quitar tintes de color (verde/rojo)
         binding.btnQuizOptionA.setBackgroundTintList(null);
         binding.btnQuizOptionB.setBackgroundTintList(null);
         binding.btnQuizOptionC.setBackgroundTintList(null);
 
-        // 2. Asegurar que se use el diseño original
+        // 2. Cargar de nuevo el drawable (fondo blanco, borde morado)
         binding.btnQuizOptionA.setBackgroundResource(R.drawable.button_quiz_default);
         binding.btnQuizOptionB.setBackgroundResource(R.drawable.button_quiz_default);
         binding.btnQuizOptionC.setBackgroundResource(R.drawable.button_quiz_default);
 
-        // 3. Restaurar texto a blanco
-        int colorTexto = Color.WHITE;
+        // 3. Restaurar el color del texto a NEGRO
+        int colorTexto = Color.BLACK;
         binding.btnQuizOptionA.setTextColor(colorTexto);
         binding.btnQuizOptionB.setTextColor(colorTexto);
         binding.btnQuizOptionC.setTextColor(colorTexto);
@@ -291,10 +298,17 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         String correcta = preguntaActual.getRespuestaCorrecta();
         int colorVerde = ContextCompat.getColor(this, R.color.game_success);
 
-        // Aquí sí usamos Tint para mostrar cuál era la correcta temporalmente
-        if (binding.btnQuizOptionA.getText().toString().equals(correcta)) binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
-        else if (binding.btnQuizOptionB.getText().toString().equals(correcta)) binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
-        else if (binding.btnQuizOptionC.getText().toString().equals(correcta)) binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
+        // Si falló, mostrar la correcta en verde y texto blanco
+        if (binding.btnQuizOptionA.getText().toString().equals(correcta)) {
+            binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
+            binding.btnQuizOptionA.setTextColor(Color.WHITE);
+        } else if (binding.btnQuizOptionB.getText().toString().equals(correcta)) {
+            binding.btnQuizOptionB.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
+            binding.btnQuizOptionB.setTextColor(Color.WHITE);
+        } else if (binding.btnQuizOptionC.getText().toString().equals(correcta)) {
+            binding.btnQuizOptionC.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
+            binding.btnQuizOptionC.setTextColor(Color.WHITE);
+        }
     }
 
     private void mostrarResultadoFinal() {
