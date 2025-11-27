@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             navigateToLogin();
         });
 
-        // Configurar botones que no cambian (Quiz, Ahorcado, etc.)
+        // Configurar botones que no cambian (Quiz, Ahorcado, Ranking, etc.)
         setupStaticGameListeners();
 
         // --- IMPORTANTE: DESCOMENTA ESTA LÍNEA SOLO UNA VEZ PARA SUBIR LAS PREGUNTAS NUEVAS ---
@@ -103,6 +103,9 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
         binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
         binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
+
+        // --- NUEVO LISTENER PARA EL RANKING ---
+        binding.btnVerRanking.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RankingActivity.class)));
     }
 
     // --- Lógica de Mensajes Rotativos ---

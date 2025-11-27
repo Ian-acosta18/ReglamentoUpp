@@ -25,6 +25,8 @@
     <color name="text_tertiary">#9CA3AF</color>
     <color name="text_light">#FFFFFF</color>
 
+    <color name="gray">#808080</color>
+
     <color name="gradient_purple_start">#667EEA</color>
     <color name="gradient_purple_end">#764BA2</color>
 
