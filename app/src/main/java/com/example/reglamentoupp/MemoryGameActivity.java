@@ -33,7 +33,7 @@ public class MemoryGameActivity extends AppCompatActivity {
 
     // --- Configuración ---
     private static final int TOTAL_PAIRS = 8;
-    private static final long GAME_TIME_MS = 90000;
+    private static final long GAME_TIME_MS = 120000; // Aumentado a 2 mins por la lectura
 
     // UI
     private GridLayout glCards;
@@ -52,22 +52,20 @@ public class MemoryGameActivity extends AppCompatActivity {
     private int pairsFound = 0;
     private int racha = 0;
 
-    // --- DEFINICIÓN DE LAS CARTAS (ACTUALIZADO: SOLO REGLAMENTO) ---
+    // --- DEFINICIÓN DE LAS CARTAS (REGLAS Y ARTÍCULOS) ---
+    // Cada definición crea un par: Texto A (Artículo) y Texto B (Descripción)
     private final CardDefinition[] definitions = {
-            // Secciones principales
-            new CardDefinition(R.drawable.ic_derechos, "Derechos"),
-            new CardDefinition(R.drawable.ic_obligaciones, "Obligaciones"),
-            new CardDefinition(R.drawable.ic_prohibiciones, "Prohibido"),
-            new CardDefinition(R.drawable.ic_sanciones, "Sanciones"),
-            new CardDefinition(R.drawable.ic_reconocimientos, "Méritos"),
+            // --- DERECHOS (Icono: ic_derechos) ---
+            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (I)", "Cursar los estudios según planes vigentes."),
+            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (III)", "Recibir orientación académica."),
+            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VII)", "Conocer resultados de evaluaciones."),
+            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VIII)", "Obtener credencial al inscribirse."),
 
-            // Nuevas secciones basadas en el reglamento usando iconos disponibles
-            // Usamos ic_launcher_round (Logo) para Disposiciones Generales
-            new CardDefinition(R.mipmap.ic_launcher_round, "General"),
-            // Usamos ic_logout para Bajas (Salida)
-            new CardDefinition(R.drawable.ic_logout, "Bajas"),
-            // Usamos ic_send para Trámites/Justificantes (Envíos)
-            new CardDefinition(R.drawable.ic_send, "Trámites")
+            // --- OBLIGACIONES (Icono: ic_obligaciones) ---
+            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (I)", "Ser responsables de su formación."),
+            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (V)", "Asistir puntualmente a clases."),
+            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (X)", "Cuidar espacios y materiales."),
+            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (XII)", "Mostrar credencial al ingresar.")
     };
 
     @Override
@@ -111,16 +109,19 @@ public class MemoryGameActivity extends AppCompatActivity {
         glCards.setColumnCount(4);
         cards = new ArrayList<>();
 
-        List<CardDefinition> selectedDefs = new ArrayList<>();
+        int idCounter = 0;
+        int matchIdCounter = 0;
+
+        // Crear pares con ID de coincidencia único
         for (CardDefinition def : definitions) {
-            selectedDefs.add(def);
+            // Carta 1: El Título (Ej. Art 3)
+            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textTitle, matchIdCounter));
+            // Carta 2: La Descripción (Ej. Cursar estudios...)
+            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textDesc, matchIdCounter));
+
+            matchIdCounter++;
         }
 
-        int idCounter = 0;
-        for (CardDefinition def : selectedDefs) {
-            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textLabel));
-            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textLabel));
-        }
         Collections.shuffle(cards);
 
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -168,7 +169,8 @@ public class MemoryGameActivity extends AppCompatActivity {
     }
 
     private void checkMatch(View view2, MemoryCard cardData2) {
-        if (selectedDetails1.textLabel.equals(cardData2.textLabel)) {
+        // AHORA COMPARAMOS EL matchId, NO EL TEXTO
+        if (selectedDetails1.matchId == cardData2.matchId) {
             handleMatch(selectedView1, view2);
         } else {
             handleMismatch(selectedView1, view2);
@@ -188,7 +190,7 @@ public class MemoryGameActivity extends AppCompatActivity {
         c1.isMatched = true;
         c2.isMatched = true;
 
-        tvMessage.setText("¡" + c1.textLabel + "!");
+        tvMessage.setText("¡Correcto!"); // Mensaje genérico porque los textos son distintos
         if (lottieMascot != null) {
             lottieMascot.setAnimation(R.raw.happy_sun);
             lottieMascot.playAnimation();
@@ -236,7 +238,7 @@ public class MemoryGameActivity extends AppCompatActivity {
                 updateUI();
                 if (lives <= 0) endGame(false);
             }
-        }, 1000);
+        }, 1200); // Un poco más de tiempo para leer el error
     }
 
     private void setCardStroke(View view, int colorRes, int widthDp) {
@@ -334,10 +336,13 @@ public class MemoryGameActivity extends AppCompatActivity {
 
     private static class CardDefinition {
         int iconRes;
-        String textLabel;
-        public CardDefinition(int iconRes, String textLabel) {
+        String textTitle;
+        String textDesc;
+
+        public CardDefinition(int iconRes, String textTitle, String textDesc) {
             this.iconRes = iconRes;
-            this.textLabel = textLabel;
+            this.textTitle = textTitle;
+            this.textDesc = textDesc;
         }
     }
 
@@ -345,11 +350,14 @@ public class MemoryGameActivity extends AppCompatActivity {
         int id;
         int iconResId;
         String textLabel;
+        int matchId; // Nuevo campo para identificar parejas
         boolean isMatched = false;
-        public MemoryCard(int id, int iconResId, String textLabel) {
+
+        public MemoryCard(int id, int iconResId, String textLabel, int matchId) {
             this.id = id;
             this.iconResId = iconResId;
             this.textLabel = textLabel;
+            this.matchId = matchId;
         }
     }
 }
