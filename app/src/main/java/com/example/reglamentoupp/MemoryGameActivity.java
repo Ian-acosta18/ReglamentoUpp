@@ -52,16 +52,22 @@ public class MemoryGameActivity extends AppCompatActivity {
     private int pairsFound = 0;
     private int racha = 0;
 
-    // --- DEFINICIÓN DE LAS CARTAS ---
+    // --- DEFINICIÓN DE LAS CARTAS (ACTUALIZADO: SOLO REGLAMENTO) ---
     private final CardDefinition[] definitions = {
+            // Secciones principales
             new CardDefinition(R.drawable.ic_derechos, "Derechos"),
             new CardDefinition(R.drawable.ic_obligaciones, "Obligaciones"),
             new CardDefinition(R.drawable.ic_prohibiciones, "Prohibido"),
             new CardDefinition(R.drawable.ic_sanciones, "Sanciones"),
             new CardDefinition(R.drawable.ic_reconocimientos, "Méritos"),
-            new CardDefinition(R.drawable.ic_game_trivia, "Evaluación"),
-            new CardDefinition(R.drawable.ic_game_vf, "Verdad/Falso"),
-            new CardDefinition(R.drawable.ic_game_hangman, "Ahorcado")
+
+            // Nuevas secciones basadas en el reglamento usando iconos disponibles
+            // Usamos ic_launcher_round (Logo) para Disposiciones Generales
+            new CardDefinition(R.mipmap.ic_launcher_round, "General"),
+            // Usamos ic_logout para Bajas (Salida)
+            new CardDefinition(R.drawable.ic_logout, "Bajas"),
+            // Usamos ic_send para Trámites/Justificantes (Envíos)
+            new CardDefinition(R.drawable.ic_send, "Trámites")
     };
 
     @Override
