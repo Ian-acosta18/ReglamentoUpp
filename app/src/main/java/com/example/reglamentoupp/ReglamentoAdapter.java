@@ -21,13 +21,15 @@ import com.google.android.material.card.MaterialCardView;
 
 public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.ViewHolder> {
 
-    private final String[] mItems;
+    private final ReglamentoItem[] mItems;
     private final String mItemType;
+    private final BaseReglamentoFragment mFragment; // Referencia para reproducir audio
     private final BaseReglamentoFragment.ReglamentoInteractionListener mListener;
 
-    public ReglamentoAdapter(String[] items, String itemType, BaseReglamentoFragment.ReglamentoInteractionListener listener) {
+    public ReglamentoAdapter(ReglamentoItem[] items, String itemType, BaseReglamentoFragment fragment, BaseReglamentoFragment.ReglamentoInteractionListener listener) {
         mItems = items;
         mItemType = itemType;
+        mFragment = fragment;
         mListener = listener;
     }
 
@@ -41,56 +43,67 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        String currentItemText = mItems[position];
+        ReglamentoItem item = mItems[position];
         Context context = holder.itemView.getContext();
 
         // 1. Configurar Textos
         holder.tvTitle.setText(mItemType.toUpperCase());
-        holder.tvDescription.setText(Html.fromHtml(currentItemText, Html.FROM_HTML_MODE_LEGACY));
+        holder.tvDescription.setText(Html.fromHtml(item.getTexto(), Html.FROM_HTML_MODE_LEGACY));
 
-        // 2. OBTENER RECURSOS DE COLOR E ICONO
+        // 2. Colores e Iconos
         int iconRes = getIconForItemType(mItemType);
         int colorRes = getColorForItemType(mItemType);
         int colorInt = ContextCompat.getColor(context, colorRes);
         int bgTintInt = ContextCompat.getColor(context, getBgTintForItemType(mItemType));
 
-        // 3. ASIGNAR EL ICONO (¡SIN TINTAR!)
+        // Configurar icono visualmente
         if (iconRes != 0) {
             holder.itemIcon.setImageResource(iconRes);
-
-            // CORRECCIÓN IMPORTANTE:
-            // Limpiamos cualquier filtro de color para que se vean los colores originales del vector
             holder.itemIcon.clearColorFilter();
 
-            // Eliminamos esta línea anterior: holder.itemIcon.setColorFilter(colorInt);
+            // Opcional: Si también quieres que el audio suene al tocar el ícono pequeño
+            holder.itemIcon.setOnClickListener(v -> {
+                if (item.getAudioResId() != 0) {
+                    mFragment.playAudio(item.getAudioResId());
+                }
+            });
         }
 
-        // 4. Aplicar colores al resto (Fondo del icono, Título, Botón)
         if (holder.iconContainer != null) {
             holder.iconContainer.setBackgroundTintList(ColorStateList.valueOf(bgTintInt));
         }
-
         holder.tvTitle.setTextColor(colorInt);
 
-        // Configurar botón
+        // Estilos del botón de Caso Práctico
         holder.btnCaseStudy.setTextColor(colorInt);
         holder.btnCaseStudy.setIconTint(ColorStateList.valueOf(colorInt));
         holder.btnCaseStudy.setBackgroundTintList(ColorStateList.valueOf(bgTintInt));
 
-        // 5. Animaciones
+        // 3. ANIMACIONES Y CLICS
         final Animation pressAnimation = AnimationUtils.loadAnimation(context, R.anim.scale_press);
 
+        // --- AQUI ESTA EL CAMBIO: ---
+
+        // A) CLIC EN LA TARJETA (Quiz): Solo navega, NO reproduce audio.
         holder.cardRoot.setOnClickListener(v -> {
             v.startAnimation(pressAnimation);
             v.postDelayed(() -> {
-                if (mListener != null) mListener.onQuizClick(currentItemText, mItemType);
+                if (mListener != null) mListener.onQuizClick(item.getTexto(), mItemType);
             }, 150);
         });
 
+        // B) CLIC EN BOTÓN "CASO PRÁCTICO": Reproduce audio Y navega.
         holder.btnCaseStudy.setOnClickListener(v -> {
             v.startAnimation(pressAnimation);
+
+            // 1. REPRODUCIR AUDIO AQUÍ
+            if (item.getAudioResId() != 0) {
+                mFragment.playAudio(item.getAudioResId());
+            }
+
+            // 2. ABRIR EL CASO PRÁCTICO
             v.postDelayed(() -> {
-                if (mListener != null) mListener.onCaseStudyClick(currentItemText, mItemType);
+                if (mListener != null) mListener.onCaseStudyClick(item.getTexto(), mItemType);
             }, 150);
         });
 
@@ -99,42 +112,37 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
         );
     }
 
+    // --- Métodos auxiliares (sin cambios) ---
     private int getIconForItemType(String itemType) {
         if (itemType == null) return R.drawable.ic_check_circle;
         String tipo = itemType.toLowerCase().trim();
-
         if (tipo.contains("derecho")) return R.drawable.ic_derechos;
         if (tipo.contains("obligaci")) return R.drawable.ic_obligaciones;
         if (tipo.contains("prohibici")) return R.drawable.ic_prohibiciones;
         if (tipo.contains("sanci")) return R.drawable.ic_sanciones;
         if (tipo.contains("reconocimiento")) return R.drawable.ic_reconocimientos;
-
         return R.drawable.ic_check_circle;
     }
 
     private int getColorForItemType(String itemType) {
         if (itemType == null) return R.color.upp_primary;
         String tipo = itemType.toLowerCase().trim();
-
         if (tipo.contains("derecho")) return R.color.upp_primary;
         if (tipo.contains("obligaci")) return R.color.status_green;
         if (tipo.contains("prohibici")) return R.color.game_fail;
         if (tipo.contains("sanci")) return R.color.upp_secondary;
         if (tipo.contains("reconocimiento")) return R.color.upp_accent;
-
         return R.color.upp_primary;
     }
 
     private int getBgTintForItemType(String itemType) {
         if (itemType == null) return R.color.app_bg;
         String tipo = itemType.toLowerCase().trim();
-
         if (tipo.contains("derecho")) return R.color.app_bg;
         if (tipo.contains("obligaci")) return R.color.status_green_bg;
         if (tipo.contains("prohibici")) return R.color.game_fail_bg;
         if (tipo.contains("sanci")) return R.color.game_fail_bg;
         if (tipo.contains("reconocimiento")) return R.color.game_success_bg;
-
         return R.color.app_bg;
     }
 
