@@ -3,14 +3,17 @@ package com.example.reglamentoupp;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AnimationUtils;
-import android.widget.GridLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView; // Importante para añadir teclas como Views simples si se desea, o Buttons
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -27,7 +30,7 @@ public class HangmanActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private MediaPlayer mediaPlayer;
 
-    // --- LISTA DE PALABRAS ESPECÍFICAS DEL REGLAMENTO UPP ---
+    // --- PALABRAS ---
     private String[][] palabrasConPistas = {
             {"ESTADIA", "Práctica profesional obligatoria en el sector productivo para titularse:"},
             {"CALIDAD", "Condición oficial de 'Alumno' que se pierde al reprobar definitivamente:"},
@@ -73,7 +76,7 @@ public class HangmanActivity extends AppCompatActivity {
 
         binding.tvQuestion.setText(definicion);
         actualizarUI();
-        generarTeclado();
+        generarTecladoQWERTY();
     }
 
     private void actualizarUI() {
@@ -91,39 +94,88 @@ public class HangmanActivity extends AppCompatActivity {
         }
     }
 
-    private void generarTeclado() {
-        binding.glKeyboard.removeAllViews();
-        for (char c = 'A'; c <= 'Z'; c++) {
-            MaterialButton btnLetra = new MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle);
-            btnLetra.setText(String.valueOf(c));
-            btnLetra.setOnClickListener(this::onLetraClick);
+    // --- NUEVO MÉTODO PARA TECLADO TIPO CELULAR ---
+    private void generarTecladoQWERTY() {
+        // Limpiamos el contenedor (que ahora es un LinearLayout vertical en el XML)
+        binding.layoutTeclado.removeAllViews();
 
-            btnLetra.setTextColor(Color.WHITE);
-            btnLetra.setStrokeColor(ColorStateList.valueOf(Color.WHITE));
-            btnLetra.setCornerRadius(20);
-            btnLetra.setRippleColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.upp_accent)));
+        // Distribución QWERTY estándar (incluyendo Ñ para español)
+        String[] filas = {
+                "QWERTYUIOP",
+                "ASDFGHJKLÑ",
+                "ZXCVBNM"
+        };
 
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.width = 0;
-            params.height = GridLayout.LayoutParams.WRAP_CONTENT;
-            params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            params.setMargins(6, 6, 6, 6);
-            btnLetra.setLayoutParams(params);
+        for (String filaLetras : filas) {
+            // 1. Crear una FILA (LinearLayout horizontal)
+            LinearLayout rowLayout = new LinearLayout(this);
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            rowParams.setMargins(0, 4, 0, 4); // Espacio vertical entre filas
+            rowLayout.setLayoutParams(rowParams);
+            rowLayout.setOrientation(LinearLayout.HORIZONTAL);
+            rowLayout.setGravity(Gravity.CENTER);
 
-            binding.glKeyboard.addView(btnLetra);
+            // TRUCO: weightSum = 10. Así todas las teclas ocupan el mismo ancho relativo (1/10 de pantalla)
+            // independientemente de cuántas teclas tenga la fila (7, 9 o 10).
+            rowLayout.setWeightSum(10f);
+
+            for (char c : filaLetras.toCharArray()) {
+                // 2. Crear la TECLA
+                MaterialButton btnLetra = new MaterialButton(this);
+                btnLetra.setText(String.valueOf(c));
+                btnLetra.setOnClickListener(this::onLetraClick);
+
+                // Estilos visuales "Premium"
+                btnLetra.setBackgroundResource(R.drawable.fondo_tecla_ahorcado);
+                btnLetra.setTextColor(Color.DKGRAY); // Texto gris oscuro elegante
+                btnLetra.setTypeface(null, Typeface.BOLD);
+                btnLetra.setTextSize(16);
+
+                // Quitamos padding excesivo para que se vean compactas
+                btnLetra.setPadding(0, 0, 0, 0);
+                btnLetra.setInsetTop(0);
+                btnLetra.setInsetBottom(0);
+                btnLetra.setMinHeight(0);
+                btnLetra.setMinimumHeight(0);
+
+                // Configuración de Layout para la tecla (Peso 1 para que todas sean iguales)
+                LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
+                        0, // Ancho 0 porque usaremos weight
+                        120 // Altura fija en pixeles (o usa dp convertidos) para uniformidad
+                );
+                btnParams.weight = 1f;
+                btnParams.setMargins(4, 0, 4, 0); // Espacio horizontal pequeño entre teclas
+
+                btnLetra.setLayoutParams(btnParams);
+
+                // Añadir tecla a la fila
+                rowLayout.addView(btnLetra);
+            }
+
+            // Añadir fila al contenedor principal
+            binding.layoutTeclado.addView(rowLayout);
         }
     }
 
     private void onLetraClick(View view) {
         MaterialButton btn = (MaterialButton) view;
         btn.setEnabled(false);
+        // Hacemos que la tecla parezca "hundida" o desaparezca visualmente al ser usada
+        btn.setAlpha(0.5f);
+
         String letra = btn.getText().toString();
 
         if (palabraSecreta.contains(letra)) {
+            // ACIERTO
             vibrar(50);
             reproducirSonido(R.raw.correct_ding);
-            btn.setBackgroundColor(ContextCompat.getColor(this, R.color.status_green));
-            btn.setStrokeColor(ColorStateList.valueOf(Color.TRANSPARENT));
+
+            // Cambio visual a VERDE
+            btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.status_green)));
+            btn.setTextColor(Color.WHITE);
 
             binding.tvHangmanWord.animate().scaleX(1.1f).scaleY(1.1f).setDuration(100)
                     .withEndAction(() -> binding.tvHangmanWord.animate().scaleX(1f).scaleY(1f).start()).start();
@@ -135,7 +187,6 @@ public class HangmanActivity extends AppCompatActivity {
                         palabraAdivinada[i] = letra.charAt(0);
                     }
                 }
-                // Segunda pasada para asegurar letras repetidas
                 if (palabraSecreta.charAt(i) == letra.charAt(0)) {
                     palabraAdivinada[i] = letra.charAt(0);
                 }
@@ -144,10 +195,14 @@ public class HangmanActivity extends AppCompatActivity {
 
             if (gano) mostrarDialogo("¡Excelente!", "La palabra era: " + palabraSecreta, true);
         } else {
+            // ERROR
             vibrar(300);
             reproducirSonido(R.raw.megaman_x_error);
-            btn.setBackgroundColor(ContextCompat.getColor(this, R.color.game_fail));
-            btn.setStrokeColor(ColorStateList.valueOf(Color.TRANSPARENT));
+
+            // Cambio visual a ROJO
+            btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
+            btn.setTextColor(Color.WHITE);
+
             binding.tvHangmanLives.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
             vidas--;
             if (vidas <= 0) mostrarDialogo("¡Juego Terminado!", "La palabra correcta era: " + palabraSecreta, false);

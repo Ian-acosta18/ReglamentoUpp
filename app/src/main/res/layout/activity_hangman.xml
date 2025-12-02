@@ -22,7 +22,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_revert"
-            app:tint="@color/white" />
+            app:tint="@color/white"
+            android:contentDescription="Volver" />
 
         <TextView
             android:layout_width="0dp"
@@ -102,21 +103,24 @@
         android:textSize="40sp"
         android:textStyle="bold"
         android:letterSpacing="0.15"
+        android:shadowColor="#80000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="4"
         app:layout_constraintTop_toBottomOf="@id/cardQuestion"
-        app:layout_constraintBottom_toTopOf="@id/glKeyboard"/>
+        app:layout_constraintBottom_toTopOf="@id/layoutTeclado"/>
 
-    <GridLayout
-        android:id="@+id/glKeyboard"
+    <LinearLayout
+        android:id="@+id/layoutTeclado"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:columnCount="7"
-        android:rowCount="4"
-        android:alignmentMode="alignMargins"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-    </GridLayout>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvHangmanTitle"
