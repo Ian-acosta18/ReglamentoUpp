@@ -33,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     // --- DATOS DE CLOUDINARY ---
     // Verifica que estos coincidan exactamente con tu Dashboard
-    private static final String CLOUD_NAME = "dianacosta";
+    private static final String CLOUD_NAME = "dfgj9sdma";
     private static final String UPLOAD_PRESET = "mi_app_preset"; // ¡Debe ser Unsigned en la web!
 
     @Override
