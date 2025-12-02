@@ -73,8 +73,8 @@ public class RegisterActivity extends AppCompatActivity {
         } catch (IllegalStateException e) {
             Map<String, Object> config = new HashMap<>();
             // CORRECCIÓN IMPORTANTE: Las llaves deben ser textos fijos ("cloud_name", "secure")
-            config.put("cloud_name", CLOUD_NAME);
-            config.put("secure", true);
+            config.put("cloud_name", CLOUD_NAME); // La llave es siempre "cloud_name"
+            config.put("secure", true);           // La llave es siempre "secure"
             MediaManager.init(this, config);
         }
     }
