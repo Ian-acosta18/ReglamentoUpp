@@ -1,7 +1,6 @@
 package com.example.reglamentoupp;
 
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,13 +11,13 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide; // IMPORTANTE: Agrega este import
 import com.example.reglamentoupp.databinding.ActivityMainBinding;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -64,6 +63,22 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             "La constancia es la clave del éxito."
     };
 
+    private Runnable runnableRotacion = new Runnable() {
+        @Override
+        public void run() {
+            if (!isFinishing() && binding != null && binding.tvWelcomeBubble != null) {
+                binding.tvWelcomeBubble.animate().alpha(0f).setDuration(300).withEndAction(() -> {
+                    if (!isFinishing() && binding != null && binding.tvWelcomeBubble != null) {
+                        indiceMensaje = (indiceMensaje + 1) % mensajesRotativos.length;
+                        binding.tvWelcomeBubble.setText(mensajesRotativos[indiceMensaje]);
+                        binding.tvWelcomeBubble.animate().alpha(1f).setDuration(300).start();
+                    }
+                }).start();
+                handlerRotacion.postDelayed(this, 4000);
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,11 +109,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     }
 
     private void setupRankingAutomatico() {
-        // Enlazamos el RecyclerView del diseño (asegúrate de haberlo puesto en el XML con este ID)
-        recyclerRanking = binding.getRoot().findViewById(R.id.recyclerViewRankingMain);
-
-        // Si usas binding, también podrías acceder como binding.recyclerViewRankingMain (si el ID existe)
-        // Por seguridad, usamos findViewById si no estás seguro de que binding se actualizó.
+        recyclerRanking = binding.recyclerViewRankingMain; // Usando Binding directo
 
         if (recyclerRanking != null) {
             listaRanking = new ArrayList<>();
@@ -106,13 +117,12 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             recyclerRanking.setLayoutManager(new LinearLayoutManager(this));
             recyclerRanking.setAdapter(rankingAdapter);
 
-            // Llamamos a la carga de datos
             cargarDatosRanking();
         }
     }
 
     private void cargarDatosRanking() {
-        // Escuchamos en tiempo real, limitando a los Top 10 para no saturar la pantalla principal
+        // Escuchamos en tiempo real, limitando a los Top 10
         rankingListener = mStore.collection("usuarios")
                 .orderBy("puntaje", Query.Direction.DESCENDING)
                 .limit(10)
@@ -150,23 +160,18 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Detenemos la escucha del ranking para ahorrar datos y batería al cerrar
         if (rankingListener != null) {
             rankingListener.remove();
         }
     }
 
-    // --- Configuración de Botones Estáticos ---
     private void setupStaticGameListeners() {
         binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
         binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
         binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
         binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
-
-        // Ya NO necesitamos el listener del botón ranking porque ahora es automático
     }
 
-    // --- Lógica de Mensajes Rotativos (Igual que antes) ---
     private void iniciarRotacionMensajes() {
         handlerRotacion.removeCallbacks(runnableRotacion);
         handlerRotacion.postDelayed(runnableRotacion, 4000);
@@ -175,22 +180,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     private void detenerRotacionMensajes() {
         handlerRotacion.removeCallbacks(runnableRotacion);
     }
-
-    private Runnable runnableRotacion = new Runnable() {
-        @Override
-        public void run() {
-            if (!isFinishing() && binding != null && binding.tvWelcomeBubble != null) {
-                binding.tvWelcomeBubble.animate().alpha(0f).setDuration(300).withEndAction(() -> {
-                    if (!isFinishing() && binding != null && binding.tvWelcomeBubble != null) {
-                        indiceMensaje = (indiceMensaje + 1) % mensajesRotativos.length;
-                        binding.tvWelcomeBubble.setText(mensajesRotativos[indiceMensaje]);
-                        binding.tvWelcomeBubble.animate().alpha(1f).setDuration(300).start();
-                    }
-                }).start();
-                handlerRotacion.postDelayed(this, 4000);
-            }
-        }
-    };
 
     private void actualizarSaludoInicial() {
         Calendar calendar = Calendar.getInstance();
@@ -227,6 +216,18 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
                         Long nivelDb = documentSnapshot.getLong("nivelDesbloqueado");
                         userNivel = (nivelDb != null) ? nivelDb.intValue() : 1;
+
+                        // --- NUEVO: Cargar Foto de Perfil ---
+                        String fotoUrl = documentSnapshot.getString("fotoUrl");
+                        if (fotoUrl != null && !fotoUrl.isEmpty()) {
+                            Glide.with(this)
+                                    .load(fotoUrl)
+                                    .circleCrop()
+                                    .placeholder(R.drawable.mi_logo) // Imagen mientras carga
+                                    .error(R.drawable.mi_logo) // Imagen si falla
+                                    .into(binding.ivUserProfile);
+                        }
+                        // ------------------------------------
 
                         actualizarUIdeNivel(userNivel);
                         configurarBotonesNiveles();

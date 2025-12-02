@@ -44,6 +44,12 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+
+    // Cloudinary para subir imágenes
+    implementation("com.cloudinary:cloudinary-android:2.5.0")
+
+    // Glide para mostrar imágenes
+    implementation("com.github.bumptech.glide:glide:4.16.0")
     
     implementation("com.airbnb.android:lottie:6.3.0")
     // --- CORRECCIÓN 2: Dependencias de Firebase correctas ---

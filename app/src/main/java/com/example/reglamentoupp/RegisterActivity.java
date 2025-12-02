@@ -1,19 +1,24 @@
 package com.example.reglamentoupp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.example.reglamentoupp.databinding.ActivityRegisterBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -22,24 +27,60 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseFirestore mStore;
     private static final String TAG = "RegisterActivity";
 
+    // Variables para imagen
+    private Uri imageUri;
+    private ActivityResultLauncher<String> galleryLauncher;
+
+    // CONFIGURACIÓN CLOUDINARY
+    // Asegúrate de que estos datos sean EXACTAMENTE los de tu cuenta
+    private static final String CLOUD_NAME = "dianacosta";
+    private static final String UPLOAD_PRESET = "mi_app_preset";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Inicializar Cloudinary (solo una vez)
+        initCloudinary();
+
         mAuth = FirebaseAuth.getInstance();
         mStore = FirebaseFirestore.getInstance();
+
+        // Configurar selector de imagen
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    if (uri != null) {
+                        imageUri = uri;
+                        // Mostramos la imagen seleccionada en el ImageView circular
+                        binding.ivPerfilRegister.setImageURI(uri);
+                    }
+                }
+        );
+
+        // Click en la imagen para abrir galería
+        binding.ivPerfilRegister.setOnClickListener(v -> galleryLauncher.launch("image/*"));
 
         binding.btnDoRegister.setOnClickListener(v -> validateAndRegisterUser());
         binding.btnGoToLogin.setOnClickListener(v -> finish());
     }
 
-    private void validateAndRegisterUser() {
-        if (binding.etNombre.getText() == null || binding.etApellidos.getText() == null ||
-                binding.etEmailRegister.getText() == null || binding.etPasswordRegister.getText() == null) {
-            return;
+    private void initCloudinary() {
+        try {
+            MediaManager.get();
+        } catch (IllegalStateException e) {
+            Map<String, Object> config = new HashMap<>();
+            // CORRECCIÓN IMPORTANTE: Las llaves deben ser textos fijos ("cloud_name", "secure")
+            config.put("cloud_name", CLOUD_NAME);
+            config.put("secure", true);
+            MediaManager.init(this, config);
         }
+    }
+
+    private void validateAndRegisterUser() {
+        if (binding.etNombre.getText() == null || binding.etApellidos.getText() == null) return;
 
         String nombre = binding.etNombre.getText().toString().trim();
         String apellidos = binding.etApellidos.getText().toString().trim();
@@ -48,75 +89,76 @@ public class RegisterActivity extends AppCompatActivity {
         String password = binding.etPasswordRegister.getText().toString().trim();
         String confirmPassword = binding.etConfirmPassword.getText() != null ? binding.etConfirmPassword.getText().toString().trim() : "";
 
-        // 1. Validar campos obligatorios
+        // 1. Validaciones básicas
         if (nombre.isEmpty() || apellidos.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Nombre, Apellidos, Correo y Contraseña son obligatorios", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Llena todos los campos obligatorios", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 2. VALIDACIÓN NOMBRE: Solo letras (incluye acentos, ñ y espacios)
-        if (!nombre.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$")) {
-            binding.etNombre.setError("El nombre solo puede contener letras");
-            binding.etNombre.requestFocus();
-            return;
-        }
-
-        // 3. VALIDACIÓN APELLIDOS: Solo letras
-        if (!apellidos.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$")) {
-            binding.etApellidos.setError("Los apellidos solo pueden contener letras");
-            binding.etApellidos.requestFocus();
-            return;
-        }
-
-        // 4. VALIDACIÓN TELÉFONO: Solo números y longitud exacta de 10
-        if (!telefono.isEmpty()) {
-            if (!telefono.matches("[0-9]+")) {
-                binding.etTelefono.setError("Solo se permiten números");
-                binding.etTelefono.requestFocus();
-                return;
-            }
-            if (telefono.length() != 10) {
-                binding.etTelefono.setError("El teléfono debe tener 10 dígitos");
-                binding.etTelefono.requestFocus();
-                return;
-            }
-        }
-
-        // 5. Validar longitud de contraseña
         if (password.length() < 6) {
-            binding.etPasswordRegister.setError("La contraseña debe tener al menos 6 caracteres");
-            binding.etPasswordRegister.requestFocus();
+            binding.etPasswordRegister.setError("Mínimo 6 caracteres");
             return;
         }
 
-        // 6. Validar coincidencia de contraseñas
         if (!password.equals(confirmPassword)) {
             binding.etConfirmPassword.setError("Las contraseñas no coinciden");
-            binding.etConfirmPassword.requestFocus();
             return;
         }
 
         setLoading(true);
 
-        // Crear usuario en Firebase Auth
+        // 2. Crear usuario en Auth primero
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        Log.d(TAG, "Usuario creado en Auth con éxito.");
                         FirebaseUser user = mAuth.getCurrentUser();
-                        // Guardar datos adicionales en Firestore
-                        createNewUserInFirestore(user, nombre, apellidos, telefono);
+                        // 3. Si hay imagen, subir a Cloudinary; si no, guardar directo
+                        if (imageUri != null) {
+                            uploadImageToCloudinary(user, nombre, apellidos, telefono);
+                        } else {
+                            createNewUserInFirestore(user, nombre, apellidos, telefono, "");
+                        }
                     } else {
-                        Log.w(TAG, "Fallo createUser: ", task.getException());
+                        Log.e(TAG, "Error Auth", task.getException());
                         Toast.makeText(RegisterActivity.this, "Error al registrar: " +
-                                        (task.getException() != null ? task.getException().getMessage() : "Error desconocido"),
-                                Toast.LENGTH_LONG).show();
+                                (task.getException() != null ? task.getException().getMessage() : ""), Toast.LENGTH_LONG).show();
                         setLoading(false);
                     }
                 });
     }
 
-    private void createNewUserInFirestore(FirebaseUser firebaseUser, String nombre, String apellidos, String telefono) {
+    private void uploadImageToCloudinary(FirebaseUser user, String nombre, String apellidos, String telefono) {
+        MediaManager.get().upload(imageUri)
+                .unsigned(UPLOAD_PRESET) // Usa el preset configurado arriba
+                .callback(new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) { }
+
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) { }
+
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        // Obtener la URL segura de la respuesta de Cloudinary
+                        String url = (String) resultData.get("secure_url");
+                        createNewUserInFirestore(user, nombre, apellidos, telefono, url);
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        Log.e(TAG, "Error Cloudinary: " + error.getDescription());
+                        Toast.makeText(RegisterActivity.this, "Error subiendo imagen. Se guardará sin foto.", Toast.LENGTH_SHORT).show();
+                        // Guardamos al usuario de todos modos, pero con foto vacía
+                        createNewUserInFirestore(user, nombre, apellidos, telefono, "");
+                    }
+
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) { }
+                })
+                .dispatch();
+    }
+
+    private void createNewUserInFirestore(FirebaseUser firebaseUser, String nombre, String apellidos, String telefono, String fotoUrl) {
         if (firebaseUser == null) {
             setLoading(false);
             return;
@@ -130,18 +172,18 @@ public class RegisterActivity extends AppCompatActivity {
         userData.put("telefono", telefono);
         userData.put("puntaje", 0);
         userData.put("nivelDesbloqueado", 1);
+        userData.put("fotoUrl", fotoUrl); // Guardamos la URL de la foto
 
         mStore.collection("usuarios").document(firebaseUser.getUid())
                 .set(userData)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Documento de usuario creado en Firestore.");
+                    Log.d(TAG, "Usuario guardado en Firestore");
                     navigateToMain();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error al crear documento en Firestore.", e);
-                    Toast.makeText(RegisterActivity.this, "Error al guardar datos. Intenta de nuevo.", Toast.LENGTH_SHORT).show();
-                    // ROLLBACK: Borrar el usuario de Auth para evitar inconsistencias
-                    firebaseUser.delete();
+                    Log.e(TAG, "Error Firestore", e);
+                    Toast.makeText(RegisterActivity.this, "Error al guardar datos.", Toast.LENGTH_SHORT).show();
+                    // Opcional: Borrar usuario de Auth si falla Firestore para evitar registros fantasma
                     setLoading(false);
                 });
     }
@@ -158,11 +200,9 @@ public class RegisterActivity extends AppCompatActivity {
         if (isLoading) {
             binding.progressBarRegister.setVisibility(View.VISIBLE);
             binding.btnDoRegister.setEnabled(false);
-            binding.btnGoToLogin.setEnabled(false);
         } else {
             binding.progressBarRegister.setVisibility(View.GONE);
             binding.btnDoRegister.setEnabled(true);
-            binding.btnGoToLogin.setEnabled(true);
         }
     }
 }

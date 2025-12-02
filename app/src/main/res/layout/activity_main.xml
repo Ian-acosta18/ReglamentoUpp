@@ -90,16 +90,37 @@
                     android:layout_height="wrap_content"
                     android:padding="20dp">
 
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardProfilePic"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        app:cardCornerRadius="30dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#80FFFFFF"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:id="@+id/ivUserProfile"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_launcher_background" />
+                    </com.google.android.material.card.MaterialCardView>
+
                     <TextView
                         android:id="@+id/tvUserName"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
                         android:text="Hola, Usuario"
                         android:textColor="@color/white"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"/>
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/cardProfilePic"/>
 
                     <TextView
                         android:id="@+id/tvUserPuntaje"
@@ -115,11 +136,12 @@
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
                         app:cardCornerRadius="20dp"
                         app:cardElevation="0dp"
                         app:cardBackgroundColor="#40FFFFFF"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tvUserPuntaje"
                         app:layout_constraintBottom_toBottomOf="parent">
 
                         <LinearLayout
@@ -127,13 +149,13 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:paddingHorizontal="16dp"
-                            android:paddingVertical="10dp"
+                            android:paddingVertical="8dp"
                             android:gravity="center">
 
                             <ImageView
                                 android:id="@+id/ivUserLevelIcon"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
                                 android:src="@drawable/ic_reconocimientos"
                                 app:tint="#FFD700"/>
 
