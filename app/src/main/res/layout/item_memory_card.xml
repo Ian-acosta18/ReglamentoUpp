@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_root"
     android:layout_width="match_parent"
-    android:layout_height="110dp"
+    android:layout_height="130dp"
     android:clickable="true"
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
@@ -28,16 +28,16 @@
             android:padding="2dp">
 
             <FrameLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginBottom="4dp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_marginBottom="6dp"
                 android:background="@drawable/white_circle_bg"
                 android:backgroundTint="#F0F4F8">
 
                 <ImageView
                     android:id="@+id/iv_card_icon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:layout_gravity="center"
                     android:scaleType="fitCenter"
                     app:tint="@null"/>
@@ -54,8 +54,8 @@
                 android:gravity="center"
                 android:maxLines="6"
                 android:ellipsize="end"
-                android:paddingStart="2dp"
-                android:paddingEnd="2dp"/>
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -66,8 +66,8 @@
             android:background="@color/upp_primary">
 
             <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:src="@drawable/mi_logo"
                 app:tint="@color/white"
                 android:alpha="0.8" />

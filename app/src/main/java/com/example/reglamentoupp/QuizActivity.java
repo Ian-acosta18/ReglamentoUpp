@@ -123,7 +123,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             botonesBloqueados = false;
             restaurarBotones(); // Restaura a blanco con texto morado
 
-            binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
+            binding.lottieCharacter.setAnimation(R.raw.buho_1);
             binding.lottieCharacter.playAnimation();
 
             preguntaActual = listaDePreguntas.get(indicePreguntaActual);

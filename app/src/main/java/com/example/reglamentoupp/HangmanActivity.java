@@ -13,7 +13,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
-import android.widget.TextView; // Importante para añadir teclas como Views simples si se desea, o Buttons
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -94,12 +94,11 @@ public class HangmanActivity extends AppCompatActivity {
         }
     }
 
-    // --- NUEVO MÉTODO PARA TECLADO TIPO CELULAR ---
     private void generarTecladoQWERTY() {
-        // Limpiamos el contenedor (que ahora es un LinearLayout vertical en el XML)
+        // Limpiamos el contenedor
         binding.layoutTeclado.removeAllViews();
 
-        // Distribución QWERTY estándar (incluyendo Ñ para español)
+        // Distribución QWERTY estándar
         String[] filas = {
                 "QWERTYUIOP",
                 "ASDFGHJKLÑ",
@@ -107,19 +106,17 @@ public class HangmanActivity extends AppCompatActivity {
         };
 
         for (String filaLetras : filas) {
-            // 1. Crear una FILA (LinearLayout horizontal)
+            // 1. Crear una FILA
             LinearLayout rowLayout = new LinearLayout(this);
             LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
-            rowParams.setMargins(0, 4, 0, 4); // Espacio vertical entre filas
+            rowParams.setMargins(0, 4, 0, 4);
             rowLayout.setLayoutParams(rowParams);
             rowLayout.setOrientation(LinearLayout.HORIZONTAL);
             rowLayout.setGravity(Gravity.CENTER);
 
-            // TRUCO: weightSum = 10. Así todas las teclas ocupan el mismo ancho relativo (1/10 de pantalla)
-            // independientemente de cuántas teclas tenga la fila (7, 9 o 10).
             rowLayout.setWeightSum(10f);
 
             for (char c : filaLetras.toCharArray()) {
@@ -128,34 +125,31 @@ public class HangmanActivity extends AppCompatActivity {
                 btnLetra.setText(String.valueOf(c));
                 btnLetra.setOnClickListener(this::onLetraClick);
 
-                // Estilos visuales "Premium"
+                // Estilos visuales
                 btnLetra.setBackgroundResource(R.drawable.fondo_tecla_ahorcado);
-                btnLetra.setTextColor(Color.DKGRAY); // Texto gris oscuro elegante
+                btnLetra.setTextColor(Color.DKGRAY);
                 btnLetra.setTypeface(null, Typeface.BOLD);
-                btnLetra.setTextSize(16);
 
-                // Quitamos padding excesivo para que se vean compactas
+                // --- TAMAÑO DE LETRA AUMENTADO A 24 ---
+                btnLetra.setTextSize(24);
+
                 btnLetra.setPadding(0, 0, 0, 0);
                 btnLetra.setInsetTop(0);
                 btnLetra.setInsetBottom(0);
                 btnLetra.setMinHeight(0);
                 btnLetra.setMinimumHeight(0);
 
-                // Configuración de Layout para la tecla (Peso 1 para que todas sean iguales)
                 LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
-                        0, // Ancho 0 porque usaremos weight
-                        120 // Altura fija en pixeles (o usa dp convertidos) para uniformidad
+                        0,
+                        120
                 );
                 btnParams.weight = 1f;
-                btnParams.setMargins(4, 0, 4, 0); // Espacio horizontal pequeño entre teclas
+                btnParams.setMargins(4, 0, 4, 0);
 
                 btnLetra.setLayoutParams(btnParams);
-
-                // Añadir tecla a la fila
                 rowLayout.addView(btnLetra);
             }
 
-            // Añadir fila al contenedor principal
             binding.layoutTeclado.addView(rowLayout);
         }
     }
@@ -163,7 +157,6 @@ public class HangmanActivity extends AppCompatActivity {
     private void onLetraClick(View view) {
         MaterialButton btn = (MaterialButton) view;
         btn.setEnabled(false);
-        // Hacemos que la tecla parezca "hundida" o desaparezca visualmente al ser usada
         btn.setAlpha(0.5f);
 
         String letra = btn.getText().toString();
@@ -173,7 +166,6 @@ public class HangmanActivity extends AppCompatActivity {
             vibrar(50);
             reproducirSonido(R.raw.correct_ding);
 
-            // Cambio visual a VERDE
             btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.status_green)));
             btn.setTextColor(Color.WHITE);
 
@@ -199,7 +191,6 @@ public class HangmanActivity extends AppCompatActivity {
             vibrar(300);
             reproducirSonido(R.raw.megaman_x_error);
 
-            // Cambio visual a ROJO
             btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
             btn.setTextColor(Color.WHITE);
 

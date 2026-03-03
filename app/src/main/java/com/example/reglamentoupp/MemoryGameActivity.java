@@ -137,7 +137,8 @@ public class MemoryGameActivity extends AppCompatActivity {
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
-            params.height = dpToPx(110);
+            // ALTURA MODIFICADA: Aumentada a 130dp para dar espacio al icono más grande y al texto
+            params.height = dpToPx(130);
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
@@ -190,9 +191,9 @@ public class MemoryGameActivity extends AppCompatActivity {
         c1.isMatched = true;
         c2.isMatched = true;
 
-        tvMessage.setText("¡Correcto!"); // Mensaje genérico porque los textos son distintos
+        tvMessage.setText("¡Correcto!");
         if (lottieMascot != null) {
-            lottieMascot.setAnimation(R.raw.happy_sun);
+            lottieMascot.setAnimation(R.raw.buho_1);
             lottieMascot.playAnimation();
         }
 
@@ -238,7 +239,7 @@ public class MemoryGameActivity extends AppCompatActivity {
                 updateUI();
                 if (lives <= 0) endGame(false);
             }
-        }, 1200); // Un poco más de tiempo para leer el error
+        }, 1200);
     }
 
     private void setCardStroke(View view, int colorRes, int widthDp) {
@@ -350,7 +351,7 @@ public class MemoryGameActivity extends AppCompatActivity {
         int id;
         int iconResId;
         String textLabel;
-        int matchId; // Nuevo campo para identificar parejas
+        int matchId;
         boolean isMatched = false;
 
         public MemoryCard(int id, int iconResId, String textLabel, int matchId) {
