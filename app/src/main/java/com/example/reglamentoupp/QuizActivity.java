@@ -43,7 +43,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private int vidas = 3;
     private boolean botonesBloqueados = false;
 
-    // --- ESTA VARIABLE FALTABA ---
     private static final int MAX_PREGUNTAS = 10;
 
     private CountDownTimer temporizador;
@@ -55,7 +54,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private final String[] frasesExito = {"¡Brillante!", "¡Iluminaste el día!", "¡Correcto!", "¡Radiante!"};
     private final String[] frasesError = {"¡Rayos!", "Se nubló...", "Intenta de nuevo", "¡Cuidado!"};
 
-    // Color Morado Bonito para el texto
     private static final String COLOR_MORADO_BONITO = "#9C27B0";
 
     @Override
@@ -121,9 +119,10 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
         if (indicePreguntaActual < listaDePreguntas.size()) {
             botonesBloqueados = false;
-            restaurarBotones(); // Restaura a blanco con texto morado
+            restaurarBotones();
 
-            binding.lottieCharacter.setAnimation(R.raw.buho_1);
+            // REGRESAMOS A LA NUBE
+            binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
 
             preguntaActual = listaDePreguntas.get(indicePreguntaActual);
@@ -203,7 +202,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         vibrar(50);
         reproducirSonido(R.raw.correct_ding);
 
-        // --- RELLENAR DE VERDE Y TEXTO BLANCO ---
         botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
         botonPresionado.setTextColor(Color.WHITE);
 
@@ -221,7 +219,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         reproducirSonido(R.raw.megaman_x_error);
 
         if (!porTiempo && botonPresionado != null) {
-            // --- RELLENAR DE ROJO Y TEXTO BLANCO ---
             botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
             botonPresionado.setTextColor(Color.WHITE);
             botonPresionado.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
@@ -274,19 +271,15 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    // --- MÉTODO ACTUALIZADO: Restaura el diseño blanco y texto negro ---
     private void restaurarBotones() {
-        // 1. Quitar tintes de color (verde/rojo)
         binding.btnQuizOptionA.setBackgroundTintList(null);
         binding.btnQuizOptionB.setBackgroundTintList(null);
         binding.btnQuizOptionC.setBackgroundTintList(null);
 
-        // 2. Cargar de nuevo el drawable (fondo blanco, borde morado)
         binding.btnQuizOptionA.setBackgroundResource(R.drawable.button_quiz_default);
         binding.btnQuizOptionB.setBackgroundResource(R.drawable.button_quiz_default);
         binding.btnQuizOptionC.setBackgroundResource(R.drawable.button_quiz_default);
 
-        // 3. Restaurar el color del texto a NEGRO
         int colorTexto = Color.BLACK;
         binding.btnQuizOptionA.setTextColor(colorTexto);
         binding.btnQuizOptionB.setTextColor(colorTexto);
@@ -298,7 +291,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         String correcta = preguntaActual.getRespuestaCorrecta();
         int colorVerde = ContextCompat.getColor(this, R.color.game_success);
 
-        // Si falló, mostrar la correcta en verde y texto blanco
         if (binding.btnQuizOptionA.getText().toString().equals(correcta)) {
             binding.btnQuizOptionA.setBackgroundTintList(ColorStateList.valueOf(colorVerde));
             binding.btnQuizOptionA.setTextColor(Color.WHITE);

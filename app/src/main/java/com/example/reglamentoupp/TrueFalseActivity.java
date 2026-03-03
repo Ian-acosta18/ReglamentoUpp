@@ -56,8 +56,9 @@ public class TrueFalseActivity extends AppCompatActivity {
         questionList = new ArrayList<>();
 
         binding.tvSpeechBubble.setText("¡Verdadero o Falso!");
+        // REGRESAMOS A LA NUBE
         if (binding.lottieCharacter != null) {
-            binding.lottieCharacter.setAnimation(R.raw.buho_1);
+            binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
         }
 
         loadQuestions();
@@ -93,7 +94,8 @@ public class TrueFalseActivity extends AppCompatActivity {
         if (currentQuestionIndex < questionList.size() && lives > 0) {
             botonesBloqueados = false;
 
-            binding.lottieCharacter.setAnimation(R.raw.buho_1);
+            // REGRESAMOS A LA NUBE
+            binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
             binding.lottieCharacter.setSpeed(1.0f);
 

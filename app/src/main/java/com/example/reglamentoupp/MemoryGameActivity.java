@@ -31,18 +31,15 @@ import java.util.List;
 
 public class MemoryGameActivity extends AppCompatActivity {
 
-    // --- Configuración ---
     private static final int TOTAL_PAIRS = 8;
-    private static final long GAME_TIME_MS = 120000; // Aumentado a 2 mins por la lectura
+    private static final long GAME_TIME_MS = 120000;
 
-    // UI
     private GridLayout glCards;
     private TextView tvScore, tvLives, tvMessage;
     private LottieAnimationView lottieMascot;
     private CountDownTimer timer;
     private Vibrator vibrator;
 
-    // Estado
     private List<MemoryCard> cards;
     private MemoryCard selectedDetails1 = null;
     private View selectedView1 = null;
@@ -52,16 +49,11 @@ public class MemoryGameActivity extends AppCompatActivity {
     private int pairsFound = 0;
     private int racha = 0;
 
-    // --- DEFINICIÓN DE LAS CARTAS (REGLAS Y ARTÍCULOS) ---
-    // Cada definición crea un par: Texto A (Artículo) y Texto B (Descripción)
     private final CardDefinition[] definitions = {
-            // --- DERECHOS (Icono: ic_derechos) ---
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (I)", "Cursar los estudios según planes vigentes."),
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (III)", "Recibir orientación académica."),
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VII)", "Conocer resultados de evaluaciones."),
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VIII)", "Obtener credencial al inscribirse."),
-
-            // --- OBLIGACIONES (Icono: ic_obligaciones) ---
             new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (I)", "Ser responsables de su formación."),
             new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (V)", "Asistir puntualmente a clases."),
             new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (X)", "Cuidar espacios y materiales."),
@@ -112,13 +104,9 @@ public class MemoryGameActivity extends AppCompatActivity {
         int idCounter = 0;
         int matchIdCounter = 0;
 
-        // Crear pares con ID de coincidencia único
         for (CardDefinition def : definitions) {
-            // Carta 1: El Título (Ej. Art 3)
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textTitle, matchIdCounter));
-            // Carta 2: La Descripción (Ej. Cursar estudios...)
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textDesc, matchIdCounter));
-
             matchIdCounter++;
         }
 
@@ -137,15 +125,14 @@ public class MemoryGameActivity extends AppCompatActivity {
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
-            // ALTURA MODIFICADA: Aumentada a 130dp para dar espacio al icono más grande y al texto
-            params.height = dpToPx(130);
+            // ---> AQUÍ ESTÁ EL AJUSTE A 140dp PARA EL NUEVO DISEÑO PREMIUM <---
+            params.height = dpToPx(140);
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
 
             cardView.setLayoutParams(params);
             cardView.setTag(card);
-
             cardView.setOnClickListener(v -> onCardClick(cardView));
 
             glCards.addView(cardView);
@@ -170,7 +157,6 @@ public class MemoryGameActivity extends AppCompatActivity {
     }
 
     private void checkMatch(View view2, MemoryCard cardData2) {
-        // AHORA COMPARAMOS EL matchId, NO EL TEXTO
         if (selectedDetails1.matchId == cardData2.matchId) {
             handleMatch(selectedView1, view2);
         } else {
@@ -193,7 +179,7 @@ public class MemoryGameActivity extends AppCompatActivity {
 
         tvMessage.setText("¡Correcto!");
         if (lottieMascot != null) {
-            lottieMascot.setAnimation(R.raw.buho_1);
+            lottieMascot.setAnimation(R.raw.happy_sun);
             lottieMascot.playAnimation();
         }
 
@@ -249,8 +235,8 @@ public class MemoryGameActivity extends AppCompatActivity {
                 card.setStrokeColor(ContextCompat.getColor(this, colorRes));
                 card.setStrokeWidth(dpToPx(widthDp));
             } else {
-                card.setStrokeWidth(dpToPx(1));
-                card.setStrokeColor(Color.parseColor("#E0E0E0"));
+                card.setStrokeWidth(dpToPx(1.5f)); // Grosor de borde por defecto del nuevo diseño
+                card.setStrokeColor(Color.parseColor("#D3DCE6")); // Color de borde por defecto del nuevo diseño
             }
         }
     }
@@ -325,7 +311,7 @@ public class MemoryGameActivity extends AppCompatActivity {
         } catch (Exception e) {}
     }
 
-    private int dpToPx(int dp) {
+    private int dpToPx(float dp) {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics()));
     }
 
