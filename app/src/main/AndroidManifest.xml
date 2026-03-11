@@ -45,15 +45,23 @@
         <activity
             android:name=".QuizActivity"
             android:theme="@style/Theme.ReglamentoUpp" />
+
         <activity
             android:name=".TrueFalseActivity"
             android:theme="@style/Theme.ReglamentoUpp" />
+
         <activity
             android:name=".HangmanActivity"
             android:theme="@style/Theme.ReglamentoUpp" />
 
         <activity
             android:name=".MemoryGameActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"
+            android:theme="@style/Theme.ReglamentoUpp" />
+
+        <activity
+            android:name=".WordSearchActivity"
             android:screenOrientation="portrait"
             android:exported="false"
             android:theme="@style/Theme.ReglamentoUpp" />

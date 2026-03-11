@@ -247,6 +247,10 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
         binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
         binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
+
+        // --- NUEVO: Botón para la Sopa de Letras ---
+        // Asegúrate de que el id sea @+id/btnJugarSopaLetras en tu activity_main.xml
+        binding.btnJugarSopaLetras.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WordSearchActivity.class)));
     }
 
     private void iniciarRotacionMensajes() {

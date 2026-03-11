@@ -1,0 +1,272 @@
+package com.example.reglamentoupp;
+
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StrikethroughSpan;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
+import android.widget.GridLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class WordSearchActivity extends AppCompatActivity {
+
+    private final char[][] matrizLetras = {
+            {'S', 'E', 'N', 'O', 'I', 'C', 'I', 'B', 'I', 'H', 'O', 'R', 'P', 'Z'},
+            {'U', 'N', 'O', 'I', 'C', 'A', 'C', 'I', 'F', 'I', 'S', 'L', 'A', 'F'},
+            {'S', 'E', 'N', 'O', 'I', 'C', 'A', 'U', 'L', 'A', 'V', 'E', 'D', 'A'},
+            {'P', 'I', 'A', 'L', 'U', 'M', 'N', 'O', 'S', 'E', 'N', 'A', 'E', 'T'},
+            {'E', 'B', 'L', 'I', 'G', 'A', 'C', 'I', 'O', 'N', 'E', 'S', 'R', 'I'},
+            {'N', 'E', 'U', 'A', 'P', 'E', 'L', 'A', 'C', 'I', 'O', 'N', 'E', 'T'},
+            {'S', 'R', 'M', 'E', 'I', 'S', 'G', 'N', 'C', 'C', 'E', 'C', 'C', 'U'},
+            {'I', 'N', 'I', 'V', 'E', 'R', 'S', 'I', 'S', 'O', 'C', 'I', 'A', 'L'},
+            {'O', 'J', 'U', 'S', 'T', 'I', 'F', 'I', 'C', 'A', 'N', 'T', 'E', 'O'},
+            {'N', 'D', 'T', 'D', 'E', 'S', 'A', 'I', 'R', 'O', 'S', 'E', 'S', 'A'},
+            {'R', 'E', 'I', 'N', 'S', 'C', 'R', 'I', 'P', 'C', 'I', 'O', 'N', 'A'},
+            {'R', 'E', 'G', 'L', 'A', 'M', 'E', 'N', 'T', 'O', 'A', 'A', 'M', 'M'},
+            {'E', 'E', 'G', 'N', 'O', 'I', 'S', 'L', 'U', 'P', 'X', 'E', 'N', 'N'},
+            {'O', 'B', 'L', 'I', 'G', 'A', 'C', 'E', 'Q', 'U', 'I', 'P', 'O', 'X'}
+    };
+
+    private static final int GRID_SIZE = 14;
+    private GridLayout gridLayout;
+    private TextView tvListaPalabras, tvScorePuntos;
+    private Button btnRegresar;
+
+    private final List<Word> wordsToFind = new ArrayList<>();
+    private final List<TextView> selectedCells = new ArrayList<>();
+    private boolean isSelecting = false;
+    private int wordsFoundCount = 0;
+
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+
+    private static class Word {
+        String text;
+        boolean found = false;
+        Word(String text) { this.text = text; }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_word_search);
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
+        gridLayout = findViewById(R.id.contenedor_cuadricula);
+        tvListaPalabras = findViewById(R.id.lista_palabras);
+        btnRegresar = findViewById(R.id.btn_regresar);
+        tvScorePuntos = findViewById(R.id.tv_score_puntos);
+
+        initializeWords();
+        generarCuadricula();
+        setupTouchListener();
+        updateScore();
+
+        btnRegresar.setOnClickListener(v -> {
+            // Regresamos al menú principal
+            Intent intent = new Intent(WordSearchActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        });
+    }
+
+    private void initializeWords() {
+        List<String> palabrasClave = Arrays.asList(
+                "JUSTIFICANTE", "REGLAMENTO", "TITULO", "EQUIPO", "REINSCRIPCION",
+                "APELACION", "SOCIAL", "SUSPENSION", "FALSIFICACION", "PROHIBICIONES"
+        );
+        for(String word : palabrasClave) {
+            wordsToFind.add(new Word(word));
+        }
+    }
+
+    private void updateScore(){
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            // Actualizado para apuntar a la colección "usuarios" y el campo "puntaje" que usas en tu proyecto
+            db.collection("usuarios").document(currentUser.getUid()).get().addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    Long score = documentSnapshot.getLong("puntaje");
+                    if (score != null) {
+                        if (score == 1) {
+                            tvScorePuntos.setText(score + " Punto");
+                        } else {
+                            tvScorePuntos.setText(score + " Puntos");
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    private void generarCuadricula() {
+        gridLayout.setColumnCount(GRID_SIZE);
+        gridLayout.setRowCount(GRID_SIZE);
+        for (int row = 0; row < GRID_SIZE; row++) {
+            for (int col = 0; col < GRID_SIZE; col++) {
+                TextView cellTextView = new TextView(this);
+                cellTextView.setText(String.valueOf(matrizLetras[row][col]));
+                cellTextView.setTextSize(14f);
+                cellTextView.setTextColor(Color.WHITE);
+                cellTextView.setGravity(Gravity.CENTER);
+                GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(row, 1f), GridLayout.spec(col, 1f));
+                params.width = 0;
+                params.height = 0;
+                cellTextView.setLayoutParams(params);
+                cellTextView.setTag(new int[]{row, col});
+                gridLayout.addView(cellTextView);
+            }
+        }
+    }
+
+    private void setupTouchListener() {
+        gridLayout.setOnTouchListener((v, event) -> {
+            int action = event.getAction();
+            TextView cell = getCellFromCoordinates(event.getX(), event.getY());
+
+            switch (action) {
+                case MotionEvent.ACTION_DOWN:
+                    if (cell != null) {
+                        isSelecting = true;
+                        clearTemporarySelection();
+                        selectedCells.add(cell);
+                        cell.setBackgroundColor(Color.parseColor("#90FFFFFF"));
+                    }
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    if (isSelecting && cell != null && !selectedCells.contains(cell)) {
+                        if (isValidMove(cell)) {
+                            selectedCells.add(cell);
+                            cell.setBackgroundColor(Color.parseColor("#90FFFFFF"));
+                        } else {
+                            isSelecting = false;
+                            clearTemporarySelection();
+                        }
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                    if (isSelecting) {
+                        processSelection();
+                    }
+                    isSelecting = false;
+                    clearTemporarySelection();
+                    break;
+            }
+            return true;
+        });
+    }
+
+    private boolean isValidMove(TextView newCell) {
+        if (selectedCells.size() < 2) return true;
+
+        int[] pos1 = (int[]) selectedCells.get(0).getTag();
+        int[] pos2 = (int[]) selectedCells.get(1).getTag();
+        int[] newPos = (int[]) newCell.getTag();
+
+        int dx = pos2[1] - pos1[1];
+        int dy = pos2[0] - pos1[0];
+
+        int[] lastPos = (int[]) selectedCells.get(selectedCells.size() - 1).getTag();
+        int newDx = newPos[1] - lastPos[1];
+        int newDy = newPos[0] - lastPos[0];
+
+        return dx == newDx && dy == newDy;
+    }
+
+    private void processSelection() {
+        if (selectedCells.isEmpty()) return;
+
+        StringBuilder selectedWord = new StringBuilder();
+        for (TextView cell : selectedCells) {
+            selectedWord.append(cell.getText());
+        }
+
+        checkForWordMatch(selectedWord.toString());
+        checkForWordMatch(selectedWord.reverse().toString());
+    }
+
+    private void checkForWordMatch(String formedWord) {
+        for (Word word : wordsToFind) {
+            if (!word.found && word.text.equalsIgnoreCase(formedWord)) {
+                word.found = true;
+                wordsFoundCount++;
+
+                FirebaseUser currentUser = mAuth.getCurrentUser();
+                if (currentUser != null) {
+                    DocumentReference userDocRef = db.collection("usuarios").document(currentUser.getUid());
+                    // Modificado para usar "puntaje" y dar 10 puntos para mantener coherencia con los otros minijuegos
+                    userDocRef.update("puntaje", com.google.firebase.firestore.FieldValue.increment(10));
+                }
+                updateScore();
+
+                for (TextView cellInPath : selectedCells) {
+                    cellInPath.setBackgroundColor(Color.parseColor("#A0FFD700"));
+                    cellInPath.setTextColor(Color.BLACK);
+                }
+                strikeThroughWordInList(word.text);
+                Toast.makeText(this, "¡+10 Puntos! Encontraste '" + word.text + "'", Toast.LENGTH_SHORT).show();
+                selectedCells.clear();
+
+                if (wordsFoundCount == wordsToFind.size()) {
+                    btnRegresar.setVisibility(View.VISIBLE);
+                    Toast.makeText(this, "¡Felicidades, has encontrado todas las palabras!", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
+    }
+
+    private void clearTemporarySelection() {
+        for (TextView cell : selectedCells) {
+            if (cell.getCurrentTextColor() != Color.BLACK) {
+                cell.setBackgroundColor(Color.TRANSPARENT);
+            }
+        }
+        selectedCells.clear();
+    }
+
+    private TextView getCellFromCoordinates(float x, float y) {
+        for (int i = 0; i < gridLayout.getChildCount(); i++) {
+            View child = gridLayout.getChildAt(i);
+            Rect hitRect = new Rect();
+            child.getHitRect(hitRect);
+            if (hitRect.contains((int) x, (int) y)) {
+                return (TextView) child;
+            }
+        }
+        return null;
+    }
+
+    private void strikeThroughWordInList(String foundWord) {
+        SpannableStringBuilder builder = new SpannableStringBuilder(tvListaPalabras.getText());
+        String fullText = tvListaPalabras.getText().toString().toUpperCase();
+        int startIndex = fullText.indexOf(foundWord.toUpperCase());
+
+        if (startIndex != -1) {
+            builder.setSpan(new StrikethroughSpan(), startIndex, startIndex + foundWord.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.setSpan(new ForegroundColorSpan(Color.LTGRAY), startIndex, startIndex + foundWord.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            tvListaPalabras.setText(builder);
+        }
+    }
+}
