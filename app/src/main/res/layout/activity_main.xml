@@ -90,24 +90,47 @@
                     android:layout_height="wrap_content"
                     android:padding="20dp">
 
-                    <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardProfilePic"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        app:cardCornerRadius="50dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="#80FFFFFF"
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/profilePicContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
-                        <ImageView
-                            android:id="@+id/ivUserProfile"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/ic_launcher_background" />
-                    </com.google.android.material.card.MaterialCardView>
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardProfilePic"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            app:cardCornerRadius="50dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="#80FFFFFF"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent">
+
+                            <ImageView
+                                android:id="@+id/ivUserProfile"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/ic_launcher_background" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/fabEditProfilePic"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@android:drawable/ic_menu_camera"
+                            app:fabSize="mini"
+                            app:tint="@color/upp_primary"
+                            app:backgroundTint="@color/white"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            android:layout_marginEnd="-4dp"
+                            android:layout_marginBottom="-4dp"/>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <TextView
                         android:id="@+id/tvUserName"
@@ -120,7 +143,7 @@
                         android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/cardProfilePic"/>
+                        app:layout_constraintEnd_toStartOf="@id/profilePicContainer"/>
 
                     <TextView
                         android:id="@+id/tvUserPuntaje"

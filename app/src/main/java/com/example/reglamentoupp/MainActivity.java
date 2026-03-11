@@ -1,9 +1,12 @@
 package com.example.reglamentoupp;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -11,13 +14,16 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide; // IMPORTANTE: Agrega este import
+import com.bumptech.glide.Glide;
 import com.example.reglamentoupp.databinding.ActivityMainBinding;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,6 +32,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     private ActivityMainBinding binding;
     private FirebaseAuth mAuth;
     private FirebaseFirestore mStore;
+    private FirebaseStorage mStorage; // Para guardar imágenes
     private String userID;
     private long userPuntaje = 0;
     private int userNivel = 1;
@@ -46,10 +55,29 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     private List<Usuario> listaRanking;
     private ListenerRegistration rankingListener;
 
+    // --- Variables para la subida de imagen ---
+    private Uri imageUri;
+
     public static final String KEY_NIVEL_JUEGO = "nivelJuego";
     public static final String KEY_PUNTAJE_ACTUAL = "puntajeActual";
     public static final String KEY_NIVEL_DESBLOQUEADO = "nivelDesbloqueado";
     private static final String TAG = "MainActivity";
+
+    // --- Lanzador para abrir la galería ---
+    private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    imageUri = result.getData().getData();
+                    if (imageUri != null) {
+                        // Mostrar temporalmente la imagen seleccionada
+                        Glide.with(this).load(imageUri).circleCrop().into(binding.ivUserProfile);
+                        // Subir a Firebase
+                        uploadProfileImage();
+                    }
+                }
+            }
+    );
 
     // --- Variables para la Rotación de Mensajes ---
     private Handler handlerRotacion = new Handler(Looper.getMainLooper());
@@ -87,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
         mAuth = FirebaseAuth.getInstance();
         mStore = FirebaseFirestore.getInstance();
+        mStorage = FirebaseStorage.getInstance(); // Inicializar Storage
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
@@ -101,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             navigateToLogin();
         });
 
+        // Click en el botón de editar foto
+        binding.fabEditProfilePic.setOnClickListener(v -> openGallery());
+
         // Configurar botones de juegos
         setupStaticGameListeners();
 
@@ -108,8 +140,54 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         setupRankingAutomatico();
     }
 
+    // --- NUEVO: Método para abrir galería ---
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        imagePickerLauncher.launch(intent);
+    }
+
+    // --- NUEVO: Método para subir imagen a Firebase Storage ---
+    private void uploadProfileImage() {
+        if (imageUri == null || userID == null) return;
+
+        Toast.makeText(this, "Subiendo foto...", Toast.LENGTH_SHORT).show();
+        binding.fabEditProfilePic.setEnabled(false); // Bloquear botón temporalmente
+
+        // Crear referencia en Storage: "profile_images/ID_DEL_USUARIO.jpg"
+        StorageReference fileRef = mStorage.getReference().child("profile_images").child(userID + ".jpg");
+
+        fileRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    // Una vez subida, obtener la URL de descarga
+                    fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        String downloadUrl = uri.toString();
+                        // Guardar URL en Firestore
+                        updateProfileImageUrlInFirestore(downloadUrl);
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(MainActivity.this, "Error al subir imagen: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    binding.fabEditProfilePic.setEnabled(true);
+                });
+    }
+
+    // --- NUEVO: Método para actualizar Firestore ---
+    private void updateProfileImageUrlInFirestore(String downloadUrl) {
+        if(userID == null) return;
+        mStore.collection("usuarios").document(userID)
+                .update("fotoUrl", downloadUrl)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(MainActivity.this, "Foto de perfil actualizada", Toast.LENGTH_SHORT).show();
+                    binding.fabEditProfilePic.setEnabled(true);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(MainActivity.this, "Error al guardar URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    binding.fabEditProfilePic.setEnabled(true);
+                });
+    }
+
     private void setupRankingAutomatico() {
-        recyclerRanking = binding.recyclerViewRankingMain; // Usando Binding directo
+        recyclerRanking = binding.recyclerViewRankingMain;
 
         if (recyclerRanking != null) {
             listaRanking = new ArrayList<>();
@@ -122,7 +200,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     }
 
     private void cargarDatosRanking() {
-        // Escuchamos en tiempo real, limitando a los Top 10
         rankingListener = mStore.collection("usuarios")
                 .orderBy("puntaje", Query.Direction.DESCENDING)
                 .limit(10)
@@ -217,17 +294,15 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                         Long nivelDb = documentSnapshot.getLong("nivelDesbloqueado");
                         userNivel = (nivelDb != null) ? nivelDb.intValue() : 1;
 
-                        // --- NUEVO: Cargar Foto de Perfil ---
                         String fotoUrl = documentSnapshot.getString("fotoUrl");
                         if (fotoUrl != null && !fotoUrl.isEmpty()) {
                             Glide.with(this)
                                     .load(fotoUrl)
                                     .circleCrop()
-                                    .placeholder(R.drawable.mi_logo) // Imagen mientras carga
-                                    .error(R.drawable.mi_logo) // Imagen si falla
+                                    .placeholder(R.drawable.mi_logo)
+                                    .error(R.drawable.ic_launcher_background)
                                     .into(binding.ivUserProfile);
                         }
-                        // ------------------------------------
 
                         actualizarUIdeNivel(userNivel);
                         configurarBotonesNiveles();

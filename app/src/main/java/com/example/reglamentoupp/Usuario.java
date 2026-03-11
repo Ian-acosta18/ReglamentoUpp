@@ -4,7 +4,7 @@ public class Usuario {
     private String nombre;
     private String apellidos;
     private long puntaje;
-    private String fotoUrl; // Nuevo campo
+    private String fotoUrl; // Nuevo campo para la foto
 
     // Constructor vacío requerido por Firestore
     public Usuario() {}
