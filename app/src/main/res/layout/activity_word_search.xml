@@ -5,143 +5,152 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2E044D"
+    android:background="@drawable/game_background"
+    android:padding="16dp"
     tools:context=".WordSearchActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/header_sopa"
+    <LinearLayout
+        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/titulo_sopa"
-            android:layout_width="273dp"
-            android:layout_height="57dp"
-            android:gravity="center"
-            android:text="Sopa de Letras"
-            android:textColor="#FFD700"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="@color/white"
+            android:contentDescription="Volver" />
 
-        <LinearLayout
-            android:id="@+id/score_container"
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Sopa de Letras"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="20sp" />
+
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:background="#FFD700"
-            android:elevation="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="@color/white">
 
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@android:drawable/btn_star_big_on"
-                app:tint="#4F2D7F"
-                android:contentDescription="Estrella de Puntaje"/>
-
-            <TextView
-                android:id="@+id/tv_score_puntos"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="0 Puntos"
-                android:textColor="#4F2D7F"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                android:orientation="horizontal"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:gravity="center_vertical">
 
-    <GridLayout
-        android:id="@+id/contenedor_cuadricula"
-        android:layout_width="0dp"
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@android:drawable/star_on"
+                    app:tint="#FFD700"
+                    android:contentDescription="Estrella"/>
+
+                <TextView
+                    android:id="@+id/tv_score_puntos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="0 Pts"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardCuadricula"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp"
-        android:background="#4A148C"
-        android:padding="4dp"
-        android:columnCount="14"
-        android:rowCount="14"
-        app:layout_constraintTop_toBottomOf="@id/header_sopa"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintDimensionRatio="1:1"  />
-
-    <TextView
-        android:id="@+id/titulo_palabras"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:text="Palabras a Encontrar (10)"
-        android:textColor="#FFD700"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/contenedor_cuadricula" />
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintDimensionRatio="1:1">
 
-    <ScrollView
-        android:id="@+id/scroll_palabras"
-        android:layout_width="387dp"
-        android:layout_height="396dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_regresar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/titulo_palabras"
-        app:layout_constraintVertical_bias="0.0">
-
-        <TextView
-            android:id="@+id/lista_palabras"
+        <GridLayout
+            android:id="@+id/contenedor_cuadricula"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:lineSpacingExtra="4dp"
-            android:text="1.DOCUMENTO QUE SE SOLICITA POR ENFERMEDAD            2.DOCUMENTO QUE HABLA SOBRE REGLAS\n3.DOCUMENTO QUE RECIBES AL FINALIZAR LA CARRERA             4.RECURSO QUE EL ESTUDIANTE DEBE CUIDAR AL USAR EN LABORATORIOS. \n5.TRÁMITE OBLIGATORIO PARA MANTENER EL ESTATUS DE ALUMNO ACTIVO CADA PERIODO.                                                                     6.EL PROCESO DE REVISIÓN FORMAL DE UNA CALIFICACIÓN CON LA QUE EL ALUMNO NO ESTÁ DE ACUERDO.\n7.SERVICIO OBLIGATORIO QUE EL ALUMNO DEBE CUMPLIR COMO REQUISITO DE TITULACIÓN.                                                                             8.RESULTADO DIRECTO DE COMETER UNA FALTA GRAVE.\n9.LA CLASIFICACIÓN QUE RECIBE LA ALTERACIÓN DE HORARIOS, FECHAS O FOLIOS DE DOCUMENTOS OFICIALES.       10. NOMBRE DEL LISTADO DE ACCIONES QUE NO SON PERMITIDAS."
-            android:textColor="@android:color/white"
-            android:textSize="14sp" />
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:columnCount="14"
+            android:rowCount="14" />
+    </com.google.android.material.card.MaterialCardView>
 
-    </ScrollView>
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardPalabras"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/cardCuadricula"
+        app:layout_constraintBottom_toTopOf="@id/btn_regresar">
 
-    <Button
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/titulo_palabras"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PALABRAS A ENCONTRAR (10)"
+                android:textSize="12sp"
+                android:letterSpacing="0.1"
+                android:textColor="@color/upp_primary"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="12dp"/>
+
+            <ScrollView
+                android:id="@+id/scroll_palabras"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:fadeScrollbars="false">
+
+                <TextView
+                    android:id="@+id/lista_palabras"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="8dp"
+                    android:paddingBottom="8dp"
+                    android:text="1. DOCUMENTO QUE SE SOLICITA POR ENFERMEDAD.\n\n2. DOCUMENTO QUE HABLA SOBRE REGLAS.\n\n3. DOCUMENTO QUE RECIBES AL FINALIZAR LA CARRERA.\n\n4. RECURSO QUE EL ESTUDIANTE DEBE CUIDAR AL USAR EN LABORATORIOS.\n\n5. TRÁMITE OBLIGATORIO PARA MANTENER EL ESTATUS DE ALUMNO ACTIVO CADA PERIODO.\n\n6. EL PROCESO DE REVISIÓN FORMAL DE UNA CALIFICACIÓN CON LA QUE EL ALUMNO NO ESTÁ DE ACUERDO.\n\n7. SERVICIO OBLIGATORIO QUE EL ALUMNO DEBE CUMPLIR COMO REQUISITO DE TITULACIÓN.\n\n8. RESULTADO DIRECTO DE COMETER UNA FALTA GRAVE.\n\n9. LA CLASIFICACIÓN QUE RECIBE LA ALTERACIÓN DE HORARIOS, FECHAS O FOLIOS DE DOCUMENTOS OFICIALES.\n\n10. NOMBRE DEL LISTADO DE ACCIONES QUE NO SON PERMITIDAS."
+                    android:textColor="@color/text_secondary"
+                    android:textSize="14sp" />
+            </ScrollView>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_regresar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="4dp"
-        android:backgroundTint="#FFD700"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:padding="16dp"
-        android:text="REGRESAR"
-        android:textColor="#4F2D7F"
-        android:textSize="18sp"
+        android:layout_height="56dp"
+        android:text="REGRESAR AL MENÚ"
+        android:textColor="@color/white"
+        android:textSize="16sp"
         android:textStyle="bold"
+        app:cornerRadius="16dp"
+        app:backgroundTint="@color/upp_primary"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible" />
+        tools:visibility="visible"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -13,7 +13,6 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -95,18 +94,18 @@ public class HangmanActivity extends AppCompatActivity {
     }
 
     private void generarTecladoQWERTY() {
-        // Limpiamos el contenedor
         binding.layoutTeclado.removeAllViews();
 
-        // Distribución QWERTY estándar
         String[] filas = {
                 "QWERTYUIOP",
                 "ASDFGHJKLÑ",
                 "ZXCVBNM"
         };
 
+        // Calculamos la altura de las teclas dinámicamente según la pantalla para que se vean más grandes
+        int heightPx = (int) (60 * getResources().getDisplayMetrics().density);
+
         for (String filaLetras : filas) {
-            // 1. Crear una FILA
             LinearLayout rowLayout = new LinearLayout(this);
             LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -116,22 +115,19 @@ public class HangmanActivity extends AppCompatActivity {
             rowLayout.setLayoutParams(rowParams);
             rowLayout.setOrientation(LinearLayout.HORIZONTAL);
             rowLayout.setGravity(Gravity.CENTER);
-
             rowLayout.setWeightSum(10f);
 
             for (char c : filaLetras.toCharArray()) {
-                // 2. Crear la TECLA
                 MaterialButton btnLetra = new MaterialButton(this);
                 btnLetra.setText(String.valueOf(c));
                 btnLetra.setOnClickListener(this::onLetraClick);
 
                 // Estilos visuales
                 btnLetra.setBackgroundResource(R.drawable.fondo_tecla_ahorcado);
-                btnLetra.setTextColor(Color.DKGRAY);
+                // Color morado oscuro muy visible en fondo blanco
+                btnLetra.setTextColor(Color.parseColor("#4F2D7F"));
                 btnLetra.setTypeface(null, Typeface.BOLD);
-
-                // --- TAMAÑO DE LETRA AUMENTADO A 24 ---
-                btnLetra.setTextSize(24);
+                btnLetra.setTextSize(26); // Letra más grande
 
                 btnLetra.setPadding(0, 0, 0, 0);
                 btnLetra.setInsetTop(0);
@@ -139,12 +135,10 @@ public class HangmanActivity extends AppCompatActivity {
                 btnLetra.setMinHeight(0);
                 btnLetra.setMinimumHeight(0);
 
-                LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(
-                        0,
-                        120
-                );
+                // Aumentamos los márgenes y la altura
+                LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(0, heightPx);
                 btnParams.weight = 1f;
-                btnParams.setMargins(4, 0, 4, 0);
+                btnParams.setMargins(6, 6, 6, 6); // Más separación entre teclas
 
                 btnLetra.setLayoutParams(btnParams);
                 rowLayout.addView(btnLetra);
