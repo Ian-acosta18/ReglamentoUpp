@@ -31,7 +31,8 @@ import java.util.List;
 
 public class MemoryGameActivity extends AppCompatActivity {
 
-    private static final int TOTAL_PAIRS = 8;
+    // MODIFICADO: 4 pares (8 cartas) + 1 Comodín = 9 cartas (Grid 3x3)
+    private static final int TOTAL_PAIRS = 4;
     private static final long GAME_TIME_MS = 120000;
 
     private GridLayout glCards;
@@ -98,18 +99,26 @@ public class MemoryGameActivity extends AppCompatActivity {
 
     private void setupBoard() {
         glCards.removeAllViews();
-        glCards.setColumnCount(4);
+        glCards.setColumnCount(3);
+        glCards.setRowCount(3); // Forzar 3 filas
         cards = new ArrayList<>();
 
         int idCounter = 0;
         int matchIdCounter = 0;
 
-        for (CardDefinition def : definitions) {
+        // 1. Agregar los 4 pares (8 cartas en total)
+        for (int i = 0; i < TOTAL_PAIRS; i++) {
+            CardDefinition def = definitions[i];
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textTitle, matchIdCounter));
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textDesc, matchIdCounter));
             matchIdCounter++;
         }
 
+        // 2. Agregar la Carta Impar (Comodín)
+        // Le damos un matchId de -1 para identificarla fácilmente
+        cards.add(new MemoryCard(idCounter++, R.drawable.mi_logo, "¡Comodín!\n+20 Pts", -1));
+
+        // 3. Mezclar las 9 cartas
         Collections.shuffle(cards);
 
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -125,8 +134,8 @@ public class MemoryGameActivity extends AppCompatActivity {
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
-            // ---> AQUÍ ESTÁ EL AJUSTE A 140dp PARA EL NUEVO DISEÑO PREMIUM <---
-            params.height = dpToPx(140);
+            // Hacemos las cartas un poquito más altas para que llenen la pantalla en el 3x3
+            params.height = dpToPx(150);
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
@@ -146,6 +155,23 @@ public class MemoryGameActivity extends AppCompatActivity {
         if (cardData.isMatched || cardData == selectedDetails1) return;
 
         flipCard(view, true);
+
+        // MODIFICADO: Lógica para la carta comodín impar
+        if (cardData.matchId == -1) {
+            cardData.isMatched = true; // Se queda boca arriba
+            score += 20; // Regala puntos
+            tvMessage.setText("¡Carta Comodín! +20 Puntos");
+            playSound(R.raw.correct_ding);
+            vibrarSafe(100);
+            updateUI();
+
+            // Le ponemos un borde amarillo/dorado para destacarla
+            if (view instanceof MaterialCardView) {
+                ((MaterialCardView) view).setStrokeColor(Color.parseColor("#FFD700"));
+                ((MaterialCardView) view).setStrokeWidth(dpToPx(3));
+            }
+            return; // Detenemos aquí para que no interfiera si ya había una carta normal volteada
+        }
 
         if (selectedDetails1 == null) {
             selectedDetails1 = cardData;
@@ -183,14 +209,15 @@ public class MemoryGameActivity extends AppCompatActivity {
             lottieMascot.playAnimation();
         }
 
-        setCardStroke(view1, R.color.game_success, 3);
-        setCardStroke(view2, R.color.game_success, 3);
+        setCardStroke(view1, "#4CAF50", 3); // Verde éxito
+        setCardStroke(view2, "#4CAF50", 3); // Verde éxito
 
         selectedDetails1 = null;
         selectedView1 = null;
         isProcessing = false;
         updateUI();
 
+        // Si encontró los 4 pares, gana el juego
         if (pairsFound == TOTAL_PAIRS) {
             endGame(true);
         }
@@ -208,16 +235,16 @@ public class MemoryGameActivity extends AppCompatActivity {
             lottieMascot.playAnimation();
         }
 
-        setCardStroke(view1, R.color.game_fail, 3);
-        setCardStroke(view2, R.color.game_fail, 3);
+        setCardStroke(view1, "#F44336", 3); // Rojo error
+        setCardStroke(view2, "#F44336", 3); // Rojo error
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (!isFinishing()) {
                 flipCard(view1, false);
                 flipCard(view2, false);
 
-                setCardStroke(view1, android.R.color.transparent, 0);
-                setCardStroke(view2, android.R.color.transparent, 0);
+                setCardStroke(view1, "#D3DCE6", 0); // Regresa a borde default
+                setCardStroke(view2, "#D3DCE6", 0);
 
                 selectedDetails1 = null;
                 selectedView1 = null;
@@ -228,15 +255,15 @@ public class MemoryGameActivity extends AppCompatActivity {
         }, 1200);
     }
 
-    private void setCardStroke(View view, int colorRes, int widthDp) {
+    private void setCardStroke(View view, String hexColor, int widthDp) {
         if (view instanceof MaterialCardView) {
             MaterialCardView card = (MaterialCardView) view;
             if (widthDp > 0) {
-                card.setStrokeColor(ContextCompat.getColor(this, colorRes));
+                card.setStrokeColor(Color.parseColor(hexColor));
                 card.setStrokeWidth(dpToPx(widthDp));
             } else {
-                card.setStrokeWidth(dpToPx(1.5f)); // Grosor de borde por defecto del nuevo diseño
-                card.setStrokeColor(Color.parseColor("#D3DCE6")); // Color de borde por defecto del nuevo diseño
+                card.setStrokeWidth(dpToPx(1.5f));
+                card.setStrokeColor(Color.parseColor(hexColor));
             }
         }
     }
@@ -275,7 +302,7 @@ public class MemoryGameActivity extends AppCompatActivity {
     private void endGame(boolean win) {
         if (timer != null) timer.cancel();
         String title = win ? "¡Felicidades!" : "Juego Terminado";
-        String msg = win ? "¡Encontraste los 8 pares! Puntaje: " + score : "Se acabaron las vidas o el tiempo.";
+        String msg = win ? "¡Encontraste los pares! Puntaje: " + score : "Se acabaron las vidas o el tiempo.";
         int icon = win ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones;
 
         try {

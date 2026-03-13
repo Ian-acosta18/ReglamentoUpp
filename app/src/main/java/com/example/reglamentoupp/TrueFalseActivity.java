@@ -2,6 +2,7 @@ package com.example.reglamentoupp;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Toast;
 
@@ -42,6 +44,10 @@ public class TrueFalseActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private MediaPlayer mediaPlayer;
 
+    // MODIFICADO: Variables para controlar el doble toque
+    private long ultimoClickTrue = 0;
+    private long ultimoClickFalse = 0;
+
     private final String[] frasesExito = {"¡Es Verdad!", "¡Exacto!", "¡Bien visto!", "¡No te engañan!"};
     private final String[] frasesError = {"¡Caíste!", "Era mentira...", "Lee bien...", "¡Ups!"};
 
@@ -63,8 +69,28 @@ public class TrueFalseActivity extends AppCompatActivity {
 
         loadQuestions();
 
-        binding.btnTrue.setOnClickListener(v -> checkAnswer(true));
-        binding.btnFalse.setOnClickListener(v -> checkAnswer(false));
+        // MODIFICADO: Lógica de doble toque para botones True y False
+        binding.btnTrue.setOnClickListener(v -> {
+            long tiempoActual = System.currentTimeMillis();
+            if (tiempoActual - ultimoClickTrue < 500) { // Doble clic detectado
+                Toast.makeText(this, "Toast 3!", Toast.LENGTH_SHORT).show();
+                checkAnswer(true);
+            } else { // Primer clic
+                Toast.makeText(this, "Presiona de nuevo para confirmar", Toast.LENGTH_SHORT).show();
+            }
+            ultimoClickTrue = tiempoActual;
+        });
+
+        binding.btnFalse.setOnClickListener(v -> {
+            long tiempoActual = System.currentTimeMillis();
+            if (tiempoActual - ultimoClickFalse < 500) { // Doble clic detectado
+                Toast.makeText(this, "Toast 3!", Toast.LENGTH_SHORT).show();
+                checkAnswer(false);
+            } else { // Primer clic
+                Toast.makeText(this, "Presiona de nuevo para confirmar", Toast.LENGTH_SHORT).show();
+            }
+            ultimoClickFalse = tiempoActual;
+        });
 
         if(binding.btnBack != null) {
             binding.btnBack.setOnClickListener(v -> finish());
@@ -112,9 +138,14 @@ public class TrueFalseActivity extends AppCompatActivity {
         }
     }
 
+    // MODIFICADO: Animación y resalte de tiempo
     private void iniciarTemporizador() {
         if (temporizador != null) temporizador.cancel();
+
+        // Regresar el texto a su estado normal (14sp y sin negritas)
         binding.tvSpeechBubble.setTextColor(Color.BLACK);
+        binding.tvSpeechBubble.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        binding.tvSpeechBubble.setTypeface(null, Typeface.NORMAL);
 
         temporizador = new CountDownTimer(TIEMPO_POR_PREGUNTA, 1000) {
             @Override
@@ -122,8 +153,12 @@ public class TrueFalseActivity extends AppCompatActivity {
                 if(isFinishing()) { cancel(); return; }
                 int segundos = (int) (millisUntilFinished / 1000);
                 binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
+
+                // Resaltar en los últimos 3 segundos
                 if (segundos <= 3) {
                     binding.tvSpeechBubble.setTextColor(Color.RED);
+                    binding.tvSpeechBubble.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f); // Más grande
+                    binding.tvSpeechBubble.setTypeface(null, Typeface.BOLD); // Negrita
                     binding.lottieCharacter.setSpeed(1.5f);
                 }
             }

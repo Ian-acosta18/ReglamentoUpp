@@ -74,6 +74,14 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding.btnQuizOptionB.setOnClickListener(this);
         binding.btnQuizOptionC.setOnClickListener(this);
 
+        // NUEVO: Lógica del botón de Salir
+        binding.btnBackQuiz.setOnClickListener(v -> {
+            if (temporizador != null) {
+                temporizador.cancel();
+            }
+            finish();
+        });
+
         cargarTodasLasPreguntas();
     }
 

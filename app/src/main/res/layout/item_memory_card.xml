@@ -84,8 +84,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:src="@drawable/mi_logo"
-                    app:tint="@color/white"
-                    android:alpha="0.95" />
+                    app:tint="@null" />
             </FrameLayout>
         </LinearLayout>
 
