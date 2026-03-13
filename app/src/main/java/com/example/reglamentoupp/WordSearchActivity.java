@@ -3,6 +3,7 @@ package com.example.reglamentoupp;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -77,18 +78,15 @@ public class WordSearchActivity extends AppCompatActivity {
         btnRegresar = findViewById(R.id.btn_regresar);
         tvScorePuntos = findViewById(R.id.tv_score_puntos);
 
+        // Hace que el botón de volver de la cabecera funcione
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
         initializeWords();
         generarCuadricula();
         setupTouchListener();
         updateScore();
 
-        btnRegresar.setOnClickListener(v -> {
-            // Regresamos al menú principal
-            Intent intent = new Intent(WordSearchActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
-        });
+        btnRegresar.setOnClickListener(v -> finish());
     }
 
     private void initializeWords() {
@@ -104,7 +102,6 @@ public class WordSearchActivity extends AppCompatActivity {
     private void updateScore(){
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // Actualizado para apuntar a la colección "usuarios" y el campo "puntaje" que usas en tu proyecto
             db.collection("usuarios").document(currentUser.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {
                     Long score = documentSnapshot.getLong("puntaje");
@@ -127,7 +124,9 @@ public class WordSearchActivity extends AppCompatActivity {
             for (int col = 0; col < GRID_SIZE; col++) {
                 TextView cellTextView = new TextView(this);
                 cellTextView.setText(String.valueOf(matrizLetras[row][col]));
-                cellTextView.setTextSize(14f);
+                // Letras mucho más grandes y en negrita para que se vean mejor
+                cellTextView.setTextSize(18f);
+                cellTextView.setTypeface(null, Typeface.BOLD);
                 cellTextView.setTextColor(Color.WHITE);
                 cellTextView.setGravity(Gravity.CENTER);
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(row, 1f), GridLayout.spec(col, 1f));
@@ -215,7 +214,6 @@ public class WordSearchActivity extends AppCompatActivity {
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 if (currentUser != null) {
                     DocumentReference userDocRef = db.collection("usuarios").document(currentUser.getUid());
-                    // Modificado para usar "puntaje" y dar 10 puntos para mantener coherencia con los otros minijuegos
                     userDocRef.update("puntaje", com.google.firebase.firestore.FieldValue.increment(10));
                 }
                 updateScore();
@@ -224,6 +222,7 @@ public class WordSearchActivity extends AppCompatActivity {
                     cellInPath.setBackgroundColor(Color.parseColor("#A0FFD700"));
                     cellInPath.setTextColor(Color.BLACK);
                 }
+
                 strikeThroughWordInList(word.text);
                 Toast.makeText(this, "¡+10 Puntos! Encontraste '" + word.text + "'", Toast.LENGTH_SHORT).show();
                 selectedCells.clear();
@@ -258,14 +257,35 @@ public class WordSearchActivity extends AppCompatActivity {
         return null;
     }
 
+    // Retorna la definición completa para buscarla y tacharla
+    private String getDefinitionForWord(String word) {
+        switch(word.toUpperCase()) {
+            case "JUSTIFICANTE": return "1. DOCUMENTO QUE SE SOLICITA POR ENFERMEDAD.";
+            case "REGLAMENTO": return "2. DOCUMENTO QUE HABLA SOBRE REGLAS.";
+            case "TITULO": return "3. DOCUMENTO QUE RECIBES AL FINALIZAR LA CARRERA.";
+            case "EQUIPO": return "4. RECURSO QUE EL ESTUDIANTE DEBE CUIDAR AL USAR EN LABORATORIOS.";
+            case "REINSCRIPCION": return "5. TRÁMITE OBLIGATORIO PARA MANTENER EL ESTATUS DE ALUMNO ACTIVO CADA PERIODO.";
+            case "APELACION": return "6. EL PROCESO DE REVISIÓN FORMAL DE UNA CALIFICACIÓN CON LA QUE EL ALUMNO NO ESTÁ DE ACUERDO.";
+            case "SOCIAL": return "7. SERVICIO OBLIGATORIO QUE EL ALUMNO DEBE CUMPLIR COMO REQUISITO DE TITULACIÓN.";
+            case "SUSPENSION": return "8. RESULTADO DIRECTO DE COMETER UNA FALTA GRAVE.";
+            case "FALSIFICACION": return "9. LA CLASIFICACIÓN QUE RECIBE LA ALTERACIÓN DE HORARIOS, FECHAS O FOLIOS DE DOCUMENTOS OFICIALES.";
+            case "PROHIBICIONES": return "10. NOMBRE DEL LISTADO DE ACCIONES QUE NO SON PERMITIDAS.";
+        }
+        return "";
+    }
+
     private void strikeThroughWordInList(String foundWord) {
+        String definition = getDefinitionForWord(foundWord);
+        if (definition.isEmpty()) return;
+
         SpannableStringBuilder builder = new SpannableStringBuilder(tvListaPalabras.getText());
-        String fullText = tvListaPalabras.getText().toString().toUpperCase();
-        int startIndex = fullText.indexOf(foundWord.toUpperCase());
+        String fullText = tvListaPalabras.getText().toString();
+        int startIndex = fullText.indexOf(definition);
 
         if (startIndex != -1) {
-            builder.setSpan(new StrikethroughSpan(), startIndex, startIndex + foundWord.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.setSpan(new ForegroundColorSpan(Color.LTGRAY), startIndex, startIndex + foundWord.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            // Tacha y pone la letra opaca
+            builder.setSpan(new StrikethroughSpan(), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.setSpan(new ForegroundColorSpan(Color.parseColor("#60FFFFFF")), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvListaPalabras.setText(builder);
         }
     }

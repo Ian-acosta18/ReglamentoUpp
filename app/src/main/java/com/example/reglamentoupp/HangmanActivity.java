@@ -102,7 +102,6 @@ public class HangmanActivity extends AppCompatActivity {
                 "ZXCVBNM"
         };
 
-        // Calculamos la altura de las teclas dinámicamente según la pantalla para que se vean más grandes
         int heightPx = (int) (60 * getResources().getDisplayMetrics().density);
 
         for (String filaLetras : filas) {
@@ -124,10 +123,11 @@ public class HangmanActivity extends AppCompatActivity {
 
                 // Estilos visuales
                 btnLetra.setBackgroundResource(R.drawable.fondo_tecla_ahorcado);
-                // Color morado oscuro muy visible en fondo blanco
-                btnLetra.setTextColor(Color.parseColor("#4F2D7F"));
+
+                // --- LETRA A COLOR ROJO POR DEFECTO ---
+                btnLetra.setTextColor(ContextCompat.getColor(this, R.color.game_fail));
                 btnLetra.setTypeface(null, Typeface.BOLD);
-                btnLetra.setTextSize(26); // Letra más grande
+                btnLetra.setTextSize(26);
 
                 btnLetra.setPadding(0, 0, 0, 0);
                 btnLetra.setInsetTop(0);
@@ -135,10 +135,9 @@ public class HangmanActivity extends AppCompatActivity {
                 btnLetra.setMinHeight(0);
                 btnLetra.setMinimumHeight(0);
 
-                // Aumentamos los márgenes y la altura
                 LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(0, heightPx);
                 btnParams.weight = 1f;
-                btnParams.setMargins(6, 6, 6, 6); // Más separación entre teclas
+                btnParams.setMargins(6, 6, 6, 6);
 
                 btnLetra.setLayoutParams(btnParams);
                 rowLayout.addView(btnLetra);
@@ -185,8 +184,9 @@ public class HangmanActivity extends AppCompatActivity {
             vibrar(300);
             reproducirSonido(R.raw.megaman_x_error);
 
-            btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_fail)));
-            btn.setTextColor(Color.WHITE);
+            // --- FONDO DE LETRA A AMARILLO CUANDO ES ERROR ---
+            btn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFC107")));
+            btn.setTextColor(Color.BLACK); // Negro para que destaque en el amarillo
 
             binding.tvHangmanLives.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
             vidas--;
