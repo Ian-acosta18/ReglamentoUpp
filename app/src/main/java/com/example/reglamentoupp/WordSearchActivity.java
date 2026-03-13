@@ -150,14 +150,16 @@ public class WordSearchActivity extends AppCompatActivity {
                         isSelecting = true;
                         clearTemporarySelection();
                         selectedCells.add(cell);
-                        cell.setBackgroundColor(Color.parseColor("#90FFFFFF"));
+                        // Color morado clarito al tocar
+                        cell.setBackgroundColor(Color.parseColor("#90E1BEE7"));
                     }
                     break;
                 case MotionEvent.ACTION_MOVE:
                     if (isSelecting && cell != null && !selectedCells.contains(cell)) {
                         if (isValidMove(cell)) {
                             selectedCells.add(cell);
-                            cell.setBackgroundColor(Color.parseColor("#90FFFFFF"));
+                            // Color morado clarito al arrastrar
+                            cell.setBackgroundColor(Color.parseColor("#90E1BEE7"));
                         } else {
                             isSelecting = false;
                             clearTemporarySelection();
@@ -219,7 +221,8 @@ public class WordSearchActivity extends AppCompatActivity {
                 updateScore();
 
                 for (TextView cellInPath : selectedCells) {
-                    cellInPath.setBackgroundColor(Color.parseColor("#A0FFD700"));
+                    // Color morado para cuando la palabra es correcta
+                    cellInPath.setBackgroundColor(Color.parseColor("#C0CE93D8"));
                     cellInPath.setTextColor(Color.BLACK);
                 }
 
@@ -283,9 +286,9 @@ public class WordSearchActivity extends AppCompatActivity {
         int startIndex = fullText.indexOf(definition);
 
         if (startIndex != -1) {
-            // Tacha y pone la letra opaca
+            // Tacha y pone la letra en color rojo
             builder.setSpan(new StrikethroughSpan(), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.setSpan(new ForegroundColorSpan(Color.parseColor("#60FFFFFF")), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.setSpan(new ForegroundColorSpan(Color.RED), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvListaPalabras.setText(builder);
         }
     }

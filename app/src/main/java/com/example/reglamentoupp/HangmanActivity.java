@@ -124,8 +124,8 @@ public class HangmanActivity extends AppCompatActivity {
                 // Estilos visuales
                 btnLetra.setBackgroundResource(R.drawable.fondo_tecla_ahorcado);
 
-                // --- LETRA A COLOR ROJO POR DEFECTO ---
-                btnLetra.setTextColor(ContextCompat.getColor(this, R.color.game_fail));
+                // --- LETRA A COLOR BLANCO POR DEFECTO (Se mantiene) ---
+                btnLetra.setTextColor(Color.WHITE);
                 btnLetra.setTypeface(null, Typeface.BOLD);
                 btnLetra.setTextSize(26);
 
@@ -137,6 +137,7 @@ public class HangmanActivity extends AppCompatActivity {
 
                 LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(0, heightPx);
                 btnParams.weight = 1f;
+                // --- MÁRGENES DE 6DP PARA SEPARACIÓN ---
                 btnParams.setMargins(6, 6, 6, 6);
 
                 btnLetra.setLayoutParams(btnParams);
@@ -184,7 +185,7 @@ public class HangmanActivity extends AppCompatActivity {
             vibrar(300);
             reproducirSonido(R.raw.megaman_x_error);
 
-            // --- FONDO DE LETRA A AMARILLO CUANDO ES ERROR ---
+            // --- FONDO DE LETRA A AMARILLO CUANDO ES ERROR (Se mantiene) ---
             btn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFC107")));
             btn.setTextColor(Color.BLACK); // Negro para que destaque en el amarillo
 
