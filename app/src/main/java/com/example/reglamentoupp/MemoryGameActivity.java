@@ -31,7 +31,6 @@ import java.util.List;
 
 public class MemoryGameActivity extends AppCompatActivity {
 
-    // MODIFICADO: 4 pares (8 cartas) + 1 Comodín = 9 cartas (Grid 3x3)
     private static final int TOTAL_PAIRS = 4;
     private static final long GAME_TIME_MS = 120000;
 
@@ -100,13 +99,12 @@ public class MemoryGameActivity extends AppCompatActivity {
     private void setupBoard() {
         glCards.removeAllViews();
         glCards.setColumnCount(3);
-        glCards.setRowCount(3); // Forzar 3 filas
+        glCards.setRowCount(3);
         cards = new ArrayList<>();
 
         int idCounter = 0;
         int matchIdCounter = 0;
 
-        // 1. Agregar los 4 pares (8 cartas en total)
         for (int i = 0; i < TOTAL_PAIRS; i++) {
             CardDefinition def = definitions[i];
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textTitle, matchIdCounter));
@@ -114,11 +112,7 @@ public class MemoryGameActivity extends AppCompatActivity {
             matchIdCounter++;
         }
 
-        // 2. Agregar la Carta Impar (Comodín)
-        // Le damos un matchId de -1 para identificarla fácilmente
         cards.add(new MemoryCard(idCounter++, R.drawable.mi_logo, "¡Comodín!\n+20 Pts", -1));
-
-        // 3. Mezclar las 9 cartas
         Collections.shuffle(cards);
 
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -134,7 +128,6 @@ public class MemoryGameActivity extends AppCompatActivity {
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
-            // Hacemos las cartas un poquito más altas para que llenen la pantalla en el 3x3
             params.height = dpToPx(150);
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
@@ -156,21 +149,19 @@ public class MemoryGameActivity extends AppCompatActivity {
 
         flipCard(view, true);
 
-        // MODIFICADO: Lógica para la carta comodín impar
         if (cardData.matchId == -1) {
-            cardData.isMatched = true; // Se queda boca arriba
-            score += 20; // Regala puntos
+            cardData.isMatched = true;
+            score += 20;
             tvMessage.setText("¡Carta Comodín! +20 Puntos");
             playSound(R.raw.correct_ding);
             vibrarSafe(100);
             updateUI();
 
-            // Le ponemos un borde amarillo/dorado para destacarla
             if (view instanceof MaterialCardView) {
                 ((MaterialCardView) view).setStrokeColor(Color.parseColor("#FFD700"));
                 ((MaterialCardView) view).setStrokeWidth(dpToPx(3));
             }
-            return; // Detenemos aquí para que no interfiera si ya había una carta normal volteada
+            return;
         }
 
         if (selectedDetails1 == null) {
@@ -209,15 +200,14 @@ public class MemoryGameActivity extends AppCompatActivity {
             lottieMascot.playAnimation();
         }
 
-        setCardStroke(view1, "#4CAF50", 3); // Verde éxito
-        setCardStroke(view2, "#4CAF50", 3); // Verde éxito
+        setCardStroke(view1, "#4CAF50", 3);
+        setCardStroke(view2, "#4CAF50", 3);
 
         selectedDetails1 = null;
         selectedView1 = null;
         isProcessing = false;
         updateUI();
 
-        // Si encontró los 4 pares, gana el juego
         if (pairsFound == TOTAL_PAIRS) {
             endGame(true);
         }
@@ -235,15 +225,16 @@ public class MemoryGameActivity extends AppCompatActivity {
             lottieMascot.playAnimation();
         }
 
-        setCardStroke(view1, "#F44336", 3); // Rojo error
-        setCardStroke(view2, "#F44336", 3); // Rojo error
+        setCardStroke(view1, "#F44336", 3);
+        setCardStroke(view2, "#F44336", 3);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (!isFinishing()) {
+            // CORRECCIÓN: Revisar si la pantalla no está destruida
+            if (!isFinishing() && !isDestroyed()) {
                 flipCard(view1, false);
                 flipCard(view2, false);
 
-                setCardStroke(view1, "#D3DCE6", 0); // Regresa a borde default
+                setCardStroke(view1, "#D3DCE6", 0);
                 setCardStroke(view2, "#D3DCE6", 0);
 
                 selectedDetails1 = null;
@@ -289,18 +280,25 @@ public class MemoryGameActivity extends AppCompatActivity {
         timer = new CountDownTimer(GAME_TIME_MS, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
+                if(isFinishing() || isDestroyed()) { cancel(); return; }
                 int sec = (int) (millisUntilFinished / 1000);
                 tvMessage.setText("Tiempo: " + sec + "s");
                 if (sec < 10) tvMessage.setTextColor(Color.RED);
                 else tvMessage.setTextColor(ContextCompat.getColor(MemoryGameActivity.this, R.color.upp_primary));
             }
             @Override
-            public void onFinish() { endGame(false); }
+            public void onFinish() {
+                if(!isFinishing() && !isDestroyed()){
+                    endGame(false);
+                }
+            }
         }.start();
     }
 
     private void endGame(boolean win) {
         if (timer != null) timer.cancel();
+        if(isFinishing() || isDestroyed()) return; // CORRECCIÓN: Previene crasheo al mostrar dialogos.
+
         String title = win ? "¡Felicidades!" : "Juego Terminado";
         String msg = win ? "¡Encontraste los pares! Puntaje: " + score : "Se acabaron las vidas o el tiempo.";
         int icon = win ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones;
@@ -340,6 +338,13 @@ public class MemoryGameActivity extends AppCompatActivity {
 
     private int dpToPx(float dp) {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics()));
+    }
+
+    // CORRECCIÓN: Detener el timer si la ventana deja de ser el foco
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (timer != null) timer.cancel();
     }
 
     @Override
