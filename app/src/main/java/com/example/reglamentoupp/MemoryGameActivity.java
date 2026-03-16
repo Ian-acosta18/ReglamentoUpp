@@ -229,7 +229,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         setCardStroke(view2, "#F44336", 3);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // CORRECCIÓN: Revisar si la pantalla no está destruida
             if (!isFinishing() && !isDestroyed()) {
                 flipCard(view1, false);
                 flipCard(view2, false);
@@ -297,7 +296,7 @@ public class MemoryGameActivity extends AppCompatActivity {
 
     private void endGame(boolean win) {
         if (timer != null) timer.cancel();
-        if(isFinishing() || isDestroyed()) return; // CORRECCIÓN: Previene crasheo al mostrar dialogos.
+        if(isFinishing() || isDestroyed()) return;
 
         String title = win ? "¡Felicidades!" : "Juego Terminado";
         String msg = win ? "¡Encontraste los pares! Puntaje: " + score : "Se acabaron las vidas o el tiempo.";
@@ -316,8 +315,8 @@ public class MemoryGameActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        tvScore.setText("Puntos: " + score);
-        tvLives.setText("Vidas: " + lives);
+        tvScore.setText("🏆 " + score);
+        tvLives.setText("❤️ " + lives);
     }
 
     private void playSound(int resId) {
@@ -340,7 +339,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics()));
     }
 
-    // CORRECCIÓN: Detener el timer si la ventana deja de ser el foco
     @Override
     protected void onPause() {
         super.onPause();

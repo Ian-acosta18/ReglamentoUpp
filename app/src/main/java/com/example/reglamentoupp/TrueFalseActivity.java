@@ -44,7 +44,6 @@ public class TrueFalseActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private MediaPlayer mediaPlayer;
 
-    // MODIFICADO: Variables para controlar el doble toque
     private long ultimoClickTrue = 0;
     private long ultimoClickFalse = 0;
 
@@ -62,38 +61,39 @@ public class TrueFalseActivity extends AppCompatActivity {
         questionList = new ArrayList<>();
 
         binding.tvSpeechBubble.setText("¡Verdadero o Falso!");
-        // REGRESAMOS A LA NUBE
         if (binding.lottieCharacter != null) {
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
         }
 
         loadQuestions();
 
-        // MODIFICADO: Lógica de doble toque para botones True y False
         binding.btnTrue.setOnClickListener(v -> {
+            if (botonesBloqueados) return;
             long tiempoActual = System.currentTimeMillis();
-            if (tiempoActual - ultimoClickTrue < 500) { // Doble clic detectado
-                Toast.makeText(this, "Toast 3!", Toast.LENGTH_SHORT).show();
-                checkAnswer(true);
-            } else { // Primer clic
-                Toast.makeText(this, "Presiona de nuevo para confirmar", Toast.LENGTH_SHORT).show();
+            if (tiempoActual - ultimoClickFalse < 300) {
+                Toast.makeText(this, "No es válido presionar dos botones al mismo tiempo", Toast.LENGTH_SHORT).show();
+                return;
             }
             ultimoClickTrue = tiempoActual;
+            checkAnswer(true);
         });
 
         binding.btnFalse.setOnClickListener(v -> {
+            if (botonesBloqueados) return;
             long tiempoActual = System.currentTimeMillis();
-            if (tiempoActual - ultimoClickFalse < 500) { // Doble clic detectado
-                Toast.makeText(this, "Toast 3!", Toast.LENGTH_SHORT).show();
-                checkAnswer(false);
-            } else { // Primer clic
-                Toast.makeText(this, "Presiona de nuevo para confirmar", Toast.LENGTH_SHORT).show();
+            if (tiempoActual - ultimoClickTrue < 300) {
+                Toast.makeText(this, "No es válido presionar dos botones al mismo tiempo", Toast.LENGTH_SHORT).show();
+                return;
             }
             ultimoClickFalse = tiempoActual;
+            checkAnswer(false);
         });
 
         if(binding.btnBack != null) {
-            binding.btnBack.setOnClickListener(v -> finish());
+            binding.btnBack.setOnClickListener(v -> {
+                if (temporizador != null) temporizador.cancel();
+                finish();
+            });
         }
     }
 
@@ -120,7 +120,6 @@ public class TrueFalseActivity extends AppCompatActivity {
         if (currentQuestionIndex < questionList.size() && lives > 0) {
             botonesBloqueados = false;
 
-            // REGRESAMOS A LA NUBE
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
             binding.lottieCharacter.setSpeed(1.0f);
@@ -129,7 +128,7 @@ public class TrueFalseActivity extends AppCompatActivity {
             binding.tvQuestion.setText(q.getAfirmacion());
 
             binding.progressBar.setProgress(currentQuestionIndex + 1);
-            binding.tvScore.setText("Puntos: " + score);
+            binding.tvScore.setText("🏆 " + score);
             binding.tvLives.setText("❤️ " + lives);
 
             iniciarTemporizador();
@@ -138,11 +137,9 @@ public class TrueFalseActivity extends AppCompatActivity {
         }
     }
 
-    // MODIFICADO: Animación y resalte de tiempo
     private void iniciarTemporizador() {
         if (temporizador != null) temporizador.cancel();
 
-        // Regresar el texto a su estado normal (14sp y sin negritas)
         binding.tvSpeechBubble.setTextColor(Color.BLACK);
         binding.tvSpeechBubble.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
         binding.tvSpeechBubble.setTypeface(null, Typeface.NORMAL);
@@ -154,11 +151,10 @@ public class TrueFalseActivity extends AppCompatActivity {
                 int segundos = (int) (millisUntilFinished / 1000);
                 binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
 
-                // Resaltar en los últimos 3 segundos
                 if (segundos <= 3) {
                     binding.tvSpeechBubble.setTextColor(Color.RED);
-                    binding.tvSpeechBubble.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f); // Más grande
-                    binding.tvSpeechBubble.setTypeface(null, Typeface.BOLD); // Negrita
+                    binding.tvSpeechBubble.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
+                    binding.tvSpeechBubble.setTypeface(null, Typeface.BOLD);
                     binding.lottieCharacter.setSpeed(1.5f);
                 }
             }

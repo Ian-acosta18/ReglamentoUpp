@@ -1,5 +1,6 @@
 package com.example.reglamentoupp;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -52,11 +53,8 @@ public class WordSearchActivity extends AppCompatActivity {
 
     private final List<Word> wordsToFind = new ArrayList<>();
     private final List<TextView> selectedCells = new ArrayList<>();
-
-    // CORRECCIÓN: Variables para el cálculo exacto de la línea
-    private TextView startCell = null;
+    private boolean isSelecting = false;
     private int wordsFoundCount = 0;
-    private long currentLocalScore = 0;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -80,15 +78,15 @@ public class WordSearchActivity extends AppCompatActivity {
         btnRegresar = findViewById(R.id.btn_regresar);
         tvScorePuntos = findViewById(R.id.tv_score_puntos);
 
+        // Hace que el botón de volver de la cabecera funcione
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        btnRegresar.setOnClickListener(v -> finish());
 
         initializeWords();
         generarCuadricula();
         setupTouchListener();
+        updateScore();
 
-        // Obtenemos el puntaje una sola vez al iniciar
-        fetchInitialScore();
+        btnRegresar.setOnClickListener(v -> finish());
     }
 
     private void initializeWords() {
@@ -101,16 +99,18 @@ public class WordSearchActivity extends AppCompatActivity {
         }
     }
 
-    // CORRECCIÓN: Evitar saturar Firebase obteniendo el score solo al inicio
-    private void fetchInitialScore(){
+    private void updateScore(){
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
             db.collection("usuarios").document(currentUser.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {
                     Long score = documentSnapshot.getLong("puntaje");
                     if (score != null) {
-                        currentLocalScore = score;
-                        tvScorePuntos.setText(currentLocalScore + " Pts");
+                        if (score == 1) {
+                            tvScorePuntos.setText(score + " Punto");
+                        } else {
+                            tvScorePuntos.setText(score + " Puntos");
+                        }
                     }
                 }
             });
@@ -124,6 +124,7 @@ public class WordSearchActivity extends AppCompatActivity {
             for (int col = 0; col < GRID_SIZE; col++) {
                 TextView cellTextView = new TextView(this);
                 cellTextView.setText(String.valueOf(matrizLetras[row][col]));
+                // Letras mucho más grandes y en negrita para que se vean mejor
                 cellTextView.setTextSize(18f);
                 cellTextView.setTypeface(null, Typeface.BOLD);
                 cellTextView.setTextColor(Color.WHITE);
@@ -138,7 +139,6 @@ public class WordSearchActivity extends AppCompatActivity {
         }
     }
 
-    // CORRECCIÓN: Nueva lógica táctil que no se corta si mueves el dedo rápido
     private void setupTouchListener() {
         gridLayout.setOnTouchListener((v, event) -> {
             int action = event.getAction();
@@ -147,20 +147,30 @@ public class WordSearchActivity extends AppCompatActivity {
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
                     if (cell != null) {
-                        startCell = cell;
-                        updateSelectionPath(startCell, startCell);
+                        isSelecting = true;
+                        clearTemporarySelection();
+                        selectedCells.add(cell);
+                        // Color morado clarito al tocar
+                        cell.setBackgroundColor(Color.parseColor("#90E1BEE7"));
                     }
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    if (startCell != null && cell != null) {
-                        updateSelectionPath(startCell, cell);
+                    if (isSelecting && cell != null && !selectedCells.contains(cell)) {
+                        if (isValidMove(cell)) {
+                            selectedCells.add(cell);
+                            // Color morado clarito al arrastrar
+                            cell.setBackgroundColor(Color.parseColor("#90E1BEE7"));
+                        } else {
+                            isSelecting = false;
+                            clearTemporarySelection();
+                        }
                     }
                     break;
                 case MotionEvent.ACTION_UP:
-                    if (startCell != null) {
+                    if (isSelecting) {
                         processSelection();
                     }
-                    startCell = null;
+                    isSelecting = false;
                     clearTemporarySelection();
                     break;
             }
@@ -168,38 +178,21 @@ public class WordSearchActivity extends AppCompatActivity {
         });
     }
 
-    private void updateSelectionPath(TextView start, TextView current) {
-        clearTemporarySelection();
-        int[] p1 = (int[]) start.getTag();
-        int[] p2 = (int[]) current.getTag();
+    private boolean isValidMove(TextView newCell) {
+        if (selectedCells.size() < 2) return true;
 
-        int dr = p2[0] - p1[0];
-        int dc = p2[1] - p1[1];
+        int[] pos1 = (int[]) selectedCells.get(0).getTag();
+        int[] pos2 = (int[]) selectedCells.get(1).getTag();
+        int[] newPos = (int[]) newCell.getTag();
 
-        // Validamos si es una línea recta (horizontal, vertical o diagonal perfecta)
-        if (dr == 0 || dc == 0 || Math.abs(dr) == Math.abs(dc)) {
-            int stepR = Integer.compare(dr, 0);
-            int stepC = Integer.compare(dc, 0);
-            int steps = Math.max(Math.abs(dr), Math.abs(dc));
+        int dx = pos2[1] - pos1[1];
+        int dy = pos2[0] - pos1[0];
 
-            for (int i = 0; i <= steps; i++) {
-                int r = p1[0] + (i * stepR);
-                int c = p1[1] + (i * stepC);
-                TextView cellInPath = getCellAt(r, c);
-                if (cellInPath != null) {
-                    selectedCells.add(cellInPath);
-                    cellInPath.setBackgroundColor(Color.parseColor("#90E1BEE7")); // Efecto sombra
-                }
-            }
-        }
-    }
+        int[] lastPos = (int[]) selectedCells.get(selectedCells.size() - 1).getTag();
+        int newDx = newPos[1] - lastPos[1];
+        int newDy = newPos[0] - lastPos[0];
 
-    private TextView getCellAt(int row, int col) {
-        int index = (row * GRID_SIZE) + col;
-        if (index >= 0 && index < gridLayout.getChildCount()) {
-            return (TextView) gridLayout.getChildAt(index);
-        }
-        return null;
+        return dx == newDx && dy == newDy;
     }
 
     private void processSelection() {
@@ -220,17 +213,15 @@ public class WordSearchActivity extends AppCompatActivity {
                 word.found = true;
                 wordsFoundCount++;
 
-                // Actualizar puntaje local para evitar lags en UI
-                currentLocalScore += 10;
-                tvScorePuntos.setText(currentLocalScore + " Pts");
-
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 if (currentUser != null) {
                     DocumentReference userDocRef = db.collection("usuarios").document(currentUser.getUid());
                     userDocRef.update("puntaje", com.google.firebase.firestore.FieldValue.increment(10));
                 }
+                updateScore();
 
                 for (TextView cellInPath : selectedCells) {
+                    // Color morado para cuando la palabra es correcta
                     cellInPath.setBackgroundColor(Color.parseColor("#C0CE93D8"));
                     cellInPath.setTextColor(Color.BLACK);
                 }
@@ -250,7 +241,7 @@ public class WordSearchActivity extends AppCompatActivity {
 
     private void clearTemporarySelection() {
         for (TextView cell : selectedCells) {
-            if (cell.getCurrentTextColor() != Color.BLACK) { // Si no es negra, no ha sido descubierta
+            if (cell.getCurrentTextColor() != Color.BLACK) {
                 cell.setBackgroundColor(Color.TRANSPARENT);
             }
         }
@@ -269,6 +260,7 @@ public class WordSearchActivity extends AppCompatActivity {
         return null;
     }
 
+    // Retorna la definición completa para buscarla y tacharla
     private String getDefinitionForWord(String word) {
         switch(word.toUpperCase()) {
             case "JUSTIFICANTE": return "1. DOCUMENTO QUE SE SOLICITA POR ENFERMEDAD.";
@@ -294,6 +286,7 @@ public class WordSearchActivity extends AppCompatActivity {
         int startIndex = fullText.indexOf(definition);
 
         if (startIndex != -1) {
+            // Tacha y pone la letra en color rojo
             builder.setSpan(new StrikethroughSpan(), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             builder.setSpan(new ForegroundColorSpan(Color.RED), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvListaPalabras.setText(builder);

@@ -54,8 +54,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private final String[] frasesExito = {"¡Brillante!", "¡Iluminaste el día!", "¡Correcto!", "¡Radiante!"};
     private final String[] frasesError = {"¡Rayos!", "Se nubló...", "Intenta de nuevo", "¡Cuidado!"};
 
-    private static final String COLOR_MORADO_BONITO = "#9C27B0";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +72,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding.btnQuizOptionB.setOnClickListener(this);
         binding.btnQuizOptionC.setOnClickListener(this);
 
-        // NUEVO: Lógica del botón de Salir
         binding.btnBackQuiz.setOnClickListener(v -> {
             if (temporizador != null) {
                 temporizador.cancel();
@@ -129,7 +126,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             botonesBloqueados = false;
             restaurarBotones();
 
-            // REGRESAMOS A LA NUBE
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
 
@@ -140,8 +136,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             binding.btnQuizOptionB.setText(preguntaActual.getOpcionB());
             binding.btnQuizOptionC.setText(preguntaActual.getOpcionC());
 
-            binding.tvQuizScore.setText("Puntaje: " + puntaje);
-            binding.tvQuizLives.setText("Vidas: " + vidas);
+            binding.tvQuizScore.setText("🏆 " + puntaje);
+            binding.tvQuizLives.setText("❤️ " + vidas);
             binding.quizProgressBar.setProgress(indicePreguntaActual + 1);
 
             iniciarTemporizador();

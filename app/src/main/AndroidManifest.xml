@@ -4,9 +4,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
-
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <application
@@ -19,52 +19,50 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ReglamentoUpp"
         tools:targetApi="31">
-
+        <activity
+            android:name=".activity_manual_juegos"
+            android:exported="false" />
         <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-
         <activity
             android:name=".GameLevelActivity"
             android:exported="false" />
-
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".QuizActivity"
             android:theme="@style/Theme.ReglamentoUpp" />
-
         <activity
             android:name=".TrueFalseActivity"
             android:theme="@style/Theme.ReglamentoUpp" />
-
         <activity
             android:name=".HangmanActivity"
             android:theme="@style/Theme.ReglamentoUpp" />
-
         <activity
             android:name=".MemoryGameActivity"
-            android:screenOrientation="portrait"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.ReglamentoUpp" />
-
         <activity
             android:name=".WordSearchActivity"
-            android:screenOrientation="portrait"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.ReglamentoUpp" />
-
+        <activity
+            android:name=".ManualJuegosActivity"
+            android:exported="false" />
     </application>
+
 </manifest>
