@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         mStore = FirebaseFirestore.getInstance();
         mStorage = FirebaseStorage.getInstance(); // Inicializar Storage
 
+
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             Log.w(TAG, "Usuario no logueado. Regresando a Login.");

@@ -38,6 +38,9 @@ public class TrueFalseActivity extends AppCompatActivity {
     private int lives = 3;
     private boolean botonesBloqueados = false;
 
+    // Límite de 10 preguntas aleatorias por partida
+    private static final int MAX_PREGUNTAS = 10;
+
     private CountDownTimer temporizador;
     private static final long TIEMPO_POR_PREGUNTA = 10000;
     private int racha = 0;
@@ -103,10 +106,22 @@ public class TrueFalseActivity extends AppCompatActivity {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if(isFinishing()) return;
                     if (queryDocumentSnapshots.isEmpty()) return;
+
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         try { questionList.add(doc.toObject(PreguntaVF.class)); } catch (Exception e) {}
                     }
+
+                    // Mezclar de forma aleatoria
                     Collections.shuffle(questionList);
+
+                    // Tomar solo 10 preguntas para que el juego sea rápido
+                    if (questionList.size() > MAX_PREGUNTAS) {
+                        questionList = questionList.subList(0, MAX_PREGUNTAS);
+                    }
+
+                    // Inicializar la barra de progreso
+                    binding.progressBar.setMax(questionList.size());
+
                     if(!questionList.isEmpty()) showQuestion();
                 })
                 .addOnFailureListener(e -> {

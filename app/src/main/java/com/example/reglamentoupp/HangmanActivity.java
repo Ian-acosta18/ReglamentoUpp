@@ -29,20 +29,20 @@ public class HangmanActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private MediaPlayer mediaPlayer;
 
-    // --- PALABRAS ---
+    // Matriz con [Palabra Respuesta] y [Situación Práctica]
     private String[][] palabrasConPistas = {
-            {"ESTADIA", "Práctica profesional obligatoria en el sector productivo para titularse:"},
-            {"CALIDAD", "Condición oficial de 'Alumno' que se pierde al reprobar definitivamente:"},
-            {"BAJA", "Suspensión de estudios permitida hasta por 3 cuatrimestres:"},
-            {"RECTOR", "Máxima autoridad ejecutiva de la Universidad Politécnica:"},
-            {"TITULO", "Grado académico obtenido al concluir el plan de estudios y la estadía:"},
-            {"KARDEX", "Documento oficial que acredita todo el historial académico del alumno:"},
-            {"CONSEJO", "Órgano colegiado de calidad o social que apoya la gestión universitaria:"},
-            {"SANCION", "Consecuencia aplicable por infringir las normas de conducta universitaria:"},
-            {"COMITE", "Grupo encargado de vigilar la igualdad laboral y no discriminación:"},
-            {"CREDITO", "Unidad de valor académico asignada a cada asignatura del plan de estudios:"},
-            {"ASISTENCIA", "Requisito mínimo del 80% para tener derecho a evaluación ordinaria:"},
-            {"RENUNCIA", "Acto voluntario de darse de baja definitiva de la universidad:"}
+            {"ESTADIA", "Etapa final donde aplicas lo aprendido trabajando en un proyecto dentro de una empresa real:"},
+            {"CALIDAD", "Si repruebas tus materias al límite, pierdes esta condición como estudiante de la UPP:"},
+            {"BAJA", "Trámite que debes solicitar si tienes un problema grave y necesitas pausar tus estudios un cuatrimestre:"},
+            {"RECTOR", "Es la máxima autoridad ejecutiva que toma las decisiones finales en la Universidad:"},
+            {"TITULO", "Documento profesional final que demuestra que cumpliste con tu plan de estudios y estadía:"},
+            {"KARDEX", "Si vas a pedir una beca y te piden tu historial completo de calificaciones, solicitas tu:"},
+            {"CONSEJO", "Grupo de especialistas externos que opina y evalúa para que tu carrera tenga mejor nivel:"},
+            {"SANCION", "Lo que recibes si te descubren haciendo trampa en un examen o faltando al respeto:"},
+            {"COMITE", "Si sufres de acoso o discriminación en la universidad, debes acudir a este grupo:"},
+            {"CREDITO", "Valor numérico que se le da a cada materia; necesitas juntar todos para poder graduarte:"},
+            {"ASISTENCIA", "Debes mantener al menos el 80% de esto en el parcial para tener derecho a calificación ordinaria:"},
+            {"RENUNCIA", "Si decides irte de la universidad definitivamente por cuenta propia, debes firmar tu:"}
     };
 
     private String palabraSecreta;
@@ -85,7 +85,7 @@ public class HangmanActivity extends AppCompatActivity {
         }
         binding.tvHangmanWord.setText(sb.toString());
 
-        binding.tvHangmanLives.setText("Vidas: " + vidas);
+        binding.tvHangmanLives.setText("❤️ " + vidas);
         if (vidas <= 2) {
             binding.tvHangmanLives.setTextColor(ContextCompat.getColor(this, R.color.game_fail));
         } else {
@@ -121,10 +121,7 @@ public class HangmanActivity extends AppCompatActivity {
                 btnLetra.setText(String.valueOf(c));
                 btnLetra.setOnClickListener(this::onLetraClick);
 
-                // Estilos visuales
                 btnLetra.setBackgroundResource(R.drawable.fondo_tecla_ahorcado);
-
-                // --- LETRA A COLOR BLANCO POR DEFECTO (Se mantiene) ---
                 btnLetra.setTextColor(Color.WHITE);
                 btnLetra.setTypeface(null, Typeface.BOLD);
                 btnLetra.setTextSize(26);
@@ -137,13 +134,11 @@ public class HangmanActivity extends AppCompatActivity {
 
                 LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(0, heightPx);
                 btnParams.weight = 1f;
-                // --- MÁRGENES DE 6DP PARA SEPARACIÓN ---
                 btnParams.setMargins(6, 6, 6, 6);
 
                 btnLetra.setLayoutParams(btnParams);
                 rowLayout.addView(btnLetra);
             }
-
             binding.layoutTeclado.addView(rowLayout);
         }
     }
@@ -156,7 +151,6 @@ public class HangmanActivity extends AppCompatActivity {
         String letra = btn.getText().toString();
 
         if (palabraSecreta.contains(letra)) {
-            // ACIERTO
             vibrar(50);
             reproducirSonido(R.raw.correct_ding);
 
@@ -168,26 +162,21 @@ public class HangmanActivity extends AppCompatActivity {
 
             boolean gano = true;
             for (int i = 0; i < palabraSecreta.length(); i++) {
-                if (palabraAdivinada[i] == '_') {
-                    if (palabraSecreta.charAt(i) == letra.charAt(0)) {
-                        palabraAdivinada[i] = letra.charAt(0);
-                    }
-                }
                 if (palabraSecreta.charAt(i) == letra.charAt(0)) {
                     palabraAdivinada[i] = letra.charAt(0);
                 }
-                if (palabraAdivinada[i] == '_') gano = false;
+                if (palabraAdivinada[i] == '_') {
+                    gano = false;
+                }
             }
 
             if (gano) mostrarDialogo("¡Excelente!", "La palabra era: " + palabraSecreta, true);
         } else {
-            // ERROR
             vibrar(300);
             reproducirSonido(R.raw.megaman_x_error);
 
-            // --- FONDO DE LETRA A AMARILLO CUANDO ES ERROR (Se mantiene) ---
             btn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFC107")));
-            btn.setTextColor(Color.BLACK); // Negro para que destaque en el amarillo
+            btn.setTextColor(Color.BLACK);
 
             binding.tvHangmanLives.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
             vidas--;
@@ -218,7 +207,7 @@ public class HangmanActivity extends AppCompatActivity {
     }
 
     private void mostrarDialogo(String titulo, String mensaje, boolean ganado) {
-        if(isFinishing()) return;
+        if(isFinishing() || isDestroyed()) return;
         int icon = ganado ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones;
         new MaterialAlertDialogBuilder(this)
                 .setTitle(titulo)
