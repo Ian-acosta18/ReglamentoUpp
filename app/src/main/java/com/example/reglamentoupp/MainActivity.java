@@ -20,8 +20,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.reglamentoupp.databinding.ActivityMainBinding;
@@ -29,15 +27,10 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements BaseReglamentoFragment.ReglamentoInteractionListener {
 
@@ -48,12 +41,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     private String userID;
     private long userPuntaje = 0;
     private int userNivel = 1;
-
-    // --- Variables para el Ranking Automático ---
-    private RecyclerView recyclerRanking;
-    private RankingAdapter rankingAdapter;
-    private List<Usuario> listaRanking;
-    private ListenerRegistration rankingListener;
 
     // --- Variables para la subida de imagen ---
     private Uri imageUri;
@@ -117,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         mStore = FirebaseFirestore.getInstance();
         mStorage = FirebaseStorage.getInstance(); // Inicializar Storage
 
-
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
             Log.w(TAG, "Usuario no logueado. Regresando a Login.");
@@ -134,11 +120,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         // Click en el botón de editar foto
         binding.fabEditProfilePic.setOnClickListener(v -> openGallery());
 
-        // Configurar botones de juegos
+        // Configurar botones de juegos y ranking
         setupStaticGameListeners();
-
-        // --- INICIALIZAR RANKING ---
-        setupRankingAutomatico();
     }
 
     // --- NUEVO: Método para abrir galería ---
@@ -187,39 +170,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 });
     }
 
-    private void setupRankingAutomatico() {
-        recyclerRanking = binding.recyclerViewRankingMain;
-
-        if (recyclerRanking != null) {
-            listaRanking = new ArrayList<>();
-            rankingAdapter = new RankingAdapter(listaRanking);
-            recyclerRanking.setLayoutManager(new LinearLayoutManager(this));
-            recyclerRanking.setAdapter(rankingAdapter);
-
-            cargarDatosRanking();
-        }
-    }
-
-    private void cargarDatosRanking() {
-        rankingListener = mStore.collection("usuarios")
-                .orderBy("puntaje", Query.Direction.DESCENDING)
-                .limit(10)
-                .addSnapshotListener((value, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "Error al cargar ranking: " + error.getMessage());
-                        return;
-                    }
-                    if (value != null) {
-                        listaRanking.clear();
-                        for (QueryDocumentSnapshot doc : value) {
-                            Usuario user = doc.toObject(Usuario.class);
-                            listaRanking.add(user);
-                        }
-                        rankingAdapter.notifyDataSetChanged();
-                    }
-                });
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -235,25 +185,15 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         detenerRotacionMensajes();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (rankingListener != null) {
-            rankingListener.remove();
-        }
-    }
-
     private void setupStaticGameListeners() {
         binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
         binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
         binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
         binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
-
-        // Botón para la Sopa de Letras
         binding.btnJugarSopaLetras.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WordSearchActivity.class)));
 
-        // MODIFICACIÓN: Botón de Instrucciones / Manual de Juegos
-        binding.btnManualJuegos.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ManualJuegosActivity.class)));
+        // NUEVO: Botón que redirige al Ranking
+        binding.btnVerRanking.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RankingActivity.class)));
     }
 
     private void iniciarRotacionMensajes() {

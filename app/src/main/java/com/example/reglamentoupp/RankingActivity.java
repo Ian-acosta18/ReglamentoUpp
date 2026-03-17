@@ -21,28 +21,32 @@ public class RankingActivity extends AppCompatActivity {
     private RankingAdapter adapter;
     private List<Usuario> listaUsuarios;
     private FirebaseFirestore mStore;
-    private ListenerRegistration registration; // Variable para controlar la conexión automática
+    private ListenerRegistration registration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking);
 
+        // Se enlaza la vista del XML
         recyclerView = findViewById(R.id.recyclerViewRanking);
         progressBar = findViewById(R.id.progressBarRanking);
+
         mStore = FirebaseFirestore.getInstance();
         listaUsuarios = new ArrayList<>();
 
+        // Se configura cómo se verá la lista (de arriba hacia abajo)
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Se inicializa tu RankingAdapter
         adapter = new RankingAdapter(listaUsuarios);
         recyclerView.setAdapter(adapter);
 
-        // Se llama a la función que activa la escucha automática
         cargarRankingEnTiempoReal();
     }
 
     private void cargarRankingEnTiempoReal() {
-        // Usamos addSnapshotListener en lugar de get() para actualizaciones automáticas
+        // Consulta a Firebase ordenando por mayor puntaje, trayendo los primeros 20
         registration = mStore.collection("usuarios")
                 .orderBy("puntaje", Query.Direction.DESCENDING)
                 .limit(20)
@@ -60,6 +64,7 @@ public class RankingActivity extends AppCompatActivity {
                             Usuario user = doc.toObject(Usuario.class);
                             listaUsuarios.add(user);
                         }
+                        // Le avisa a tu RankingAdapter que hay datos nuevos para dibujar
                         adapter.notifyDataSetChanged();
 
                         if(listaUsuarios.isEmpty()){
@@ -72,7 +77,6 @@ public class RankingActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        // Detenemos la escucha automática cuando la app se minimiza para ahorrar batería
         if (registration != null) {
             registration.remove();
         }

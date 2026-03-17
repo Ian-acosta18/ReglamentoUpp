@@ -277,11 +277,11 @@
                     android:textStyle="bold"/>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManualJuegos"
+                    android:id="@+id/btnVerRanking"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Instrucciones 📖"
+                    android:text="Ver Ranking 🏆"
                     android:textColor="@color/upp_primary"
                     android:textStyle="bold"/>
             </LinearLayout>
@@ -584,7 +584,7 @@
                                 android:id="@+id/tvSopaLetrasDesc"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                text="Encuentra las palabras"
+                                android:text="Encuentra las palabras"
                                 android:textColor="#E0FFFFFF"
                                 android:textSize="14sp"
                                 app:layout_constraintStart_toStartOf="parent"
@@ -597,39 +597,12 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginBottom="12dp"
-                    android:text="🏆 Top 10 Líderes"
-                    android:textColor="@color/text_primary"
-                    android:textSize="22sp"
-                    android:textStyle="bold"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerViewRankingMain"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    android:clipToPadding="false"
-                    android:paddingBottom="20dp"
-                    android:overScrollMode="never"/>
-
-            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginBottom="16dp"
                 android:text="🎯 Tu Camino"
                 android:textColor="@color/text_primary"
