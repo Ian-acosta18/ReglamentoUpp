@@ -205,6 +205,7 @@
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:clipToPadding="false"
+        android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -291,6 +292,7 @@
                 android:clipToPadding="false"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
+                android:overScrollMode="never"
                 android:scrollbars="none">
 
                 <LinearLayout
@@ -582,7 +584,7 @@
                                 android:id="@+id/tvSopaLetrasDesc"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Encuentra las palabras"
+                                text="Encuentra las palabras"
                                 android:textColor="#E0FFFFFF"
                                 android:textSize="14sp"
                                 app:layout_constraintStart_toStartOf="parent"

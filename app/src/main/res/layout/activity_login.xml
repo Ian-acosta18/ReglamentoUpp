@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/main_background">
 
-    <!-- Logo -->
     <ImageView
         android:id="@+id/ivLoginLogo"
         android:layout_width="120dp"
@@ -20,7 +19,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Título de la app -->
     <TextView
         android:id="@+id/tvAppTitle"
         android:layout_width="wrap_content"
@@ -38,7 +36,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Subtítulo -->
     <TextView
         android:id="@+id/tvAppSubtitle"
         android:layout_width="wrap_content"
@@ -51,7 +48,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Card del formulario -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,7 +65,6 @@
             android:orientation="vertical"
             android:padding="36dp">
 
-            <!-- Título del formulario -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -80,7 +75,6 @@
                 android:layout_marginBottom="32dp"
                 android:layout_gravity="center"/>
 
-            <!-- Campo de email -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEmail"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -100,10 +94,11 @@
                     android:layout_height="wrap_content"
                     android:paddingVertical="16dp"
                     android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="#757575"
                     android:inputType="textEmailAddress"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Campo de contraseña -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilPassword"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
@@ -125,10 +120,11 @@
                     android:layout_height="wrap_content"
                     android:paddingVertical="16dp"
                     android:textSize="16sp"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="#757575"
                     android:inputType="textPassword"/>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Botón de ingresar -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
@@ -141,7 +137,6 @@
                 android:backgroundTint="@color/upp_primary"
                 android:elevation="8dp"/>
 
-            <!-- Link de registro -->
             <TextView
                 android:id="@+id/tvRegister"
                 android:layout_width="wrap_content"
@@ -154,7 +149,6 @@
                 android:textStyle="bold"
                 android:padding="12dp"/>
 
-            <!-- Progress bar -->
             <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="wrap_content"

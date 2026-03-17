@@ -8,8 +8,11 @@
         <item name="colorOnSecondary">@color/text_light</item>
 
         <item name="android:statusBarColor">@color/upp_primary_dark</item>
-        <item name="android:windowLightStatusBar">false</item> <item name="android:colorBackground">@color/app_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:colorBackground">@color/app_bg</item>
         <item name="colorSurface">@color/surface_color</item>
+
+        <item name="android:colorEdgeEffect">@android:color/white</item>
     </style>
 
     <style name="Theme.ReglamentoUpp" parent="Base.Theme.ReglamentoUpp" />

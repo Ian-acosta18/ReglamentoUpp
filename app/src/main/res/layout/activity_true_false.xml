@@ -108,6 +108,7 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
+        app:cardBackgroundColor="@color/white"
         app:layout_constraintTop_toBottomOf="@id/layoutCharacter"
         app:layout_constraintBottom_toTopOf="@id/layoutButtons">
 
@@ -124,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:text="Cargando..."
                 android:textSize="22sp"
-                android:textColor="@color/text_primary"
+                android:textColor="#212121"
                 android:textAlignment="center"
                 android:textStyle="bold"/>
         </LinearLayout>
