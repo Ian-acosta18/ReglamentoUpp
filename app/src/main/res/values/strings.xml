@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Reglamento UPP</string>
+
+    <string name="login_title">¡Bienvenido!</string>
+    <string name="login_button">Ingresar</string>
+    <string name="register_prompt">¿Nuevo alumno? Regístrate aquí</string>
+    <string name="register_title">Crear Cuenta UPP</string>
+    <string name="register_button">Registrarse</string>
+    <string name="login_prompt">¿Ya tienes cuenta? Inicia sesión</string>
+
+    <string name="hello_user">¡Hola, Politécnico!</string>
+    <string name="level_default">Nivel 1 • 0 XP</string>
+    <string name="section_games">Zona de Juegos</string>
+    <string name="section_study">Reglamento Escolar</string>
+
+    <string name="game_challenge">Desafío</string>
+    <string name="game_challenge_desc">+ XP Rápida</string>
+    <string name="game_tf">Verdad/Falso</string>
+    <string name="game_tf_desc">Rápido</string>
+    <string name="game_hangman">Ahorcado</string>
+    <string name="game_hangman_desc">Vocabulario</string>
+
+    <string name="module_rights">Derechos</string>
+    <string name="module_obligations">Obligaciones</string>
+    <string name="module_prohibitions">Prohibido</string>
+    <string name="module_sanctions">Sanciones</string>
+    <string name="module_awards">Premios</string>
+</resources>
