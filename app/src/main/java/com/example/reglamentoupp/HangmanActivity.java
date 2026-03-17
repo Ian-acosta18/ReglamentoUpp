@@ -60,6 +60,21 @@ public class HangmanActivity extends AppCompatActivity {
         iniciarJuego();
 
         binding.btnBack.setOnClickListener(v -> finish());
+
+        // Listener del botón de ayuda para mostrar las instrucciones
+        binding.btnHelp.setOnClickListener(v -> mostrarInstrucciones());
+    }
+
+    // Método para mostrar el cuadro de diálogo con las instrucciones
+    private void mostrarInstrucciones() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Instrucciones: Ahorcado")
+                .setMessage("1. Lee cuidadosamente la definición que aparece en el recuadro blanco.\n\n" +
+                        "2. Toca las letras en el teclado para adivinar la palabra oculta.\n\n" +
+                        "3. Tienes 6 vidas (❤️). Cada error te restará una.\n\n" +
+                        "4. ¡Adivina toda la palabra antes de perder tus vidas!")
+                .setPositiveButton("¡Entendido!", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     private void iniciarJuego() {
