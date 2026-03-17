@@ -7,6 +7,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
@@ -18,6 +20,7 @@ public class RankingActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private MaterialCardView btnVolver;
     private RankingAdapter adapter;
     private List<Usuario> listaUsuarios;
     private FirebaseFirestore mStore;
@@ -28,25 +31,28 @@ public class RankingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking);
 
-        // Se enlaza la vista del XML
+        // Enlazar vistas
         recyclerView = findViewById(R.id.recyclerViewRanking);
         progressBar = findViewById(R.id.progressBarRanking);
+        btnVolver = findViewById(R.id.btnVolver);
 
         mStore = FirebaseFirestore.getInstance();
         listaUsuarios = new ArrayList<>();
 
-        // Se configura cómo se verá la lista (de arriba hacia abajo)
+        // Configurar RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        // Se inicializa tu RankingAdapter
         adapter = new RankingAdapter(listaUsuarios);
         recyclerView.setAdapter(adapter);
 
+        // Lógica del botón VOLVER (cierra esta pantalla y regresa a la anterior)
+        btnVolver.setOnClickListener(v -> finish());
+
+        // Cargar los datos
         cargarRankingEnTiempoReal();
     }
 
     private void cargarRankingEnTiempoReal() {
-        // Consulta a Firebase ordenando por mayor puntaje, trayendo los primeros 20
+        progressBar.setVisibility(View.VISIBLE);
         registration = mStore.collection("usuarios")
                 .orderBy("puntaje", Query.Direction.DESCENDING)
                 .limit(20)
@@ -64,7 +70,6 @@ public class RankingActivity extends AppCompatActivity {
                             Usuario user = doc.toObject(Usuario.class);
                             listaUsuarios.add(user);
                         }
-                        // Le avisa a tu RankingAdapter que hay datos nuevos para dibujar
                         adapter.notifyDataSetChanged();
 
                         if(listaUsuarios.isEmpty()){

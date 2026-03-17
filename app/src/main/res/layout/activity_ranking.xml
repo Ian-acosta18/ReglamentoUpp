@@ -1,34 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"
-    android:orientation="vertical">
+    android:background="#F5F7FA"> <View
+    android:id="@+id/headerBg"
+    android:layout_width="match_parent"
+    android:layout_height="220dp"
+    android:background="@drawable/modern_header_gradient"
+    app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/btnVolver"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        app:cardBackgroundColor="#30FFFFFF"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="#60FFFFFF"
+        app:strokeWidth="1dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="⬅"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/header_upp_bg"
-        android:gravity="center"
-        android:padding="24dp"
-        android:text="🏆 Tabla de Líderes"
-        android:textColor="@android:color/white"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <ProgressBar
-        android:id="@+id/progressBarRanking"
+        android:id="@+id/tvRankingTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="12dp"
+        android:text="Tabla de Líderes"
+        android:textColor="@color/white"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnVolver" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewRanking"
+    <TextView
+        android:id="@+id/tvRankingSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="🏆 Los mejores estudiantes 🏆"
+        android:textColor="#E0FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvRankingTitle" />
+
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingTop="8dp"
-        android:clipToPadding="false"
-        android:overScrollMode="never" />
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvRankingSubtitle">
 
-</LinearLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                android:id="@+id/progressBarRanking"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewRanking"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
