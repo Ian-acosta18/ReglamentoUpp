@@ -79,7 +79,26 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             finish();
         });
 
+        binding.btnHelpQuiz.setOnClickListener(v -> mostrarInstrucciones());
+
         cargarTodasLasPreguntas();
+    }
+
+    private void mostrarInstrucciones() {
+        if (temporizador != null) temporizador.cancel();
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Instrucciones: Quiz")
+                .setMessage("1. Lee cuidadosamente la pregunta en pantalla.\n\n" +
+                        "2. Selecciona la opción correcta (A, B o C) antes de que se acaben los 15 segundos.\n\n" +
+                        "3. Tienes 3 vidas (❤️). Mantén una racha de respuestas correctas para obtener puntos extra.")
+                .setPositiveButton("¡Entendido!", (dialog, which) -> {
+                    dialog.dismiss();
+                    if (vidas > 0 && indicePreguntaActual <= listaDePreguntas.size()) {
+                        iniciarTemporizador();
+                    }
+                })
+                .setCancelable(false)
+                .show();
     }
 
     private void cargarTodasLasPreguntas() {

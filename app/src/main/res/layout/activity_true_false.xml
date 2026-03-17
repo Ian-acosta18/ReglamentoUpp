@@ -21,11 +21,19 @@
             android:id="@+id/btnBack"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginEnd="12dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_logout"
             app:tint="@color/white"
             android:contentDescription="Volver" />
+
+        <ImageButton
+            android:id="@+id/btnHelpTF"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_foco"
+            app:tint="@color/white" />
 
         <TextView
             android:id="@+id/tvLives"

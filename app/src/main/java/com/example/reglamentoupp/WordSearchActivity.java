@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -78,8 +79,8 @@ public class WordSearchActivity extends AppCompatActivity {
         btnRegresar = findViewById(R.id.btn_regresar);
         tvScorePuntos = findViewById(R.id.tv_score_puntos);
 
-        // Hace que el botón de volver de la cabecera funcione
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        findViewById(R.id.btnHelpWS).setOnClickListener(v -> mostrarInstrucciones());
 
         initializeWords();
         generarCuadricula();
@@ -87,6 +88,17 @@ public class WordSearchActivity extends AppCompatActivity {
         updateScore();
 
         btnRegresar.setOnClickListener(v -> finish());
+    }
+
+    private void mostrarInstrucciones() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Instrucciones: Sopa de Letras")
+                .setMessage("1. Lee las definiciones listadas en la parte inferior de la pantalla.\n\n" +
+                        "2. Busca la respuesta en el recuadro de letras.\n\n" +
+                        "3. Desliza tu dedo sobre las letras desde el inicio hasta el final de la palabra para seleccionarla.\n\n" +
+                        "4. ¡Encuentra las 10 palabras escondidas!")
+                .setPositiveButton("Entendido", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     private void initializeWords() {
@@ -124,7 +136,6 @@ public class WordSearchActivity extends AppCompatActivity {
             for (int col = 0; col < GRID_SIZE; col++) {
                 TextView cellTextView = new TextView(this);
                 cellTextView.setText(String.valueOf(matrizLetras[row][col]));
-                // Letras mucho más grandes y en negrita para que se vean mejor
                 cellTextView.setTextSize(18f);
                 cellTextView.setTypeface(null, Typeface.BOLD);
                 cellTextView.setTextColor(Color.WHITE);
@@ -150,7 +161,6 @@ public class WordSearchActivity extends AppCompatActivity {
                         isSelecting = true;
                         clearTemporarySelection();
                         selectedCells.add(cell);
-                        // Color morado clarito al tocar
                         cell.setBackgroundColor(Color.parseColor("#90E1BEE7"));
                     }
                     break;
@@ -158,7 +168,6 @@ public class WordSearchActivity extends AppCompatActivity {
                     if (isSelecting && cell != null && !selectedCells.contains(cell)) {
                         if (isValidMove(cell)) {
                             selectedCells.add(cell);
-                            // Color morado clarito al arrastrar
                             cell.setBackgroundColor(Color.parseColor("#90E1BEE7"));
                         } else {
                             isSelecting = false;
@@ -221,7 +230,6 @@ public class WordSearchActivity extends AppCompatActivity {
                 updateScore();
 
                 for (TextView cellInPath : selectedCells) {
-                    // Color morado para cuando la palabra es correcta
                     cellInPath.setBackgroundColor(Color.parseColor("#C0CE93D8"));
                     cellInPath.setTextColor(Color.BLACK);
                 }
@@ -260,7 +268,6 @@ public class WordSearchActivity extends AppCompatActivity {
         return null;
     }
 
-    // Retorna la definición completa para buscarla y tacharla
     private String getDefinitionForWord(String word) {
         switch(word.toUpperCase()) {
             case "JUSTIFICANTE": return "1. DOCUMENTO QUE SE SOLICITA POR ENFERMEDAD.";
@@ -286,7 +293,6 @@ public class WordSearchActivity extends AppCompatActivity {
         int startIndex = fullText.indexOf(definition);
 
         if (startIndex != -1) {
-            // Tacha y pone la letra en color rojo
             builder.setSpan(new StrikethroughSpan(), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             builder.setSpan(new ForegroundColorSpan(Color.RED), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvListaPalabras.setText(builder);

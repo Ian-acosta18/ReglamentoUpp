@@ -61,7 +61,7 @@ public class HangmanActivity extends AppCompatActivity {
 
         binding.btnBack.setOnClickListener(v -> finish());
 
-        // Listener del botón de ayuda para mostrar las instrucciones
+        // Listener del botón de ayuda con el ícono de foco
         binding.btnHelp.setOnClickListener(v -> mostrarInstrucciones());
     }
 

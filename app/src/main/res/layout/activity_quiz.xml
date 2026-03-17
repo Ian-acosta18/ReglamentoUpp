@@ -21,9 +21,17 @@
             android:id="@+id/btnBackQuiz"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_logout"
+            app:tint="@color/white" />
+
+        <ImageButton
+            android:id="@+id/btnHelpQuiz"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_foco"
             app:tint="@color/white" />
 
         <TextView

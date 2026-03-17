@@ -38,7 +38,6 @@ public class TrueFalseActivity extends AppCompatActivity {
     private int lives = 3;
     private boolean botonesBloqueados = false;
 
-    // Límite de 10 preguntas aleatorias por partida
     private static final int MAX_PREGUNTAS = 10;
 
     private CountDownTimer temporizador;
@@ -98,6 +97,25 @@ public class TrueFalseActivity extends AppCompatActivity {
                 finish();
             });
         }
+
+        if(binding.btnHelpTF != null) {
+            binding.btnHelpTF.setOnClickListener(v -> mostrarInstrucciones());
+        }
+    }
+
+    private void mostrarInstrucciones() {
+        if (temporizador != null) temporizador.cancel();
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Instrucciones: Verdadero o Falso")
+                .setMessage("1. Analiza la afirmación sobre el reglamento que aparece en el centro.\n\n" +
+                        "2. Decide rápidamente si es VERDADERO o FALSO antes de que pasen 10 segundos.\n\n" +
+                        "3. ¡Responde correctamente de forma consecutiva para ganar racha de puntos!")
+                .setPositiveButton("Continuar", (dialog, which) -> {
+                    dialog.dismiss();
+                    if (lives > 0) iniciarTemporizador();
+                })
+                .setCancelable(false)
+                .show();
     }
 
     private void loadQuestions() {
@@ -110,18 +128,11 @@ public class TrueFalseActivity extends AppCompatActivity {
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         try { questionList.add(doc.toObject(PreguntaVF.class)); } catch (Exception e) {}
                     }
-
-                    // Mezclar de forma aleatoria
                     Collections.shuffle(questionList);
-
-                    // Tomar solo 10 preguntas para que el juego sea rápido
                     if (questionList.size() > MAX_PREGUNTAS) {
                         questionList = questionList.subList(0, MAX_PREGUNTAS);
                     }
-
-                    // Inicializar la barra de progreso
                     binding.progressBar.setMax(questionList.size());
-
                     if(!questionList.isEmpty()) showQuestion();
                 })
                 .addOnFailureListener(e -> {
@@ -134,7 +145,6 @@ public class TrueFalseActivity extends AppCompatActivity {
 
         if (currentQuestionIndex < questionList.size() && lives > 0) {
             botonesBloqueados = false;
-
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
             binding.lottieCharacter.setSpeed(1.0f);

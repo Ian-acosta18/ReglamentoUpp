@@ -79,7 +79,19 @@ public class MemoryGameActivity extends AppCompatActivity {
         if (toolbar instanceof Toolbar) ((Toolbar) toolbar).setNavigationOnClickListener(v -> finish());
         else toolbar.setOnClickListener(v -> finish());
 
+        findViewById(R.id.btnHelpMemory).setOnClickListener(v -> mostrarInstrucciones());
+
         startNewGame();
+    }
+
+    private void mostrarInstrucciones() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Instrucciones: Memorama")
+                .setMessage("1. Voltea las tarjetas para encontrar los 4 pares correspondientes (Artículo y su definición).\n\n" +
+                        "2. Tienes un tiempo límite de 2 minutos para encontrar todos los pares.\n\n" +
+                        "3. Hay una tarjeta ¡Comodín! escondida, encuéntrala y te dará 20 puntos extra sin restar vidas.")
+                .setPositiveButton("¡A Jugar!", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 
     private void startNewGame() {
