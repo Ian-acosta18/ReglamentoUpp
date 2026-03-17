@@ -35,7 +35,7 @@ public class ProhibicionesFragment extends BaseReglamentoFragment {
                         "<strong>Artículo 8 (VII):</strong> Comercializar bienes o servicios dentro de las instalaciones.",
                         R.raw.pro_art8_vii
                 ),
-                // Artículo 8 (VIII) -> pro_art8_viii hola como estas
+                // Artículo 8 (VIII) -> pro_art8_viii
                 new ReglamentoItem(
                         "<strong>Artículo 8 (VIII):</strong> Promover actividades político partidistas.",
                         R.raw.pro_art8_viii
