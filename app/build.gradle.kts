@@ -45,6 +45,9 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
 
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
     // Gestión de Imágenes y Animaciones
     implementation("com.cloudinary:cloudinary-android:2.5.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
