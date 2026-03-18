@@ -8,9 +8,6 @@
     android:background="@color/app_bg"
     tools:context=".MainActivity">
 
-    <!-- ═══════════════════════════════════════════
-         HEADER con gradiente índigo → violeta → rosa
-    ═══════════════════════════════════════════ -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -26,7 +23,6 @@
             android:background="@drawable/header_gradient_indigo_pink"
             android:paddingBottom="48dp">
 
-            <!-- Barra superior: logo + logout -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -81,7 +77,6 @@
 
             </RelativeLayout>
 
-            <!-- Perfil: avatar + nombre + stats chips -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -89,7 +84,6 @@
                 android:paddingHorizontal="20dp"
                 android:gravity="center_vertical">
 
-                <!-- Avatar con botón cámara -->
                 <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -126,7 +120,6 @@
                         app:elevation="6dp"/>
                 </FrameLayout>
 
-                <!-- Info de usuario -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -151,14 +144,12 @@
                         android:fontFamily="sans-serif-black"
                         android:layout_marginBottom="10dp"/>
 
-                    <!-- Row de chips de stats -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical">
 
-                        <!-- XP chip -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -192,7 +183,6 @@
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Nivel chip -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -226,7 +216,6 @@
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Racha chip -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -266,9 +255,6 @@
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- ═══════════════════════════════════════════
-         CONTENIDO PRINCIPAL (scroll)
-    ═══════════════════════════════════════════ -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -287,7 +273,6 @@
             android:clipChildren="false"
             android:clipToPadding="false">
 
-            <!-- ─── Burbuja de bienvenida ─── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -342,7 +327,6 @@
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- ─── Sección: Juegos Rápidos ─── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -360,16 +344,6 @@
                     android:textSize="18sp"
                     android:fontFamily="sans-serif-black"/>
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnVerRanking"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Ranking 🏆"
-                    android:textColor="@color/upp_primary"
-                    android:fontFamily="sans-serif-black"
-                    android:textSize="13sp"
-                    app:rippleColor="#20003366"/>
             </LinearLayout>
 
             <HorizontalScrollView
@@ -389,7 +363,6 @@
                     android:orientation="horizontal"
                     android:clipChildren="false">
 
-                    <!-- Trivia -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarModoDesafio"
                         android:layout_width="130dp"
@@ -450,7 +423,6 @@
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- V/F -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarVerdaderoFalso"
                         android:layout_width="130dp"
@@ -511,7 +483,6 @@
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Ahorcado -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarAhorcado"
                         android:layout_width="130dp"
@@ -572,7 +543,6 @@
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Memorama -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarMemorama"
                         android:layout_width="130dp"
@@ -633,7 +603,6 @@
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Sopa de Letras -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarSopaLetras"
                         android:layout_width="130dp"
@@ -696,7 +665,6 @@
                 </LinearLayout>
             </HorizontalScrollView>
 
-            <!-- ─── Sección: Tu Camino ─── -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -715,7 +683,6 @@
                 android:clipChildren="false"
                 android:clipToPadding="false">
 
-                <!-- Derechos — DESBLOQUEADO con progress 70% -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarDerechos"
                     android:layout_width="match_parent"
@@ -736,14 +703,12 @@
                         android:padding="14dp"
                         android:gravity="center_vertical">
 
-                        <!-- Acento lateral (color) -->
                         <View
                             android:layout_width="5dp"
                             android:layout_height="52dp"
                             android:background="@drawable/gradient_card_blue"
                             android:layout_marginEnd="14dp"/>
 
-                        <!-- Icono -->
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="52dp"
                             android:layout_height="52dp"
@@ -759,7 +724,6 @@
                                 android:src="@drawable/ic_derechos"/>
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- Info + progress -->
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -798,7 +762,6 @@
                                     app:chipMinHeight="24dp"
                                     app:chipStrokeWidth="0dp"/>
                             </LinearLayout>
-                            <!-- Barra de progreso -->
                             <ProgressBar
                                 android:id="@+id/progressDerechos"
                                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
@@ -809,7 +772,6 @@
                                 android:max="100"/>
                         </LinearLayout>
 
-                        <!-- Flecha -->
                         <ImageView
                             android:layout_width="28dp"
                             android:layout_height="28dp"
@@ -820,7 +782,6 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Obligaciones — DESBLOQUEADO con progress 30% -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarObligaciones"
                     android:layout_width="match_parent"
@@ -920,7 +881,6 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Prohibiciones — BLOQUEADO -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarProhibiciones"
                     android:layout_width="match_parent"
@@ -928,7 +888,6 @@
                     android:layout_marginBottom="10dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:alpha="0.55"
                     android:stateListAnimator="@animator/card_press_anim"
                     app:cardCornerRadius="20dp"
                     app:cardElevation="2dp"
@@ -994,10 +953,10 @@
                                 <com.google.android.material.chip.Chip
                                     android:layout_width="wrap_content"
                                     android:layout_height="24dp"
-                                    android:text="🔒 Bloqueado"
+                                    android:text="Desbloqueado"
                                     android:textSize="10sp"
-                                    app:chipBackgroundColor="#1A9CA3AF"
-                                    android:textColor="@color/text_secondary"
+                                    app:chipBackgroundColor="#1A10B981"
+                                    android:textColor="#065F46"
                                     app:chipMinHeight="24dp"
                                     app:chipStrokeWidth="0dp"/>
                             </LinearLayout>
@@ -1016,12 +975,11 @@
                             android:layout_height="28dp"
                             android:layout_marginStart="8dp"
                             android:padding="6dp"
-                            android:src="@drawable/ic_lock"
-                            app:tint="@color/text_secondary"/>
+                            android:src="@drawable/ic_send"
+                            app:tint="@color/category_prohibiciones"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Sanciones — BLOQUEADO -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarSanciones"
                     android:layout_width="match_parent"
@@ -1029,7 +987,6 @@
                     android:layout_marginBottom="10dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:alpha="0.55"
                     android:stateListAnimator="@animator/card_press_anim"
                     app:cardCornerRadius="20dp"
                     app:cardElevation="2dp"
@@ -1095,10 +1052,10 @@
                                 <com.google.android.material.chip.Chip
                                     android:layout_width="wrap_content"
                                     android:layout_height="24dp"
-                                    android:text="🔒 Bloqueado"
+                                    android:text="Desbloqueado"
                                     android:textSize="10sp"
-                                    app:chipBackgroundColor="#1A9CA3AF"
-                                    android:textColor="@color/text_secondary"
+                                    app:chipBackgroundColor="#1A10B981"
+                                    android:textColor="#065F46"
                                     app:chipMinHeight="24dp"
                                     app:chipStrokeWidth="0dp"/>
                             </LinearLayout>
@@ -1117,12 +1074,11 @@
                             android:layout_height="28dp"
                             android:layout_marginStart="8dp"
                             android:padding="6dp"
-                            android:src="@drawable/ic_lock"
-                            app:tint="@color/text_secondary"/>
+                            android:src="@drawable/ic_send"
+                            app:tint="@color/category_sanciones"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Reconocimientos — BLOQUEADO -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarReconocimientos"
                     android:layout_width="match_parent"
@@ -1130,7 +1086,6 @@
                     android:layout_marginBottom="10dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:alpha="0.55"
                     android:stateListAnimator="@animator/card_press_anim"
                     app:cardCornerRadius="20dp"
                     app:cardElevation="2dp"
@@ -1196,10 +1151,10 @@
                                 <com.google.android.material.chip.Chip
                                     android:layout_width="wrap_content"
                                     android:layout_height="24dp"
-                                    android:text="🔒 Bloqueado"
+                                    android:text="Desbloqueado"
                                     android:textSize="10sp"
-                                    app:chipBackgroundColor="#1A9CA3AF"
-                                    android:textColor="@color/text_secondary"
+                                    app:chipBackgroundColor="#1A10B981"
+                                    android:textColor="#065F46"
                                     app:chipMinHeight="24dp"
                                     app:chipStrokeWidth="0dp"/>
                             </LinearLayout>
@@ -1218,8 +1173,8 @@
                             android:layout_height="28dp"
                             android:layout_marginStart="8dp"
                             android:padding="6dp"
-                            android:src="@drawable/ic_lock"
-                            app:tint="@color/text_secondary"/>
+                            android:src="@drawable/ic_send"
+                            app:tint="@color/category_reconocimientos"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -1227,9 +1182,6 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- ═══════════════════════════════════════════
-         BOTTOM NAVIGATION BAR
-    ═══════════════════════════════════════════ -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"

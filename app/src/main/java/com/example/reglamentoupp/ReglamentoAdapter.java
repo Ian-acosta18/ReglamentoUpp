@@ -18,6 +18,7 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
     private final String itemType;
     private final BaseReglamentoFragment fragment;
     private final SparseBooleanArray itemsLeidos = new SparseBooleanArray();
+    private final BaseReglamentoFragment.ReglamentoInteractionListener listener;
 
     public ReglamentoAdapter(ReglamentoItem[] items, String itemType,
                              BaseReglamentoFragment fragment,
@@ -25,6 +26,7 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
         this.items = items;
         this.itemType = itemType;
         this.fragment = fragment;
+        this.listener = listener; // ¡Error corregido aquí!
     }
 
     @NonNull

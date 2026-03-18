@@ -98,6 +98,10 @@ public class MainActivity extends AppCompatActivity {
                 } else if (id == R.id.nav_games) {
                     Toast.makeText(this, "Sección de Juegos", Toast.LENGTH_SHORT).show();
                     return true;
+                } else if (id == R.id.nav_ranking) {
+                    // Ranking ahora se abre desde el menú inferior
+                    startActivity(new Intent(MainActivity.this, RankingActivity.class));
+                    return true;
                 } else if (id == R.id.nav_profile) {
                     Toast.makeText(this, "Perfil de Usuario", Toast.LENGTH_SHORT).show();
                     return true;
@@ -108,10 +112,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configurarJuegosRapidos() {
-        View btnVerRanking = findViewById(R.id.btnVerRanking);
-        if (btnVerRanking != null) {
-            btnVerRanking.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RankingActivity.class)));
-        }
+        // Se quitó el btnVerRanking de aquí porque ahora está en el BottomNavigation
 
         View btnJugarModoDesafio = findViewById(R.id.btnJugarModoDesafio);
         if (btnJugarModoDesafio != null) {
@@ -128,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
             btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
         }
 
-        // --- NUEVOS JUEGOS VINCULADOS ---
         View btnJugarVerdaderoFalso = findViewById(R.id.btnJugarVerdaderoFalso);
         if (btnJugarVerdaderoFalso != null) {
             btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
@@ -141,45 +141,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configurarCaminoCategorias() {
-        // --- NIVELES DESBLOQUEADOS ---
+        // --- TODOS LOS NIVELES AHORA ESTÁN DESBLOQUEADOS Y ABREN LOS APARTADOS ---
         View btnDerechos = findViewById(R.id.btnJugarDerechos);
         if (btnDerechos != null) {
-            btnDerechos.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
-                intent.putExtra("categoria", "Derechos");
-                startActivity(intent);
-            });
+            btnDerechos.setOnClickListener(v -> abrirApartado("Derechos"));
         }
 
         View btnObligaciones = findViewById(R.id.btnJugarObligaciones);
         if (btnObligaciones != null) {
-            btnObligaciones.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
-                intent.putExtra("categoria", "Obligaciones");
-                startActivity(intent);
-            });
+            btnObligaciones.setOnClickListener(v -> abrirApartado("Obligaciones"));
         }
 
-        // --- NIVELES BLOQUEADOS ---
         View btnProhibiciones = findViewById(R.id.btnJugarProhibiciones);
         if (btnProhibiciones != null) {
-            btnProhibiciones.setOnClickListener(v ->
-                    Toast.makeText(MainActivity.this, "🔒 Nivel 3 bloqueado. ¡Sigue jugando para desbloquearlo!", Toast.LENGTH_SHORT).show()
-            );
+            btnProhibiciones.setOnClickListener(v -> abrirApartado("Prohibiciones"));
         }
 
         View btnSanciones = findViewById(R.id.btnJugarSanciones);
         if (btnSanciones != null) {
-            btnSanciones.setOnClickListener(v ->
-                    Toast.makeText(MainActivity.this, "🔒 Nivel 4 bloqueado. ¡Sigue jugando para desbloquearlo!", Toast.LENGTH_SHORT).show()
-            );
+            btnSanciones.setOnClickListener(v -> abrirApartado("Sanciones"));
         }
 
         View btnReconocimientos = findViewById(R.id.btnJugarReconocimientos);
         if (btnReconocimientos != null) {
-            btnReconocimientos.setOnClickListener(v ->
-                    Toast.makeText(MainActivity.this, "🔒 Nivel 5 bloqueado. ¡Sigue jugando para desbloquearlo!", Toast.LENGTH_SHORT).show()
-            );
+            btnReconocimientos.setOnClickListener(v -> abrirApartado("Reconocimientos"));
         }
+    }
+
+    // Método auxiliar para no repetir tanto código
+    private void abrirApartado(String categoria) {
+        Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
+        intent.putExtra("categoria", categoria);
+        startActivity(intent);
     }
 }
