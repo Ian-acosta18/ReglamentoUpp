@@ -16,7 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
-    // --- CONSTANTES NECESARIAS PARA GAMELEVELACTIVITY ---
+    // Constantes para GameLevelActivity
     public static final String KEY_NIVEL_JUEGO = "nivel_juego";
     public static final String KEY_PUNTAJE_ACTUAL = "puntaje_actual";
     public static final String KEY_NIVEL_DESBLOQUEADO = "nivel_desbloqueado";
@@ -25,32 +25,28 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    // Variables de UI (Perfil)
+    // Variables de UI
     private TextView tvUserName, tvUserPuntaje, tvUserLevel;
-    private View btnLogout; // Usamos View para evitar ClassCastException
+    private View btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Inicializar Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Vincular vistas de Perfil
         tvUserName = findViewById(R.id.tvUserName);
         tvUserPuntaje = findViewById(R.id.tvUserPuntaje);
         tvUserLevel = findViewById(R.id.tvUserLevel);
         btnLogout = findViewById(R.id.btnLogout);
 
-        // Cargar métodos funcionales
         cargarDatosUsuario();
         configurarBottomNavigation();
         configurarJuegosRapidos();
         configurarCaminoCategorias();
 
-        // Configurar Botón de Cerrar Sesión
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
                 mAuth.signOut();
@@ -88,9 +84,6 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                         }
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Error al cargar perfil", Toast.LENGTH_SHORT).show();
                     });
         }
     }
@@ -116,8 +109,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configurarJuegosRapidos() {
-        // Usamos la clase View genérica para TODOS los botones.
-        // Así no importa si en el XML son MaterialCardView o Button, nunca va a crashear.
         View btnVerRanking = findViewById(R.id.btnVerRanking);
         if (btnVerRanking != null) {
             btnVerRanking.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RankingActivity.class)));
@@ -126,11 +117,6 @@ public class MainActivity extends AppCompatActivity {
         View btnJugarModoDesafio = findViewById(R.id.btnJugarModoDesafio);
         if (btnJugarModoDesafio != null) {
             btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
-        }
-
-        View btnJugarVerdaderoFalso = findViewById(R.id.btnJugarVerdaderoFalso);
-        if (btnJugarVerdaderoFalso != null) {
-            btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
         }
 
         View btnJugarAhorcado = findViewById(R.id.btnJugarAhorcado);
@@ -142,20 +128,11 @@ public class MainActivity extends AppCompatActivity {
         if (btnJugarMemorama != null) {
             btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
         }
-
-        View btnJugarSopaLetras = findViewById(R.id.btnJugarSopaLetras);
-        if (btnJugarSopaLetras != null) {
-            btnJugarSopaLetras.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WordSearchActivity.class)));
-        }
     }
 
     private void configurarCaminoCategorias() {
-        // También usamos View para las tarjetas del camino
         View btnDerechos = findViewById(R.id.btnJugarDerechos);
         View btnObligaciones = findViewById(R.id.btnJugarObligaciones);
-        View btnProhibiciones = findViewById(R.id.btnJugarProhibiciones);
-        View btnSanciones = findViewById(R.id.btnJugarSanciones);
-        View btnReconocimientos = findViewById(R.id.btnJugarReconocimientos);
 
         if (btnDerechos != null) {
             btnDerechos.setOnClickListener(v -> {
@@ -170,24 +147,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
                 intent.putExtra("categoria", "Obligaciones");
                 startActivity(intent);
-            });
-        }
-
-        if (btnProhibiciones != null) {
-            btnProhibiciones.setOnClickListener(v -> {
-                Toast.makeText(this, "Bloqueado. ¡Completa el Nivel 2 primero!", Toast.LENGTH_SHORT).show();
-            });
-        }
-
-        if (btnSanciones != null) {
-            btnSanciones.setOnClickListener(v -> {
-                Toast.makeText(this, "Nivel 4 Bloqueado", Toast.LENGTH_SHORT).show();
-            });
-        }
-
-        if (btnReconocimientos != null) {
-            btnReconocimientos.setOnClickListener(v -> {
-                Toast.makeText(this, "Nivel 5 Bloqueado", Toast.LENGTH_SHORT).show();
             });
         }
     }
