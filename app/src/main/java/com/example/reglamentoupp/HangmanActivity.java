@@ -65,7 +65,6 @@ public class HangmanActivity extends AppCompatActivity {
         binding.btnHelp.setOnClickListener(v -> mostrarInstrucciones());
     }
 
-    // Método para mostrar el cuadro de diálogo con las instrucciones
     private void mostrarInstrucciones() {
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Instrucciones: Ahorcado")
@@ -210,13 +209,20 @@ public class HangmanActivity extends AppCompatActivity {
         }
     }
 
+    // --- CORRECCIÓN APLICADA AQUÍ: Control de memoria del audio ---
     private void reproducirSonido(int soundResource) {
         try {
-            if(mediaPlayer != null) mediaPlayer.release();
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
             mediaPlayer = MediaPlayer.create(this, soundResource);
             if (mediaPlayer != null) {
                 mediaPlayer.start();
-                mediaPlayer.setOnCompletionListener(MediaPlayer::release);
+                mediaPlayer.setOnCompletionListener(mp -> {
+                    mp.release();
+                    mediaPlayer = null;
+                });
             }
         } catch (Exception e) { e.printStackTrace(); }
     }

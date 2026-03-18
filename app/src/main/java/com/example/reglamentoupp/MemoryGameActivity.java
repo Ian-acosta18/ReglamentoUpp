@@ -40,6 +40,9 @@ public class MemoryGameActivity extends AppCompatActivity {
     private CountDownTimer timer;
     private Vibrator vibrator;
 
+    // --- CORRECCIÓN APLICADA AQUÍ: Variable global de MediaPlayer ---
+    private MediaPlayer mediaPlayer;
+
     private List<MemoryCard> cards;
     private MemoryCard selectedDetails1 = null;
     private View selectedView1 = null;
@@ -173,6 +176,12 @@ public class MemoryGameActivity extends AppCompatActivity {
                 ((MaterialCardView) view).setStrokeColor(Color.parseColor("#FFD700"));
                 ((MaterialCardView) view).setStrokeWidth(dpToPx(3));
             }
+
+            // --- CORRECCIÓN APLICADA AQUÍ: Limpiar selecciones si es el comodín para evitar bugs lógicos ---
+            selectedDetails1 = null;
+            selectedView1 = null;
+            isProcessing = false;
+
             return;
         }
 
@@ -331,10 +340,21 @@ public class MemoryGameActivity extends AppCompatActivity {
         tvLives.setText("❤️ " + lives);
     }
 
+    // --- CORRECCIÓN APLICADA AQUÍ: Control global del MediaPlayer ---
     private void playSound(int resId) {
         try {
-            MediaPlayer mp = MediaPlayer.create(this, resId);
-            if (mp != null) { mp.start(); mp.setOnCompletionListener(MediaPlayer::release); }
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+            mediaPlayer = MediaPlayer.create(this, resId);
+            if (mediaPlayer != null) {
+                mediaPlayer.start();
+                mediaPlayer.setOnCompletionListener(mp -> {
+                    mp.release();
+                    mediaPlayer = null;
+                });
+            }
         } catch (Exception e) { e.printStackTrace(); }
     }
 
@@ -351,16 +371,19 @@ public class MemoryGameActivity extends AppCompatActivity {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics()));
     }
 
+    // --- CORRECCIÓN APLICADA AQUÍ: Limpieza de recursos al pausar/destruir ---
     @Override
     protected void onPause() {
         super.onPause();
         if (timer != null) timer.cancel();
+        if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (timer != null) timer.cancel();
+        if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
     }
 
     private static class CardDefinition {

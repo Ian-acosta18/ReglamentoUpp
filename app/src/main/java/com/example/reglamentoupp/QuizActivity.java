@@ -47,6 +47,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private CountDownTimer temporizador;
     private static final long TIEMPO_POR_PREGUNTA = 15000;
+    // --- CORRECCIÓN APLICADA AQUÍ: Variable para el exploit del tiempo ---
+    private long tiempoRestante = TIEMPO_POR_PREGUNTA;
+
     private int racha = 0;
     private Vibrator vibrator;
     private MediaPlayer mediaPlayer;
@@ -106,8 +109,10 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if(isFinishing()) return;
+                    // --- CORRECCIÓN APLICADA AQUÍ: Se cierra si la base de datos está vacía ---
                     if (queryDocumentSnapshots.isEmpty()) {
                         Toast.makeText(this, "No hay preguntas disponibles.", Toast.LENGTH_SHORT).show();
+                        finish();
                         return;
                     }
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
@@ -141,6 +146,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private void mostrarSiguientePregunta() {
         if (isFinishing()) return;
 
+        // --- CORRECCIÓN APLICADA AQUÍ: Restaurar los 15s al cambiar de pregunta ---
+        tiempoRestante = TIEMPO_POR_PREGUNTA;
+
         if (indicePreguntaActual < listaDePreguntas.size()) {
             botonesBloqueados = false;
             restaurarBotones();
@@ -166,14 +174,18 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // --- CORRECCIÓN APLICADA AQUÍ: Se utiliza la variable tiempoRestante ---
     private void iniciarTemporizador() {
         if (temporizador != null) temporizador.cancel();
         binding.tvSpeechBubble.setTextColor(Color.BLACK);
 
-        temporizador = new CountDownTimer(TIEMPO_POR_PREGUNTA, 1000) {
+        temporizador = new CountDownTimer(tiempoRestante, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 if(isFinishing()) { cancel(); return; }
+
+                tiempoRestante = millisUntilFinished; // Guardamos el tiempo para el exploit de ayuda
+
                 int segundos = (int) (millisUntilFinished / 1000);
                 binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
                 if (segundos <= 5) {
@@ -273,13 +285,20 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding.lottieCharacter.playAnimation();
     }
 
+    // --- CORRECCIÓN APLICADA AQUÍ: Control de memoria del audio ---
     private void reproducirSonido(int soundResource) {
         try {
-            if(mediaPlayer != null) mediaPlayer.release();
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
             mediaPlayer = MediaPlayer.create(this, soundResource);
             if (mediaPlayer != null) {
                 mediaPlayer.start();
-                mediaPlayer.setOnCompletionListener(MediaPlayer::release);
+                mediaPlayer.setOnCompletionListener(mp -> {
+                    mp.release();
+                    mediaPlayer = null;
+                });
             }
         } catch (Exception e) { e.printStackTrace(); }
     }
