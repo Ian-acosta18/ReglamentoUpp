@@ -22,7 +22,8 @@
             android:orientation="vertical"
             android:background="@drawable/modern_header_gradient"
             android:paddingBottom="40dp"
-            android:elevation="0dp">
+            android:elevation="8dp"
+            android:animateLayoutChanges="true">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -34,11 +35,11 @@
                     android:id="@+id/logoCard"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="0dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="#60FFFFFF"
-                    app:cardBackgroundColor="#30FFFFFF"
+                    app:strokeColor="#50FFFFFF"
+                    app:cardBackgroundColor="#25FFFFFF"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -54,11 +55,14 @@
                     android:id="@+id/cardLogout"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="0dp"
-                    app:cardBackgroundColor="#30FFFFFF"
-                    app:strokeColor="#60FFFFFF"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#25FFFFFF"
+                    app:strokeColor="#50FFFFFF"
                     app:strokeWidth="1dp"
+                    app:rippleColor="#40FFFFFF"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -78,33 +82,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="20dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="#30FFFFFF"
-                app:strokeColor="#60FFFFFF"
+                android:layout_marginTop="24dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="#25FFFFFF"
+                app:strokeColor="#50FFFFFF"
                 app:strokeWidth="1dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="20dp">
+                    android:padding="24dp">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/profilePicContainer"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent">
 
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/cardProfilePic"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            app:cardCornerRadius="50dp"
-                            app:cardElevation="0dp"
-                            app:strokeWidth="1dp"
-                            app:strokeColor="#80FFFFFF"
+                            android:layout_width="90dp"
+                            android:layout_height="90dp"
+                            app:cardCornerRadius="45dp"
+                            app:cardElevation="6dp"
+                            app:strokeWidth="2dp"
+                            app:strokeColor="@color/white"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -126,6 +131,7 @@
                             app:fabSize="mini"
                             app:tint="@color/upp_primary"
                             app:backgroundTint="@color/white"
+                            app:elevation="8dp"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             android:layout_marginEnd="-4dp"
@@ -139,8 +145,8 @@
                         android:layout_marginEnd="16dp"
                         android:text="Hola, Usuario"
                         android:textColor="@color/white"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
+                        android:textSize="26sp"
+                        android:fontFamily="sans-serif-black"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toStartOf="@id/profilePicContainer"/>
@@ -149,36 +155,36 @@
                         android:id="@+id/tvUserPuntaje"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
+                        android:layout_marginTop="6dp"
                         android:text="0 XP"
-                        android:textColor="#E0FFFFFF"
-                        android:textSize="16sp"
+                        android:textColor="#F0FFFFFF"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvUserName"/>
 
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        app:cardCornerRadius="20dp"
+                        android:layout_marginTop="16dp"
+                        app:cardCornerRadius="16dp"
                         app:cardElevation="0dp"
                         app:cardBackgroundColor="#40FFFFFF"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/tvUserPuntaje"
-                        app:layout_constraintBottom_toBottomOf="parent">
+                        app:layout_constraintTop_toBottomOf="@id/tvUserPuntaje">
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="8dp"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="6dp"
                             android:gravity="center">
 
                             <ImageView
                                 android:id="@+id/ivUserLevelIcon"
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:src="@drawable/ic_reconocimientos"
                                 app:tint="#FFD700"/>
 
@@ -186,10 +192,10 @@
                                 android:id="@+id/tvUserLevel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
+                                android:layout_marginStart="6dp"
                                 android:text="Nivel 1"
                                 android:textColor="@color/white"
-                                android:textStyle="bold"
+                                android:fontFamily="sans-serif-black"
                                 android:textSize="14sp"/>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -213,33 +219,37 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="20dp"
-            android:paddingBottom="50dp">
+            android:paddingTop="24dp"
+            android:paddingBottom="50dp"
+            android:animateLayoutChanges="true"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="20dp"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="32dp"
+                android:clipChildren="false">
 
                 <com.airbnb.lottie.LottieAnimationView
                     android:id="@+id/lottieWelcome"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
+                    android:layout_width="130dp"
+                    android:layout_height="130dp"
                     app:lottie_rawRes="@raw/smilling_cloud"
                     app:lottie_autoPlay="true"
                     app:lottie_loop="true"
+                    android:elevation="6dp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"/>
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E0E0E0"
+                    android:layout_marginStart="8dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="6dp"
+                    app:strokeWidth="0dp"
                     app:cardBackgroundColor="@color/white"
                     app:layout_constraintStart_toEndOf="@id/lottieWelcome"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -250,12 +260,13 @@
                         android:id="@+id/tvWelcomeBubble"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="16dp"
+                        android:padding="20dp"
                         android:text="¡Hola! ¿Listo para aprender?"
                         android:textColor="@color/text_primary"
-                        android:textStyle="bold"
-                        android:textSize="14sp"
-                        android:gravity="center"/>
+                        android:fontFamily="sans-serif-medium"
+                        android:textSize="15sp"
+                        android:gravity="center"
+                        android:lineSpacingExtra="4dp"/>
                 </com.google.android.material.card.MaterialCardView>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -274,16 +285,17 @@
                     android:text="⚡ Juegos Rápidos"
                     android:textColor="@color/text_primary"
                     android:textSize="22sp"
-                    android:textStyle="bold"/>
+                    android:fontFamily="sans-serif-black"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnVerRanking"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ver Ranking 🏆"
+                    android:text="Ranking 🏆"
                     android:textColor="@color/upp_primary"
-                    android:textStyle="bold"/>
+                    android:fontFamily="sans-serif-black"
+                    app:rippleColor="#20003366"/>
             </LinearLayout>
 
             <HorizontalScrollView
@@ -292,26 +304,27 @@
                 android:clipToPadding="false"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
+                android:paddingBottom="16dp"
                 android:overScrollMode="never"
                 android:scrollbars="none">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:clipChildren="false">
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarModoDesafio"
-                        android:layout_width="180dp"
-                        android:layout_height="220dp"
+                        android:layout_width="160dp"
+                        android:layout_height="200dp"
                         android:layout_marginEnd="16dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
+                        android:stateListAnimator="@animator/card_press_anim"
                         app:cardCornerRadius="24dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="#E5E7EB"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp"
                         app:cardBackgroundColor="@color/white">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -322,8 +335,10 @@
 
                             <ImageView
                                 android:id="@+id/iconTrivia"
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@drawable/white_circle_bg"
+                                android:backgroundTint="#30FFFFFF"
                                 android:padding="12dp"
                                 android:src="@drawable/ic_game_trivia"
                                 app:tint="@color/white"
@@ -337,8 +352,8 @@
                                 android:layout_marginTop="16dp"
                                 android:text="Trivia"
                                 android:textColor="@color/white"
-                                android:textSize="22sp"
-                                android:textStyle="bold"
+                                android:textSize="20sp"
+                                android:fontFamily="sans-serif-black"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/iconTrivia"
                                 app:layout_constraintBottom_toTopOf="@+id/tvTriviaDesc"
@@ -351,7 +366,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Opción múltiple"
                                 android:textColor="#E0FFFFFF"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/tvTriviaTitle"/>
@@ -361,16 +376,15 @@
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarVerdaderoFalso"
-                        android:layout_width="180dp"
-                        android:layout_height="220dp"
+                        android:layout_width="160dp"
+                        android:layout_height="200dp"
                         android:layout_marginEnd="16dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
+                        android:stateListAnimator="@animator/card_press_anim"
                         app:cardCornerRadius="24dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="#E5E7EB"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp"
                         app:cardBackgroundColor="@color/white">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -381,8 +395,10 @@
 
                             <ImageView
                                 android:id="@+id/iconVF"
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@drawable/white_circle_bg"
+                                android:backgroundTint="#30FFFFFF"
                                 android:padding="12dp"
                                 android:src="@drawable/ic_game_vf"
                                 app:tint="@color/white"
@@ -393,11 +409,10 @@
                                 android:id="@+id/tvVFTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
                                 android:text="V / F"
                                 android:textColor="@color/white"
-                                android:textSize="22sp"
-                                android:textStyle="bold"
+                                android:textSize="20sp"
+                                android:fontFamily="sans-serif-black"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/iconVF"
                                 app:layout_constraintBottom_toTopOf="@+id/tvVFDesc"
@@ -408,28 +423,26 @@
                                 android:id="@+id/tvVFDesc"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Verdadero o Falso"
+                                android:text="Decide rápido"
                                 android:textColor="#E0FFFFFF"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/tvVFTitle"/>
-
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarAhorcado"
-                        android:layout_width="180dp"
-                        android:layout_height="220dp"
+                        android:layout_width="160dp"
+                        android:layout_height="200dp"
                         android:layout_marginEnd="16dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
+                        android:stateListAnimator="@animator/card_press_anim"
                         app:cardCornerRadius="24dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="#E5E7EB"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp"
                         app:cardBackgroundColor="@color/white">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -440,8 +453,10 @@
 
                             <ImageView
                                 android:id="@+id/iconAhorcado"
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@drawable/white_circle_bg"
+                                android:backgroundTint="#30FFFFFF"
                                 android:padding="12dp"
                                 android:src="@drawable/ic_game_hangman"
                                 app:tint="@color/white"
@@ -452,11 +467,10 @@
                                 android:id="@+id/tvAhorcadoTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
                                 android:text="Ahorcado"
                                 android:textColor="@color/white"
-                                android:textSize="22sp"
-                                android:textStyle="bold"
+                                android:textSize="20sp"
+                                android:fontFamily="sans-serif-black"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/iconAhorcado"
                                 app:layout_constraintBottom_toTopOf="@+id/tvAhorcadoDesc"
@@ -467,28 +481,26 @@
                                 android:id="@+id/tvAhorcadoDesc"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Adivina la palabra"
+                                android:text="Salva al monito"
                                 android:textColor="#E0FFFFFF"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/tvAhorcadoTitle"/>
-
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarMemorama"
-                        android:layout_width="180dp"
-                        android:layout_height="220dp"
+                        android:layout_width="160dp"
+                        android:layout_height="200dp"
                         android:layout_marginEnd="16dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
+                        android:stateListAnimator="@animator/card_press_anim"
                         app:cardCornerRadius="24dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="#E5E7EB"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp"
                         app:cardBackgroundColor="@color/white">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -499,8 +511,10 @@
 
                             <ImageView
                                 android:id="@+id/iconMemorama"
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@drawable/white_circle_bg"
+                                android:backgroundTint="#30FFFFFF"
                                 android:padding="12dp"
                                 android:src="@drawable/ic_game_trivia"
                                 app:tint="@color/white"
@@ -511,11 +525,10 @@
                                 android:id="@+id/tvMemoramaTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
                                 android:text="Memorama"
                                 android:textColor="@color/white"
-                                android:textSize="22sp"
-                                android:textStyle="bold"
+                                android:textSize="20sp"
+                                android:fontFamily="sans-serif-black"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/iconMemorama"
                                 app:layout_constraintBottom_toTopOf="@+id/tvMemoramaDesc"
@@ -526,27 +539,25 @@
                                 android:id="@+id/tvMemoramaDesc"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Encuentra los pares"
+                                android:text="Encuentra pares"
                                 android:textColor="#E0FFFFFF"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/tvMemoramaTitle"/>
-
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/btnJugarSopaLetras"
-                        android:layout_width="180dp"
-                        android:layout_height="220dp"
+                        android:layout_width="160dp"
+                        android:layout_height="200dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:foreground="?attr/selectableItemBackground"
+                        android:stateListAnimator="@animator/card_press_anim"
                         app:cardCornerRadius="24dp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="1dp"
-                        app:strokeColor="#E5E7EB"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp"
                         app:cardBackgroundColor="@color/white">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -557,8 +568,10 @@
 
                             <ImageView
                                 android:id="@+id/iconSopaLetras"
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
+                                android:layout_width="56dp"
+                                android:layout_height="56dp"
+                                android:background="@drawable/white_circle_bg"
+                                android:backgroundTint="#30FFFFFF"
                                 android:padding="12dp"
                                 android:src="@drawable/ic_game_trivia"
                                 app:tint="@color/white"
@@ -569,11 +582,10 @@
                                 android:id="@+id/tvSopaLetrasTitle"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                android:text="Sopa de Letras"
+                                android:text="Sopa Letras"
                                 android:textColor="@color/white"
-                                android:textSize="22sp"
-                                android:textStyle="bold"
+                                android:textSize="20sp"
+                                android:fontFamily="sans-serif-black"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/iconSopaLetras"
                                 app:layout_constraintBottom_toTopOf="@+id/tvSopaLetrasDesc"
@@ -584,36 +596,36 @@
                                 android:id="@+id/tvSopaLetrasDesc"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Encuentra las palabras"
+                                android:text="Busca palabras"
                                 android:textColor="#E0FFFFFF"
-                                android:textSize="14sp"
+                                android:textSize="13sp"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/tvSopaLetrasTitle"/>
-
                         </androidx.constraintlayout.widget.ConstraintLayout>
                     </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
             </HorizontalScrollView>
 
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="20dp"
                 android:text="🎯 Tu Camino"
                 android:textColor="@color/text_primary"
                 android:textSize="22sp"
-                android:textStyle="bold"/>
+                android:fontFamily="sans-serif-black"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="20dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarDerechos"
@@ -622,33 +634,33 @@
                     android:layout_marginBottom="16dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E5E7EB"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:rippleColor="@color/category_derechos"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="6dp"
+                    app:strokeWidth="0dp"
                     app:cardBackgroundColor="@color/white">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="20dp">
+                        android:padding="16dp">
 
                         <View
                             android:id="@+id/progressDerechos"
-                            android:layout_width="6dp"
+                            android:layout_width="8dp"
                             android:layout_height="0dp"
-                            android:background="@color/category_derechos"
+                            android:background="@drawable/gradient_card_blue"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
 
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/iconCardDerechos"
-                            android:layout_width="72dp"
-                            android:layout_height="72dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
                             android:layout_marginStart="16dp"
-                            app:cardCornerRadius="18dp"
+                            app:cardCornerRadius="20dp"
                             app:cardElevation="0dp"
                             app:cardBackgroundColor="@color/category_derechos_bg"
                             app:layout_constraintStart_toEndOf="@id/progressDerechos"
@@ -680,35 +692,28 @@
                                 android:text="Derechos"
                                 android:textSize="20sp"
                                 android:textColor="@color/text_primary"
-                                android:textStyle="bold"/>
+                                android:fontFamily="sans-serif-black"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
+                                android:layout_marginTop="2dp"
                                 android:text="Nivel 1 • Desbloqueado"
                                 android:textSize="13sp"
+                                android:fontFamily="sans-serif-medium"
                                 android:textColor="@color/text_secondary"/>
                         </LinearLayout>
 
-                        <com.google.android.material.card.MaterialCardView
+                        <ImageView
                             android:id="@+id/btnArrowDerechos"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="0dp"
-                            app:cardBackgroundColor="@color/category_derechos_bg"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_send"
+                            app:tint="@color/category_derechos"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintBottom_toBottomOf="parent">
-
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:padding="10dp"
-                                android:src="@drawable/ic_send"
-                                app:tint="@color/category_derechos"/>
-                        </com.google.android.material.card.MaterialCardView>
+                            app:layout_constraintBottom_toBottomOf="parent"/>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -720,33 +725,33 @@
                     android:layout_marginBottom="16dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E5E7EB"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:rippleColor="@color/category_obligaciones"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="6dp"
+                    app:strokeWidth="0dp"
                     app:cardBackgroundColor="@color/white">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="20dp">
+                        android:padding="16dp">
 
                         <View
                             android:id="@+id/progressObligaciones"
-                            android:layout_width="6dp"
+                            android:layout_width="8dp"
                             android:layout_height="0dp"
-                            android:background="@color/category_obligaciones"
+                            android:background="@drawable/gradient_card_orange"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
 
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/iconCardObligaciones"
-                            android:layout_width="72dp"
-                            android:layout_height="72dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
                             android:layout_marginStart="16dp"
-                            app:cardCornerRadius="18dp"
+                            app:cardCornerRadius="20dp"
                             app:cardElevation="0dp"
                             app:cardBackgroundColor="@color/category_obligaciones_bg"
                             app:layout_constraintStart_toEndOf="@id/progressObligaciones"
@@ -764,7 +769,7 @@
                                 android:id="@+id/ivLockObligaciones"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:padding="20dp"
+                                android:padding="18dp"
                                 android:src="@drawable/ic_lock"
                                 android:visibility="gone"
                                 app:tint="#80000000"/>
@@ -776,7 +781,7 @@
                             android:orientation="vertical"
                             android:layout_marginStart="16dp"
                             app:layout_constraintStart_toEndOf="@id/iconCardObligaciones"
-                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/btnArrowObligaciones"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent">
 
@@ -787,16 +792,29 @@
                                 android:text="Obligaciones"
                                 android:textSize="20sp"
                                 android:textColor="@color/text_primary"
-                                android:textStyle="bold"/>
+                                android:fontFamily="sans-serif-black"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
+                                android:layout_marginTop="2dp"
                                 android:text="Nivel 2"
                                 android:textSize="13sp"
+                                android:fontFamily="sans-serif-medium"
                                 android:textColor="@color/text_secondary"/>
                         </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/btnArrowObligaciones"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_send"
+                            app:tint="@color/category_obligaciones"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"/>
+
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -807,33 +825,33 @@
                     android:layout_marginBottom="16dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E5E7EB"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:rippleColor="@color/category_prohibiciones"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="6dp"
+                    app:strokeWidth="0dp"
                     app:cardBackgroundColor="@color/white">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="20dp">
+                        android:padding="16dp">
 
                         <View
                             android:id="@+id/progressProhibiciones"
-                            android:layout_width="6dp"
+                            android:layout_width="8dp"
                             android:layout_height="0dp"
-                            android:background="@color/category_prohibiciones"
+                            android:background="@drawable/gradient_card_red"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
 
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/iconCardProhibiciones"
-                            android:layout_width="72dp"
-                            android:layout_height="72dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
                             android:layout_marginStart="16dp"
-                            app:cardCornerRadius="18dp"
+                            app:cardCornerRadius="20dp"
                             app:cardElevation="0dp"
                             app:cardBackgroundColor="@color/category_prohibiciones_bg"
                             app:layout_constraintStart_toEndOf="@id/progressProhibiciones"
@@ -851,7 +869,7 @@
                                 android:id="@+id/ivLockProhibiciones"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:padding="20dp"
+                                android:padding="18dp"
                                 android:src="@drawable/ic_lock"
                                 android:visibility="gone"
                                 app:tint="#80000000"/>
@@ -863,7 +881,7 @@
                             android:orientation="vertical"
                             android:layout_marginStart="16dp"
                             app:layout_constraintStart_toEndOf="@id/iconCardProhibiciones"
-                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/btnArrowProhibiciones"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent">
 
@@ -874,16 +892,29 @@
                                 android:text="Prohibiciones"
                                 android:textSize="20sp"
                                 android:textColor="@color/text_primary"
-                                android:textStyle="bold"/>
+                                android:fontFamily="sans-serif-black"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
+                                android:layout_marginTop="2dp"
                                 android:text="Nivel 3"
                                 android:textSize="13sp"
+                                android:fontFamily="sans-serif-medium"
                                 android:textColor="@color/text_secondary"/>
                         </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/btnArrowProhibiciones"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_send"
+                            app:tint="@color/category_prohibiciones"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"/>
+
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -894,33 +925,33 @@
                     android:layout_marginBottom="16dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E5E7EB"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:rippleColor="@color/category_sanciones"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="6dp"
+                    app:strokeWidth="0dp"
                     app:cardBackgroundColor="@color/white">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="20dp">
+                        android:padding="16dp">
 
                         <View
                             android:id="@+id/progressSanciones"
-                            android:layout_width="6dp"
+                            android:layout_width="8dp"
                             android:layout_height="0dp"
-                            android:background="@color/category_sanciones"
+                            android:background="@drawable/gradient_card_purple"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
 
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/iconCardSanciones"
-                            android:layout_width="72dp"
-                            android:layout_height="72dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
                             android:layout_marginStart="16dp"
-                            app:cardCornerRadius="18dp"
+                            app:cardCornerRadius="20dp"
                             app:cardElevation="0dp"
                             app:cardBackgroundColor="@color/category_sanciones_bg"
                             app:layout_constraintStart_toEndOf="@id/progressSanciones"
@@ -938,7 +969,7 @@
                                 android:id="@+id/ivLockSanciones"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:padding="20dp"
+                                android:padding="18dp"
                                 android:src="@drawable/ic_lock"
                                 android:visibility="gone"
                                 app:tint="#80000000"/>
@@ -950,7 +981,7 @@
                             android:orientation="vertical"
                             android:layout_marginStart="16dp"
                             app:layout_constraintStart_toEndOf="@id/iconCardSanciones"
-                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/btnArrowSanciones"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent">
 
@@ -961,16 +992,29 @@
                                 android:text="Sanciones"
                                 android:textSize="20sp"
                                 android:textColor="@color/text_primary"
-                                android:textStyle="bold"/>
+                                android:fontFamily="sans-serif-black"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
+                                android:layout_marginTop="2dp"
                                 android:text="Nivel 4"
                                 android:textSize="13sp"
+                                android:fontFamily="sans-serif-medium"
                                 android:textColor="@color/text_secondary"/>
                         </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/btnArrowSanciones"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_send"
+                            app:tint="@color/category_sanciones"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"/>
+
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -981,33 +1025,33 @@
                     android:layout_marginBottom="16dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground"
-                    app:cardCornerRadius="20dp"
-                    app:cardElevation="0dp"
-                    app:strokeWidth="1dp"
-                    app:strokeColor="#E5E7EB"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:rippleColor="@color/category_reconocimientos"
+                    app:cardCornerRadius="24dp"
+                    app:cardElevation="6dp"
+                    app:strokeWidth="0dp"
                     app:cardBackgroundColor="@color/white">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="20dp">
+                        android:padding="16dp">
 
                         <View
                             android:id="@+id/progressReconocimientos"
-                            android:layout_width="6dp"
+                            android:layout_width="8dp"
                             android:layout_height="0dp"
-                            android:background="@color/category_reconocimientos"
+                            android:background="@drawable/gradient_card_green"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"/>
 
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/iconCardReconocimientos"
-                            android:layout_width="72dp"
-                            android:layout_height="72dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
                             android:layout_marginStart="16dp"
-                            app:cardCornerRadius="18dp"
+                            app:cardCornerRadius="20dp"
                             app:cardElevation="0dp"
                             app:cardBackgroundColor="@color/category_reconocimientos_bg"
                             app:layout_constraintStart_toEndOf="@id/progressReconocimientos"
@@ -1025,7 +1069,7 @@
                                 android:id="@+id/ivLockReconocimientos"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:padding="20dp"
+                                android:padding="18dp"
                                 android:src="@drawable/ic_lock"
                                 android:visibility="gone"
                                 app:tint="#80000000"/>
@@ -1037,7 +1081,7 @@
                             android:orientation="vertical"
                             android:layout_marginStart="16dp"
                             app:layout_constraintStart_toEndOf="@id/iconCardReconocimientos"
-                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/btnArrowReconocimientos"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintBottom_toBottomOf="parent">
 
@@ -1048,21 +1092,33 @@
                                 android:text="Reconocimientos"
                                 android:textSize="20sp"
                                 android:textColor="@color/text_primary"
-                                android:textStyle="bold"/>
+                                android:fontFamily="sans-serif-black"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
+                                android:layout_marginTop="2dp"
                                 android:text="Nivel 5"
                                 android:textSize="13sp"
+                                android:fontFamily="sans-serif-medium"
                                 android:textColor="@color/text_secondary"/>
                         </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/btnArrowReconocimientos"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_send"
+                            app:tint="@color/category_reconocimientos"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"/>
+
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
-
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
