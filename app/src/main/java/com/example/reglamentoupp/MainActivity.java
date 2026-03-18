@@ -2,10 +2,7 @@ package com.example.reglamentoupp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.reglamentoupp.databinding.ActivityMainBinding;
@@ -68,20 +65,22 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     }
 
     private void actualizarInterfazNiveles() {
-        configurarNivel(binding.btnJugarDerechos, binding.progressDerechos, 1, R.color.category_derechos);
-        configurarNivel(binding.btnJugarObligaciones, binding.ivLockObligaciones, 2, R.color.category_obligaciones);
-        configurarNivel(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, 3, R.color.category_prohibiciones);
-        configurarNivel(binding.btnJugarSanciones, binding.ivLockSanciones, 4, R.color.category_sanciones);
-        configurarNivel(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, 5, R.color.category_reconocimientos);
+        configurarNivel(binding.btnJugarDerechos, binding.progressDerechos, 1);
+        configurarNivel(binding.btnJugarObligaciones, binding.ivLockObligaciones, 2);
+        configurarNivel(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, 3);
+        configurarNivel(binding.btnJugarSanciones, binding.ivLockSanciones, 4);
+        configurarNivel(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, 5);
     }
 
-    private void configurarNivel(MaterialCardView card, View extraView, int nivelReq, int colorRes) {
+    private void configurarNivel(MaterialCardView card, View lockOrProgress, int nivelReq) {
         boolean unlocked = userNivel >= nivelReq;
         card.setAlpha(unlocked ? 1.0f : 0.5f);
         card.setClickable(unlocked);
-        if (extraView instanceof ImageView) {
-            extraView.setVisibility(unlocked ? View.GONE : View.VISIBLE);
+
+        if (lockOrProgress instanceof ImageView) {
+            lockOrProgress.setVisibility(unlocked ? View.GONE : View.VISIBLE);
         }
+
         if (unlocked) {
             card.setOnClickListener(v -> {
                 Intent i = new Intent(this, GameLevelActivity.class);
