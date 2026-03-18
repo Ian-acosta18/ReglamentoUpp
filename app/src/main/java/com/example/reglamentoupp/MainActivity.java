@@ -3,7 +3,6 @@ package com.example.reglamentoupp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.reglamentoupp.databinding.ActivityMainBinding;
@@ -17,6 +16,11 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
     private FirebaseAuth mAuth;
     private FirebaseFirestore mStore;
     private int userNivel = 1;
+
+    // CONSTANTES CORREGIDAS
+    public static final String KEY_NIVEL_JUEGO = "nivelJuego";
+    public static final String KEY_PUNTAJE_ACTUAL = "puntajeActual";
+    public static final String KEY_NIVEL_DESBLOQUEADO = "nivelDesbloqueado";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,13 +36,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
             finish();
             return;
         }
-
-        binding.btnLogout.setOnClickListener(v -> {
-            mAuth.signOut();
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-        });
-
         setupGameListeners();
     }
 
@@ -61,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 if (fotoUrl != null && !fotoUrl.isEmpty()) {
                     Glide.with(this).load(fotoUrl).circleCrop().into(binding.ivUserProfile);
                 }
-
                 actualizarInterfazNiveles();
             }
         });
@@ -80,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         card.setAlpha(unlocked ? 1.0f : 0.5f);
         card.setClickable(unlocked);
 
-        // Corrección: Verificación segura de tipo para evitar crashes
         if (lockOrProgress != null) {
             lockOrProgress.setVisibility(unlocked ? View.GONE : View.VISIBLE);
         }
@@ -88,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         if (unlocked) {
             card.setOnClickListener(v -> {
                 Intent i = new Intent(this, GameLevelActivity.class);
-                i.putExtra("nivelJuego", "Nivel " + nivelReq);
+                i.putExtra(KEY_NIVEL_JUEGO, "Nivel " + nivelReq);
                 startActivity(i);
             });
         } else {
@@ -98,10 +93,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
     private void setupGameListeners() {
         binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(this, QuizActivity.class)));
-        binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(this, TrueFalseActivity.class)));
         binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(this, HangmanActivity.class)));
         binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(this, MemoryGameActivity.class)));
-        binding.btnJugarSopaLetras.setOnClickListener(v -> startActivity(new Intent(this, WordSearchActivity.class)));
         binding.btnVerRanking.setOnClickListener(v -> startActivity(new Intent(this, RankingActivity.class)));
     }
 
