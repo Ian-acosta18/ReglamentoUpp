@@ -10,29 +10,29 @@ public class DerechosFragment extends BaseReglamentoFragment {
     @Override
     protected ReglamentoItem[] getItems() {
         return new ReglamentoItem[]{
-                // Asocia cada texto con su audio correspondiente
+                // Usamos <b> para poner en negrita el título y <br> para saltar a la siguiente línea
                 new ReglamentoItem(
-                        "<strong>Artículo 3 (I):</strong> Cursar los estudios de conformidad con los planes y programas vigentes.",
+                        "<b>Artículo 3 (Fracción I)</b><br>Cursar los estudios de conformidad con los planes y programas vigentes.",
                         R.raw.regla_art3_i
                 ),
                 new ReglamentoItem(
-                        "<strong>Artículo 3 (III):</strong> Recibir orientación e información de las Direcciones de Programas Académicos.",
+                        "<b>Artículo 3 (Fracción III)</b><br>Recibir orientación e información de las Direcciones de Programas Académicos.",
                         R.raw.regla_art3_iii
                 ),
                 new ReglamentoItem(
-                        "<strong>Artículo 3 (V):</strong> Recibir información clara sobre los criterios y formas de evaluación.",
+                        "<b>Artículo 3 (Fracción V)</b><br>Recibir información clara sobre los criterios y formas de evaluación.",
                         R.raw.regla_art3_v
                 ),
                 new ReglamentoItem(
-                        "<strong>Artículo 3 (VII):</strong> Conocer oportunamente el resultado de las evaluaciones que presenten.",
+                        "<b>Artículo 3 (Fracción VII)</b><br>Conocer oportunamente el resultado de las evaluaciones que presenten.",
                         R.raw.regla_art3_vii
                 ),
                 new ReglamentoItem(
-                        "<strong>Artículo 3 (VIII):</strong> Obtener su número de matrícula y credencial al inscribirse.",
+                        "<b>Artículo 3 (Fracción VIII)</b><br>Obtener su número de matrícula y credencial oficial al inscribirse.",
                         R.raw.regla_art3_viii
                 ),
                 new ReglamentoItem(
-                        "<strong>Artículo 3 (XIII):</strong> Recibir asesorías y tutorías del personal académico.",
+                        "<b>Artículo 3 (Fracción XIII)</b><br>Recibir asesorías y tutorías por parte del personal académico.",
                         R.raw.regla_art3_xiii
                 )
         };

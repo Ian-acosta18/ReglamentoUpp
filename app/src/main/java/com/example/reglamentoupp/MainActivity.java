@@ -124,13 +124,11 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         setupStaticGameListeners();
     }
 
-    // --- NUEVO: Método para abrir galería ---
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         imagePickerLauncher.launch(intent);
     }
 
-    // --- NUEVO: Método para subir imagen a Firebase Storage ---
     private void uploadProfileImage() {
         if (imageUri == null || userID == null) return;
 
@@ -155,7 +153,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 });
     }
 
-    // --- NUEVO: Método para actualizar Firestore ---
     private void updateProfileImageUrlInFirestore(String downloadUrl) {
         if(userID == null) return;
         mStore.collection("usuarios").document(userID)
@@ -191,8 +188,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
         binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
         binding.btnJugarSopaLetras.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WordSearchActivity.class)));
-
-        // NUEVO: Botón que redirige al Ranking
         binding.btnVerRanking.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RankingActivity.class)));
     }
 
@@ -272,12 +267,63 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         binding.ivUserLevelIcon.setImageResource(iconRes);
     }
 
+    // --- NUEVA LÓGICA DE BOTONES ---
     private void configurarBotonesNiveles() {
-        setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos, "Derechos", 1, R.color.upp_primary);
-        setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones, "Obligaciones", 2, R.color.upp_primary);
-        setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones, "Prohibiciones", 3, R.color.upp_primary);
-        setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones, "Sanciones", 4, R.color.upp_primary);
-        setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos, "Reconocimientos", 5, R.color.upp_primary);
+        // Obtenemos los colores definidos en colors.xml
+        int cDerechos = ContextCompat.getColor(this, R.color.category_derechos);
+        int cObligaciones = ContextCompat.getColor(this, R.color.category_obligaciones);
+        int cProhibiciones = ContextCompat.getColor(this, R.color.category_prohibiciones);
+        int cSanciones = ContextCompat.getColor(this, R.color.category_sanciones);
+        int cReconocimientos = ContextCompat.getColor(this, R.color.category_reconocimientos);
+
+        setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos, "Derechos", 1, cDerechos);
+        setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones, "Obligaciones", 2, cObligaciones);
+        setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones, "Prohibiciones", 3, cProhibiciones);
+        setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones, "Sanciones", 4, cSanciones);
+        setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos, "Reconocimientos", 5, cReconocimientos);
+    }
+
+    private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
+                                  String nivelNombre, int nivelRequerido, int colorCategoria) {
+        if (button == null) return;
+
+        if (userNivel >= nivelRequerido) {
+            // Nivel Desbloqueado
+            button.setEnabled(true);
+            button.setClickable(true);
+            button.setCardBackgroundColor(ContextCompat.getColor(this, R.color.white));
+            button.setStrokeColor(colorCategoria); // Borde con el color correspondiente
+            button.setStrokeWidth(4);
+            button.setAlpha(1.0f);
+
+            if (lockIcon != null) lockIcon.setVisibility(View.GONE);
+            iconView.clearColorFilter();
+
+            // Si el nivel ya fue superado, mostramos una palomita (✓) de retroalimentación
+            if (userNivel > nivelRequerido) {
+                textView.setText(nivelNombre + " ✓");
+                textView.setTextColor(ContextCompat.getColor(this, R.color.upp_primary));
+            } else {
+                textView.setText(nivelNombre);
+                textView.setTextColor(colorCategoria);
+            }
+
+            button.setOnClickListener(v -> {
+                Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
+                intent.putExtra(KEY_NIVEL_JUEGO, nivelNombre);
+                intent.putExtra(KEY_PUNTAJE_ACTUAL, userPuntaje);
+                intent.putExtra(KEY_NIVEL_DESBLOQUEADO, userNivel);
+                startActivity(intent);
+            });
+        } else {
+            // Nivel Bloqueado
+            button.setEnabled(false);
+            button.setClickable(false);
+            button.setStrokeWidth(0);
+            button.setAlpha(0.5f); // Efecto visual de deshabilitado
+            if (lockIcon != null) lockIcon.setVisibility(View.VISIBLE);
+            textView.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray));
+        }
     }
 
     private void animarMenu() {
@@ -290,42 +336,6 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 anim.setStartOffset(i * 100L);
                 child.startAnimation(anim);
             }
-        }
-    }
-
-    private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
-                                  String nivelNombre, int nivelRequerido, int textColorDesbloqueado) {
-        if (button == null) return;
-
-        int colorBloqueado = ContextCompat.getColor(this, R.color.game_locked);
-        int colorBgBloqueado = ContextCompat.getColor(this, R.color.game_locked_bg);
-        int colorTextoDesbloqueado = ContextCompat.getColor(this, textColorDesbloqueado);
-        int colorBgDesbloqueado = ContextCompat.getColor(this, R.color.white);
-
-        if (userNivel >= nivelRequerido) {
-            button.setEnabled(true);
-            button.setClickable(true);
-            button.setCardBackgroundColor(colorBgDesbloqueado);
-            button.setCardElevation(8f);
-            if (lockIcon != null) lockIcon.setVisibility(View.GONE);
-            textView.setTextColor(colorTextoDesbloqueado);
-            textView.setText(nivelNombre);
-            iconView.clearColorFilter();
-
-            button.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
-                intent.putExtra(KEY_NIVEL_JUEGO, nivelNombre);
-                intent.putExtra(KEY_PUNTAJE_ACTUAL, userPuntaje);
-                intent.putExtra(KEY_NIVEL_DESBLOQUEADO, userNivel);
-                startActivity(intent);
-            });
-        } else {
-            button.setEnabled(false);
-            button.setCardBackgroundColor(colorBgBloqueado);
-            button.setCardElevation(0f);
-            if (lockIcon != null) lockIcon.setVisibility(View.VISIBLE);
-            textView.setTextColor(colorBloqueado);
-            iconView.setColorFilter(colorBloqueado);
         }
     }
 
