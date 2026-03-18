@@ -19,9 +19,16 @@
     <color name="text_secondary">#757575</color>
     <color name="text_light">#F5F5F5</color>
     <color name="app_bg">#F5F5F5</color>
+    <color name="card_bg">#FFFFFF</color>
+
     <color name="category_derechos_bg">#BBDEFB</color>
     <color name="category_obligaciones_bg">#C8E6C9</color>
     <color name="category_prohibiciones_bg">#FFCCBC</color>
     <color name="category_sanciones_bg">#F8BBD0</color>
     <color name="category_reconocimientos_bg">#E1BEE7</color>
+
+    <color name="gradient_start">#006064</color>
+    <color name="gradient_end">#00BCD4</color>
+    <color name="gradient_purple_start">#6A1B9A</color>
+    <color name="gradient_purple_end">#AB47BC</color>
 </resources>

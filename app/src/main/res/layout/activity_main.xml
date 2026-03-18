@@ -101,48 +101,6 @@
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnJugarProhibiciones"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardBackgroundColor="@color/category_prohibiciones_bg">
-
-                <RelativeLayout android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nivel 3: Prohibiciones" android:textStyle="bold" android:textColor="@color/text_primary"/>
-                    <ImageView android:id="@+id/ivLockProhibiciones" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentEnd="true" android:src="@drawable/ic_lock" />
-                </RelativeLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnJugarSanciones"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardBackgroundColor="@color/category_sanciones_bg">
-
-                <RelativeLayout android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nivel 4: Sanciones" android:textStyle="bold" android:textColor="@color/text_primary"/>
-                    <ImageView android:id="@+id/ivLockSanciones" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentEnd="true" android:src="@drawable/ic_lock" />
-                </RelativeLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnJugarReconocimientos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="12dp"
-                app:cardBackgroundColor="@color/category_reconocimientos_bg">
-
-                <RelativeLayout android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nivel 5: Reconocimientos" android:textStyle="bold" android:textColor="@color/text_primary"/>
-                    <ImageView android:id="@+id/ivLockReconocimientos" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentEnd="true" android:src="@drawable/ic_lock" />
-                </RelativeLayout>
-            </com.google.android.material.card.MaterialCardView>
-
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Más desafíos" android:textSize="16sp" android:textStyle="bold" android:layout_marginBottom="8dp"/>
 
             <Button android:id="@+id/btnJugarModoDesafio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Modo Trivia" android:layout_marginBottom="8dp"/>
