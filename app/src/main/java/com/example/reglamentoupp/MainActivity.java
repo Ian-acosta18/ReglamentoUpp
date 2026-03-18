@@ -15,16 +15,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Constantes para GameLevelActivity
     public static final String KEY_NIVEL_JUEGO = "nivel_juego";
     public static final String KEY_PUNTAJE_ACTUAL = "puntaje_actual";
     public static final String KEY_NIVEL_DESBLOQUEADO = "nivel_desbloqueado";
 
-    // Variables de Firebase
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
-    // Variables de UI
     private TextView tvUserName, tvUserPuntaje, tvUserLevel;
     private View btnLogout;
 
@@ -94,16 +91,19 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setOnItemSelectedListener(item -> {
                 int id = item.getItemId();
                 if (id == R.id.nav_home) {
+                    // Ya estamos en la pantalla principal
                     return true;
                 } else if (id == R.id.nav_games) {
-                    Toast.makeText(this, "Sección de Juegos", Toast.LENGTH_SHORT).show();
+                    // Abre la actividad de juegos que tienes en tu proyecto
+                    startActivity(new Intent(MainActivity.this, ManualJuegosActivity.class));
                     return true;
                 } else if (id == R.id.nav_ranking) {
-                    // Ranking ahora se abre desde el menú inferior
+                    // Abre el Ranking
                     startActivity(new Intent(MainActivity.this, RankingActivity.class));
                     return true;
                 } else if (id == R.id.nav_profile) {
-                    Toast.makeText(this, "Perfil de Usuario", Toast.LENGTH_SHORT).show();
+                    // Los datos del perfil ya están en la cabecera de esta vista
+                    Toast.makeText(this, "Tus datos de perfil están en la parte superior ☝️", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
@@ -112,8 +112,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configurarJuegosRapidos() {
-        // Se quitó el btnVerRanking de aquí porque ahora está en el BottomNavigation
-
         View btnJugarModoDesafio = findViewById(R.id.btnJugarModoDesafio);
         if (btnJugarModoDesafio != null) {
             btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
@@ -141,7 +139,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configurarCaminoCategorias() {
-        // --- TODOS LOS NIVELES AHORA ESTÁN DESBLOQUEADOS Y ABREN LOS APARTADOS ---
         View btnDerechos = findViewById(R.id.btnJugarDerechos);
         if (btnDerechos != null) {
             btnDerechos.setOnClickListener(v -> abrirApartado("Derechos"));
@@ -168,10 +165,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Método auxiliar para no repetir tanto código
     private void abrirApartado(String categoria) {
         Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
-        intent.putExtra("categoria", categoria);
+        // ¡AQUÍ ESTABA EL ERROR! Cambiamos "categoria" por KEY_NIVEL_JUEGO
+        intent.putExtra(KEY_NIVEL_JUEGO, categoria);
         startActivity(intent);
     }
 }

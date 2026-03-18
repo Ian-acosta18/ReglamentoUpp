@@ -2,6 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/nav_home" android:icon="@drawable/ic_home" android:title="Inicio"/>
     <item android:id="@+id/nav_games" android:icon="@drawable/ic_games" android:title="Juegos"/>
-    <item android:id="@+id/nav_ranking" android:icon="@drawable/ic_reconocimientos" android:title="Ranking"/>
+
+    <item android:id="@+id/nav_ranking" android:icon="@drawable/ic_trophy" android:title="Ranking"/>
+
     <item android:id="@+id/nav_profile" android:icon="@drawable/ic_profile" android:title="Perfil"/>
 </menu>
