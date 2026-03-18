@@ -2,11 +2,34 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="gray">#808080</color>
 
+    <color name="upp_primary">#006064</color>
+    <color name="upp_primary_dark">#00363a</color>
+    <color name="upp_secondary">#0097a7</color>
+    <color name="upp_accent">#00BCD4</color>
+
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
     <color name="text_light">#F5F5F5</color>
-    <color name="upp_secondary">#03DAC5</color> <color name="surface_color">#FFFFFF</color>
 
-    <color name="game_success">#4CAF50</color>
-    <color name="game_fail">#F44336</color>
-    <color name="upp_primary">#6200EE</color>
+    <color name="category_derechos_bg">#BBDEFB</color>
+    <color name="category_obligaciones_bg">#C8E6C9</color>
+    <color name="category_prohibiciones_bg">#FFCCBC</color>
+    <color name="category_sanciones_bg">#F8BBD0</color>
+    <color name="category_reconocimientos_bg">#E1BEE7</color>
+
+    <color name="app_bg">#F5F5F5</color>
+    <color name="card_bg">#FFFFFF</color>
+    <color name="game_success_bg">#C8E6C9</color>
+    <color name="game_fail_bg">#FFCDD2</color>
+    <color name="gradient_start">#006064</color>
+    <color name="gradient_end">#0097a7</color>
+    <color name="gradient_purple_start">#6A1B9A</color>
+    <color name="gradient_purple_end">#AB47BC</color>
+
+    <color name="category_prohibiciones_bg">#FFCCBC</color>
+    <color name="category_sanciones_bg">#F8BBD0</color>
+    <color name="category_reconocimientos_bg">#E1BEE7</color>
+    <color name="gray">#808080</color>
 </resources>
