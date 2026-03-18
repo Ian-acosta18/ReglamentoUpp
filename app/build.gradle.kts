@@ -39,14 +39,15 @@ android {
 }
 
 dependencies {
-    // Librerías base
+    // Librerías base (Ya configuradas correctamente en tu archivo .toml)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
 
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    // ELIMINA ESTAS DOS LÍNEAS QUE TENÍAS AQUÍ:
+    // implementation("com.google.android.material:material:1.11.0")
+    // implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
     // Gestión de Imágenes y Animaciones
     implementation("com.cloudinary:cloudinary-android:2.5.0")

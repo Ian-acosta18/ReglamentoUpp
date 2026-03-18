@@ -1,115 +1,240 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res/auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_bg"
     tools:context=".MainActivity">
 
-    <androidx.core.widget.NestedScrollView
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:background="@drawable/header_gradient_indigo_pink"
+            android:paddingBottom="48dp">
 
-            <com.google.android.material.card.MaterialCardView
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                android:layout_marginBottom="20dp">
+                android:paddingHorizontal="20dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="24dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_alignParentStart="true"
+                    app:cardCornerRadius="14dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="#50FFFFFF"
+                    app:cardBackgroundColor="#25FFFFFF">
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="10dp"
+                        android:src="@drawable/mi_logo"
+                        android:scaleType="centerCrop"/>
+                </com.google.android.material.card.MaterialCardView>
 
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_alignParentEnd="true"
+                    app:cardCornerRadius="14dp"
+                    app:cardBackgroundColor="#25FFFFFF"
+                    app:strokeColor="#50FFFFFF"
+                    app:strokeWidth="1dp">
+                    <ImageButton
+                        android:id="@+id/btnLogout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_logout"
+                        android:padding="12dp"
+                        app:tint="@color/white"/>
+                </com.google.android.material.card.MaterialCardView>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginEnd="16dp"
+                    app:cardCornerRadius="32dp"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/white">
                     <ImageView
                         android:id="@+id/ivUserProfile"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:src="@drawable/ic_profile"
-                        android:scaleType="centerCrop" />
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_profile"/>
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bienvenido de vuelta"
+                        android:textColor="#BFE0FFFF"
+                        android:textSize="13sp"/>
+                    <TextView
+                        android:id="@+id/tvUserName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Usuario"
+                        android:textColor="@color/white"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="10dp"/>
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
-
+                        android:orientation="horizontal">
                         <TextView
-                            android:id="@+id/tvUserName"
+                            android:id="@+id/tvUserPuntaje"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Usuario"
-                            android:textSize="18sp"
+                            android:text="⚡ 0 XP"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
                             android:textStyle="bold"
-                            android:textColor="@color/text_primary"/>
-
+                            android:layout_marginEnd="12dp"/>
                         <TextView
                             android:id="@+id/tvUserLevel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Nivel 1"
-                            android:textColor="@color/upp_primary"/>
+                            android:text="🏆 Nivel 1"
+                            android:textColor="@color/white"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
                     </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="96dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:shapeAppearanceOverlay="@style/BubbleShapeAppearance">
                     <TextView
-                        android:id="@+id/tvUserPuntaje"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0 XP"
+                        android:padding="16dp"
+                        android:text="¡Sigue así para desbloquear el Nivel 2! 🎉"
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"/>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginBottom="14dp"
+                android:text="🎯 Tu Camino"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnJugarDerechos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/category_derechos_bg">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="20dp"
+                        android:text="Nivel 1: Derechos"
+                        android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/status_green"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        android:textColor="@color/text_primary"/>
+                </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnJugarDerechos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardBackgroundColor="@color/category_derechos_bg">
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnJugarObligaciones"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardBackgroundColor="@color/category_obligaciones_bg">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="20dp"
+                        android:text="Nivel 2: Obligaciones"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/text_primary"/>
+                </com.google.android.material.card.MaterialCardView>
 
-                <RelativeLayout android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nivel 1: Derechos" android:textStyle="bold" android:textColor="@color/text_primary"/>
-                    <ProgressBar android:id="@+id/progressDerechos" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp" android:progress="0" android:progressDrawable="@drawable/progress_bar_indigo" />
-                </RelativeLayout>
-            </com.google.android.material.card.MaterialCardView>
+                <Button android:id="@+id/btnJugarModoDesafio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Modo Trivia" android:layout_marginBottom="8dp"/>
+                <Button android:id="@+id/btnJugarAhorcado" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ahorcado" android:layout_marginBottom="8dp"/>
+                <Button android:id="@+id/btnJugarMemorama" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Memorama" android:layout_marginBottom="8dp"/>
+                <Button android:id="@+id/btnVerRanking" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ver Ranking Global" android:backgroundTint="@color/upp_secondary"/>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnJugarObligaciones"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardBackgroundColor="@color/category_obligaciones_bg">
-
-                <RelativeLayout android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nivel 2: Obligaciones" android:textStyle="bold" android:textColor="@color/text_primary"/>
-                    <ImageView android:id="@+id/ivLockObligaciones" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentEnd="true" android:src="@drawable/ic_lock" />
-                </RelativeLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Más desafíos" android:textSize="16sp" android:textStyle="bold" android:layout_marginBottom="8dp"/>
-
-            <Button android:id="@+id/btnJugarModoDesafio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Modo Trivia" android:layout_marginBottom="8dp"/>
-            <Button android:id="@+id/btnJugarAhorcado" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ahorcado" android:layout_marginBottom="8dp"/>
-            <Button android:id="@+id/btnJugarMemorama" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Memorama" android:layout_marginBottom="8dp"/>
-            <Button android:id="@+id/btnVerRanking" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ver Ranking Global" android:backgroundTint="@color/upp_secondary"/>
-
-            <Button android:id="@+id/btnLogout" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Cerrar Sesión" android:layout_gravity="center" android:layout_marginTop="20dp" style="@style/Widget.MaterialComponents.Button.TextButton"/>
-
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/white"
+        app:elevation="16dp"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:menu="@menu/bottom_nav_menu"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
