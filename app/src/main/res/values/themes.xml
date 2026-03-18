@@ -1,19 +1,7 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Base.Theme.ReglamentoUpp" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/upp_primary</item>
-        <item name="colorPrimaryVariant">@color/upp_primary_dark</item>
-        <item name="colorOnPrimary">@color/text_light</item>
-
-        <item name="colorSecondary">@color/upp_secondary</item>
-        <item name="colorOnSecondary">@color/text_light</item>
-
-        <item name="android:statusBarColor">@color/upp_primary_dark</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:colorBackground">@color/app_bg</item>
-        <item name="colorSurface">@color/surface_color</item>
-
-        <item name="android:colorEdgeEffect">@android:color/white</item>
-    </style>
-
-    <style name="Theme.ReglamentoUpp" parent="Base.Theme.ReglamentoUpp" />
-</resources>
+<style name="BubbleShapeAppearance" parent="">
+    <item name="cornerFamily">rounded</item>
+    <item name="cornerSizeTopLeft">0dp</item>
+    <item name="cornerSizeTopRight">16dp</item>
+    <item name="cornerSizeBottomRight">16dp</item>
+    <item name="cornerSizeBottomLeft">16dp</item>
+</style>

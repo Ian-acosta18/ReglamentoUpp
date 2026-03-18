@@ -18,18 +18,12 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
     private final ReglamentoItem[] items;
     private final String itemType;
     private final BaseReglamentoFragment fragment;
-    private final BaseReglamentoFragment.ReglamentoInteractionListener listener;
+    private final SparseBooleanArray itemsLeidos = new SparseBooleanArray();
 
-    // Almacena qué reglas ya fueron escuchadas
-    private SparseBooleanArray itemsLeidos = new SparseBooleanArray();
-
-    public ReglamentoAdapter(ReglamentoItem[] items, String itemType,
-                             BaseReglamentoFragment fragment,
-                             BaseReglamentoFragment.ReglamentoInteractionListener listener) {
+    public ReglamentoAdapter(ReglamentoItem[] items, String itemType, BaseReglamentoFragment fragment, BaseReglamentoFragment.ReglamentoInteractionListener listener) {
         this.items = items;
         this.itemType = itemType;
         this.fragment = fragment;
-        this.listener = listener;
     }
 
     @NonNull
@@ -42,68 +36,34 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ReglamentoItem item = items[position];
-
         holder.textView.setText(Html.fromHtml(item.getTexto(), Html.FROM_HTML_MODE_COMPACT));
 
-        // Asignar colores por categoría
-        int colorTint, colorBg;
+        // Configuración de colores según tipo
+        int colorMain, colorBg;
         switch (itemType) {
-            case "Derecho":
-                colorTint = R.color.category_derechos;
-                colorBg = R.color.category_derechos_bg;
-                break;
-            case "Obligación":
-                colorTint = R.color.category_obligaciones;
-                colorBg = R.color.category_obligaciones_bg;
-                break;
-            case "Prohibición":
-                colorTint = R.color.category_prohibiciones;
-                colorBg = R.color.category_prohibiciones_bg;
-                break;
-            case "Sanción":
-                colorTint = R.color.category_sanciones;
-                colorBg = R.color.category_sanciones_bg;
-                break;
-            default:
-                colorTint = R.color.category_reconocimientos;
-                colorBg = R.color.category_reconocimientos_bg;
-                break;
+            case "Derecho": colorMain = R.color.category_derechos; colorBg = R.color.category_derechos_bg; break;
+            case "Obligación": colorMain = R.color.category_obligaciones; colorBg = R.color.category_obligaciones_bg; break;
+            case "Prohibición": colorMain = R.color.category_prohibiciones; colorBg = R.color.category_prohibiciones_bg; break;
+            default: colorMain = R.color.category_reconocimientos; colorBg = R.color.category_reconocimientos_bg; break;
         }
 
-        // Aplicamos el color al fondo cuadrado del ícono y al propio ícono
         holder.cardIconBg.setCardBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), colorBg));
-        holder.audioIcon.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), colorTint));
+        holder.audioIcon.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), colorMain));
 
-        // Lógica de Leído / No Leído
-        boolean isLeido = itemsLeidos.get(position, false);
-        if (isLeido) {
+        // Estado Leído
+        if (itemsLeidos.get(position)) {
             holder.ivCheck.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.status_green));
-            holder.textView.setAlpha(0.6f); // Atenuar el texto si ya lo leyó
-        } else {
-            holder.ivCheck.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.level_locked_text));
-            holder.textView.setAlpha(1.0f);
+            holder.itemView.setAlpha(0.7f);
         }
 
-        // Animación suave de entrada
-        holder.itemView.setAnimation(AnimationUtils.loadAnimation(holder.itemView.getContext(), R.anim.fade_in));
-
-        // Evento al tocar la tarjeta
         holder.itemView.setOnClickListener(v -> {
-            // Animación de rebote al hacer click
-            v.animate().scaleX(0.97f).scaleY(0.97f).setDuration(100).withEndAction(() -> {
+            // Animación de escala
+            v.animate().scaleX(0.96f).scaleY(0.96f).setDuration(100).withEndAction(() -> {
                 v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
-            }).start();
-
-            // Marcar como leído
-            if (!isLeido) {
                 itemsLeidos.put(position, true);
                 notifyItemChanged(position);
-            }
-
-            // Reproducir audio
-            if (fragment != null && item.getAudioResId() != 0) {
-                fragment.playAudio(item.getAudioResId());
-            }
+                if (fragment != null) fragment.playAudio(item.getAudioResId());
+            }).start();
         });
     }
 
@@ -113,15 +73,13 @@ public class ReglamentoAdapter extends RecyclerView.Adapter<ReglamentoAdapter.Vi
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
         MaterialCardView cardIconBg;
-        ImageView audioIcon;
-        ImageView ivCheck;
-
-        ViewHolder(View itemView) {
-            super(itemView);
-            textView = itemView.findViewById(R.id.tv_item_text);
-            cardIconBg = itemView.findViewById(R.id.card_icon_bg);
-            audioIcon = itemView.findViewById(R.id.iv_audio_icon);
-            ivCheck = itemView.findViewById(R.id.iv_status_check);
+        ImageView audioIcon, ivCheck;
+        ViewHolder(View v) {
+            super(v);
+            textView = v.findViewById(R.id.tv_item_text);
+            cardIconBg = v.findViewById(R.id.card_icon_bg);
+            audioIcon = v.findViewById(R.id.iv_audio_icon);
+            ivCheck = v.findViewById(R.id.iv_status_check);
         }
     }
 }
