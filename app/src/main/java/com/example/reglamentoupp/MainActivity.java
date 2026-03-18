@@ -91,18 +91,14 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setOnItemSelectedListener(item -> {
                 int id = item.getItemId();
                 if (id == R.id.nav_home) {
-                    // Ya estamos en la pantalla principal
                     return true;
                 } else if (id == R.id.nav_games) {
-                    // Abre la actividad de juegos que tienes en tu proyecto
                     startActivity(new Intent(MainActivity.this, ManualJuegosActivity.class));
                     return true;
                 } else if (id == R.id.nav_ranking) {
-                    // Abre el Ranking
                     startActivity(new Intent(MainActivity.this, RankingActivity.class));
                     return true;
                 } else if (id == R.id.nav_profile) {
-                    // Los datos del perfil ya están en la cabecera de esta vista
                     Toast.makeText(this, "Tus datos de perfil están en la parte superior ☝️", Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -167,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void abrirApartado(String categoria) {
         Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
-        // ¡AQUÍ ESTABA EL ERROR! Cambiamos "categoria" por KEY_NIVEL_JUEGO
         intent.putExtra(KEY_NIVEL_JUEGO, categoria);
         startActivity(intent);
     }
