@@ -1,98 +1,24 @@
 package com.example.reglamentoupp;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
 import com.bumptech.glide.Glide;
 import com.example.reglamentoupp.databinding.ActivityMainBinding;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity implements BaseReglamentoFragment.ReglamentoInteractionListener {
 
     private ActivityMainBinding binding;
     private FirebaseAuth mAuth;
     private FirebaseFirestore mStore;
-    private FirebaseStorage mStorage; // Para guardar imágenes
-    private String userID;
-    private long userPuntaje = 0;
     private int userNivel = 1;
-
-    // --- Variables para la subida de imagen ---
-    private Uri imageUri;
-
-    public static final String KEY_NIVEL_JUEGO = "nivelJuego";
-    public static final String KEY_PUNTAJE_ACTUAL = "puntajeActual";
-    public static final String KEY_NIVEL_DESBLOQUEADO = "nivelDesbloqueado";
-    private static final String TAG = "MainActivity";
-
-    // --- Lanzador para abrir la galería ---
-    private final ActivityResultLauncher<Intent> imagePickerLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    imageUri = result.getData().getData();
-                    if (imageUri != null) {
-                        // Mostrar temporalmente la imagen seleccionada
-                        Glide.with(this).load(imageUri).circleCrop().into(binding.ivUserProfile);
-                        // Subir a Firebase
-                        uploadProfileImage();
-                    }
-                }
-            }
-    );
-
-    // --- Variables para la Rotación de Mensajes ---
-    private Handler handlerRotacion = new Handler(Looper.getMainLooper());
-    private int indiceMensaje = 0;
-    private final String[] mensajesRotativos = {
-            "¡Hola! ¿Listo para aprender?",
-            "Recuerda revisar tus obligaciones.",
-            "¡Gana puntos en los juegos rápidos!",
-            "El saber no ocupa lugar 📚",
-            "¿Ya desbloqueaste el Nivel 2?",
-            "La constancia es la clave del éxito."
-    };
-
-    private Runnable runnableRotacion = new Runnable() {
-        @Override
-        public void run() {
-            if (!isFinishing() && binding != null && binding.tvWelcomeBubble != null) {
-                binding.tvWelcomeBubble.animate().alpha(0f).setDuration(300).withEndAction(() -> {
-                    if (!isFinishing() && binding != null && binding.tvWelcomeBubble != null) {
-                        indiceMensaje = (indiceMensaje + 1) % mensajesRotativos.length;
-                        binding.tvWelcomeBubble.setText(mensajesRotativos[indiceMensaje]);
-                        binding.tvWelcomeBubble.animate().alpha(1f).setDuration(300).start();
-                    }
-                }).start();
-                handlerRotacion.postDelayed(this, 4000);
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,253 +28,78 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
 
         mAuth = FirebaseAuth.getInstance();
         mStore = FirebaseFirestore.getInstance();
-        mStorage = FirebaseStorage.getInstance(); // Inicializar Storage
 
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser == null) {
-            Log.w(TAG, "Usuario no logueado. Regresando a Login.");
-            navigateToLogin();
+        if (mAuth.getCurrentUser() == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
             return;
         }
-        userID = currentUser.getUid();
 
         binding.btnLogout.setOnClickListener(v -> {
             mAuth.signOut();
-            navigateToLogin();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
         });
 
-        // Click en el botón de editar foto
-        binding.fabEditProfilePic.setOnClickListener(v -> openGallery());
-
-        // Configurar botones de juegos y ranking
-        setupStaticGameListeners();
-    }
-
-    private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        imagePickerLauncher.launch(intent);
-    }
-
-    private void uploadProfileImage() {
-        if (imageUri == null || userID == null) return;
-
-        Toast.makeText(this, "Subiendo foto...", Toast.LENGTH_SHORT).show();
-        binding.fabEditProfilePic.setEnabled(false); // Bloquear botón temporalmente
-
-        // Crear referencia en Storage: "profile_images/ID_DEL_USUARIO.jpg"
-        StorageReference fileRef = mStorage.getReference().child("profile_images").child(userID + ".jpg");
-
-        fileRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    // Una vez subida, obtener la URL de descarga
-                    fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        String downloadUrl = uri.toString();
-                        // Guardar URL en Firestore
-                        updateProfileImageUrlInFirestore(downloadUrl);
-                    });
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(MainActivity.this, "Error al subir imagen: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    binding.fabEditProfilePic.setEnabled(true);
-                });
-    }
-
-    private void updateProfileImageUrlInFirestore(String downloadUrl) {
-        if(userID == null) return;
-        mStore.collection("usuarios").document(userID)
-                .update("fotoUrl", downloadUrl)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(MainActivity.this, "Foto de perfil actualizada", Toast.LENGTH_SHORT).show();
-                    binding.fabEditProfilePic.setEnabled(true);
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(MainActivity.this, "Error al guardar URL: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    binding.fabEditProfilePic.setEnabled(true);
-                });
+        setupGameListeners();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        actualizarSaludoInicial();
-        iniciarRotacionMensajes();
         loadUserData();
-        animarMenu();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        detenerRotacionMensajes();
-    }
-
-    private void setupStaticGameListeners() {
-        binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
-        binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
-        binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
-        binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
-        binding.btnJugarSopaLetras.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WordSearchActivity.class)));
-        binding.btnVerRanking.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, RankingActivity.class)));
-    }
-
-    private void iniciarRotacionMensajes() {
-        handlerRotacion.removeCallbacks(runnableRotacion);
-        handlerRotacion.postDelayed(runnableRotacion, 4000);
-    }
-
-    private void detenerRotacionMensajes() {
-        handlerRotacion.removeCallbacks(runnableRotacion);
-    }
-
-    private void actualizarSaludoInicial() {
-        Calendar calendar = Calendar.getInstance();
-        int hora = calendar.get(Calendar.HOUR_OF_DAY);
-        String saludo;
-        if (hora >= 5 && hora < 12) saludo = "¡Buenos días! ☀️";
-        else if (hora >= 12 && hora < 19) saludo = "¡Buenas tardes! 🌤️";
-        else saludo = "¡Buenas noches! 🌙";
-
-        saludo += "\n¿Listo para aprender?";
-
-        if (binding != null && binding.tvWelcomeBubble != null) {
-            binding.tvWelcomeBubble.setText(saludo);
-            binding.tvWelcomeBubble.setAlpha(1f);
-        }
-        if (binding != null && binding.lottieWelcome != null) {
-            binding.lottieWelcome.playAnimation();
-        }
     }
 
     private void loadUserData() {
-        if (userID == null) return;
-        mStore.collection("usuarios").document(userID).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (isFinishing() || isDestroyed() || binding == null) return;
-                    if (documentSnapshot.exists()) {
-                        String nombre = documentSnapshot.getString("nombre");
-                        if (nombre != null && !nombre.isEmpty()) binding.tvUserName.setText("Hola, " + nombre);
-                        else binding.tvUserName.setText(documentSnapshot.getString("email"));
+        String uid = mAuth.getCurrentUser().getUid();
+        mStore.collection("usuarios").document(uid).get().addOnSuccessListener(doc -> {
+            if (doc.exists() && binding != null) {
+                binding.tvUserName.setText(doc.getString("nombre"));
+                binding.tvUserPuntaje.setText(doc.getLong("puntaje") + " XP");
+                userNivel = doc.getLong("nivelDesbloqueado").intValue();
+                binding.tvUserLevel.setText("Nivel " + userNivel);
 
-                        Long puntajeDb = documentSnapshot.getLong("puntaje");
-                        if (puntajeDb != null) userPuntaje = puntajeDb;
-                        binding.tvUserPuntaje.setText(userPuntaje + " XP");
+                String fotoUrl = doc.getString("fotoUrl");
+                if (fotoUrl != null) Glide.with(this).load(fotoUrl).circleCrop().into(binding.ivUserProfile);
 
-                        Long nivelDb = documentSnapshot.getLong("nivelDesbloqueado");
-                        userNivel = (nivelDb != null) ? nivelDb.intValue() : 1;
-
-                        String fotoUrl = documentSnapshot.getString("fotoUrl");
-                        if (fotoUrl != null && !fotoUrl.isEmpty()) {
-                            Glide.with(this)
-                                    .load(fotoUrl)
-                                    .circleCrop()
-                                    .placeholder(R.drawable.mi_logo)
-                                    .error(R.drawable.ic_launcher_background)
-                                    .into(binding.ivUserProfile);
-                        }
-
-                        actualizarUIdeNivel(userNivel);
-                        configurarBotonesNiveles();
-                    }
-                });
-    }
-
-    private void actualizarUIdeNivel(int nivel) {
-        if (binding == null) return;
-        binding.tvUserLevel.setText("Nivel " + nivel);
-        int iconRes;
-        switch (nivel) {
-            case 1: iconRes = R.drawable.ic_derechos; break;
-            case 2: iconRes = R.drawable.ic_obligaciones; break;
-            case 3: iconRes = R.drawable.ic_prohibiciones; break;
-            case 4: iconRes = R.drawable.ic_sanciones; break;
-            case 5: iconRes = R.drawable.ic_reconocimientos; break;
-            default: iconRes = R.drawable.ic_check_circle; break;
-        }
-        binding.ivUserLevelIcon.setImageResource(iconRes);
-    }
-
-    // --- NUEVA LÓGICA DE BOTONES ---
-    private void configurarBotonesNiveles() {
-        // Obtenemos los colores definidos en colors.xml
-        int cDerechos = ContextCompat.getColor(this, R.color.category_derechos);
-        int cObligaciones = ContextCompat.getColor(this, R.color.category_obligaciones);
-        int cProhibiciones = ContextCompat.getColor(this, R.color.category_prohibiciones);
-        int cSanciones = ContextCompat.getColor(this, R.color.category_sanciones);
-        int cReconocimientos = ContextCompat.getColor(this, R.color.category_reconocimientos);
-
-        setupNivelButton(binding.btnJugarDerechos, null, binding.tvDerechos, binding.ivDerechos, "Derechos", 1, cDerechos);
-        setupNivelButton(binding.btnJugarObligaciones, binding.ivLockObligaciones, binding.tvObligaciones, binding.ivObligaciones, "Obligaciones", 2, cObligaciones);
-        setupNivelButton(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, binding.tvProhibiciones, binding.ivProhibiciones, "Prohibiciones", 3, cProhibiciones);
-        setupNivelButton(binding.btnJugarSanciones, binding.ivLockSanciones, binding.tvSanciones, binding.ivSanciones, "Sanciones", 4, cSanciones);
-        setupNivelButton(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, binding.tvReconocimientos, binding.ivReconocimientos, "Reconocimientos", 5, cReconocimientos);
-    }
-
-    private void setupNivelButton(MaterialCardView button, ImageView lockIcon, TextView textView, ImageView iconView,
-                                  String nivelNombre, int nivelRequerido, int colorCategoria) {
-        if (button == null) return;
-
-        if (userNivel >= nivelRequerido) {
-            // Nivel Desbloqueado
-            button.setEnabled(true);
-            button.setClickable(true);
-            button.setCardBackgroundColor(ContextCompat.getColor(this, R.color.white));
-            button.setStrokeColor(colorCategoria); // Borde con el color correspondiente
-            button.setStrokeWidth(4);
-            button.setAlpha(1.0f);
-
-            if (lockIcon != null) lockIcon.setVisibility(View.GONE);
-            iconView.clearColorFilter();
-
-            // Si el nivel ya fue superado, mostramos una palomita (✓) de retroalimentación
-            if (userNivel > nivelRequerido) {
-                textView.setText(nivelNombre + " ✓");
-                textView.setTextColor(ContextCompat.getColor(this, R.color.upp_primary));
-            } else {
-                textView.setText(nivelNombre);
-                textView.setTextColor(colorCategoria);
+                actualizarInterfazNiveles();
             }
+        });
+    }
 
-            button.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
-                intent.putExtra(KEY_NIVEL_JUEGO, nivelNombre);
-                intent.putExtra(KEY_PUNTAJE_ACTUAL, userPuntaje);
-                intent.putExtra(KEY_NIVEL_DESBLOQUEADO, userNivel);
-                startActivity(intent);
+    private void actualizarInterfazNiveles() {
+        configurarNivel(binding.btnJugarDerechos, binding.progressDerechos, 1, R.color.category_derechos);
+        configurarNivel(binding.btnJugarObligaciones, binding.ivLockObligaciones, 2, R.color.category_obligaciones);
+        configurarNivel(binding.btnJugarProhibiciones, binding.ivLockProhibiciones, 3, R.color.category_prohibiciones);
+        configurarNivel(binding.btnJugarSanciones, binding.ivLockSanciones, 4, R.color.category_sanciones);
+        configurarNivel(binding.btnJugarReconocimientos, binding.ivLockReconocimientos, 5, R.color.category_reconocimientos);
+    }
+
+    private void configurarNivel(MaterialCardView card, View extraView, int nivelReq, int colorRes) {
+        boolean unlocked = userNivel >= nivelReq;
+        card.setAlpha(unlocked ? 1.0f : 0.5f);
+        card.setClickable(unlocked);
+        if (extraView instanceof ImageView) {
+            extraView.setVisibility(unlocked ? View.GONE : View.VISIBLE);
+        }
+        if (unlocked) {
+            card.setOnClickListener(v -> {
+                Intent i = new Intent(this, GameLevelActivity.class);
+                i.putExtra("nivelJuego", "Nivel " + nivelReq);
+                startActivity(i);
             });
-        } else {
-            // Nivel Bloqueado
-            button.setEnabled(false);
-            button.setClickable(false);
-            button.setStrokeWidth(0);
-            button.setAlpha(0.5f); // Efecto visual de deshabilitado
-            if (lockIcon != null) lockIcon.setVisibility(View.VISIBLE);
-            textView.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray));
         }
     }
 
-    private void animarMenu() {
-        if (binding == null) return;
-        LinearLayout menuContainer = binding.llMenuContainer;
-        for (int i = 0; i < menuContainer.getChildCount(); i++) {
-            View child = menuContainer.getChildAt(i);
-            if (child.getVisibility() == View.VISIBLE) {
-                Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
-                anim.setStartOffset(i * 100L);
-                child.startAnimation(anim);
-            }
-        }
+    private void setupGameListeners() {
+        binding.btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(this, QuizActivity.class)));
+        binding.btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(this, TrueFalseActivity.class)));
+        binding.btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(this, HangmanActivity.class)));
+        binding.btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(this, MemoryGameActivity.class)));
+        binding.btnJugarSopaLetras.setOnClickListener(v -> startActivity(new Intent(this, WordSearchActivity.class)));
+        binding.btnVerRanking.setOnClickListener(v -> startActivity(new Intent(this, RankingActivity.class)));
     }
 
-    private void navigateToLogin() {
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
-
-    @Override
-    public void onQuizClick(String itemText, String itemType) {}
-
-    @Override
-    public void onCaseStudyClick(String itemText, String itemType) {}
+    @Override public void onQuizClick(String t, String type) {}
+    @Override public void onCaseStudyClick(String t, String type) {}
 }
