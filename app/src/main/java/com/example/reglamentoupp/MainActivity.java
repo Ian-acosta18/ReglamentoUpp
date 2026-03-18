@@ -3,7 +3,6 @@ package com.example.reglamentoupp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -128,12 +127,22 @@ public class MainActivity extends AppCompatActivity {
         if (btnJugarMemorama != null) {
             btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
         }
+
+        // --- NUEVOS JUEGOS VINCULADOS ---
+        View btnJugarVerdaderoFalso = findViewById(R.id.btnJugarVerdaderoFalso);
+        if (btnJugarVerdaderoFalso != null) {
+            btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
+        }
+
+        View btnJugarSopaLetras = findViewById(R.id.btnJugarSopaLetras);
+        if (btnJugarSopaLetras != null) {
+            btnJugarSopaLetras.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WordSearchActivity.class)));
+        }
     }
 
     private void configurarCaminoCategorias() {
+        // --- NIVELES DESBLOQUEADOS ---
         View btnDerechos = findViewById(R.id.btnJugarDerechos);
-        View btnObligaciones = findViewById(R.id.btnJugarObligaciones);
-
         if (btnDerechos != null) {
             btnDerechos.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
@@ -142,12 +151,35 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+        View btnObligaciones = findViewById(R.id.btnJugarObligaciones);
         if (btnObligaciones != null) {
             btnObligaciones.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, GameLevelActivity.class);
                 intent.putExtra("categoria", "Obligaciones");
                 startActivity(intent);
             });
+        }
+
+        // --- NIVELES BLOQUEADOS ---
+        View btnProhibiciones = findViewById(R.id.btnJugarProhibiciones);
+        if (btnProhibiciones != null) {
+            btnProhibiciones.setOnClickListener(v ->
+                    Toast.makeText(MainActivity.this, "🔒 Nivel 3 bloqueado. ¡Sigue jugando para desbloquearlo!", Toast.LENGTH_SHORT).show()
+            );
+        }
+
+        View btnSanciones = findViewById(R.id.btnJugarSanciones);
+        if (btnSanciones != null) {
+            btnSanciones.setOnClickListener(v ->
+                    Toast.makeText(MainActivity.this, "🔒 Nivel 4 bloqueado. ¡Sigue jugando para desbloquearlo!", Toast.LENGTH_SHORT).show()
+            );
+        }
+
+        View btnReconocimientos = findViewById(R.id.btnJugarReconocimientos);
+        if (btnReconocimientos != null) {
+            btnReconocimientos.setOnClickListener(v ->
+                    Toast.makeText(MainActivity.this, "🔒 Nivel 5 bloqueado. ¡Sigue jugando para desbloquearlo!", Toast.LENGTH_SHORT).show()
+            );
         }
     }
 }

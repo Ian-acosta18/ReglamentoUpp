@@ -8,10 +8,15 @@
     android:background="@color/app_bg"
     tools:context=".MainActivity">
 
+    <!-- ═══════════════════════════════════════════
+         HEADER con gradiente índigo → violeta → rosa
+    ═══════════════════════════════════════════ -->
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
+        android:elevation="0dp"
         app:elevation="0dp">
 
         <LinearLayout
@@ -21,6 +26,7 @@
             android:background="@drawable/header_gradient_indigo_pink"
             android:paddingBottom="48dp">
 
+            <!-- Barra superior: logo + logout -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -29,13 +35,17 @@
                 android:paddingBottom="24dp">
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/logoCard"
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
                     app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp"
                     app:strokeWidth="1dp"
                     app:strokeColor="#50FFFFFF"
                     app:cardBackgroundColor="#25FFFFFF">
+
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -45,13 +55,20 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardLogout"
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    android:focusable="true"
                     app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp"
                     app:cardBackgroundColor="#25FFFFFF"
                     app:strokeColor="#50FFFFFF"
-                    app:strokeWidth="1dp">
+                    app:strokeWidth="1dp"
+                    app:rippleColor="#40FFFFFF">
+
                     <ImageButton
                         android:id="@+id/btnLogout"
                         android:layout_width="match_parent"
@@ -61,8 +78,10 @@
                         android:padding="12dp"
                         app:tint="@color/white"/>
                 </com.google.android.material.card.MaterialCardView>
+
             </RelativeLayout>
 
+            <!-- Perfil: avatar + nombre + stats chips -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,102 +89,614 @@
                 android:paddingHorizontal="20dp"
                 android:gravity="center_vertical">
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginEnd="16dp"
-                    app:cardCornerRadius="32dp"
-                    app:strokeWidth="2dp"
-                    app:strokeColor="@color/white">
-                    <ImageView
-                        android:id="@+id/ivUserProfile"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/ic_profile"/>
-                </com.google.android.material.card.MaterialCardView>
+                <!-- Avatar con botón cámara -->
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp">
 
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardProfilePic"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        app:cardCornerRadius="32dp"
+                        app:cardElevation="4dp"
+                        app:strokeWidth="2dp"
+                        app:strokeColor="@color/white">
+
+                        <ImageView
+                            android:id="@+id/ivUserProfile"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/ic_launcher_background"/>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabEditProfilePic"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|end"
+                        android:layout_marginEnd="-2dp"
+                        android:layout_marginBottom="-2dp"
+                        android:src="@android:drawable/ic_menu_camera"
+                        app:fabSize="mini"
+                        app:tint="@color/upp_primary"
+                        app:backgroundTint="@color/white"
+                        app:elevation="6dp"/>
+                </FrameLayout>
+
+                <!-- Info de usuario -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical">
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Bienvenido de vuelta"
                         android:textColor="#BFE0FFFF"
-                        android:textSize="13sp"/>
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif"/>
+
                     <TextView
                         android:id="@+id/tvUserName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Usuario"
+                        android:text="Carlos R."
                         android:textColor="@color/white"
                         android:textSize="22sp"
-                        android:textStyle="bold"
+                        android:fontFamily="sans-serif-black"
                         android:layout_marginBottom="10dp"/>
 
+                    <!-- Row de chips de stats -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:id="@+id/tvUserPuntaje"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <!-- XP chip -->
+                        <com.google.android.material.card.MaterialCardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="⚡ 0 XP"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:layout_marginEnd="12dp"/>
-                        <TextView
-                            android:id="@+id/tvUserLevel"
+                            android:layout_marginEnd="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="#30FFFFFF"
+                            app:strokeColor="#40FFFFFF"
+                            app:strokeWidth="1dp">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:gravity="center_vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="⚡"
+                                    android:textSize="11sp"/>
+                                <TextView
+                                    android:id="@+id/tvUserPuntaje"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="240 XP"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-black"/>
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Nivel chip -->
+                        <com.google.android.material.card.MaterialCardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🏆 Nivel 1"
-                            android:textColor="@color/white"
-                            android:textSize="14sp"
-                            android:textStyle="bold"/>
+                            android:layout_marginEnd="8dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="#30FFFFFF"
+                            app:strokeColor="#40FFFFFF"
+                            app:strokeWidth="1dp">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:gravity="center_vertical">
+                                <ImageView
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:src="@drawable/ic_reconocimientos"
+                                    app:tint="#FFD700"/>
+                                <TextView
+                                    android:id="@+id/tvUserLevel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="Nivel 3"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-black"/>
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Racha chip -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="#30FFFFFF"
+                            app:strokeColor="#40FFFFFF"
+                            app:strokeWidth="1dp">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="4dp"
+                                android:gravity="center_vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="🔥"
+                                    android:textSize="11sp"/>
+                                <TextView
+                                    android:id="@+id/tvUserStreak"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="4dp"
+                                    android:text="7 días"
+                                    android:textColor="@color/white"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-black"/>
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
+
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- ═══════════════════════════════════════════
+         CONTENIDO PRINCIPAL (scroll)
+    ═══════════════════════════════════════════ -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
+            android:id="@+id/llMenuContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingTop="16dp"
-            android:paddingBottom="96dp">
+            android:paddingBottom="96dp"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
+            <!-- ─── Burbuja de bienvenida ─── -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:paddingHorizontal="20dp"
+                android:gravity="center_vertical"
                 android:layout_marginBottom="24dp">
 
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottieWelcome"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginEnd="12dp"
+                    app:lottie_rawRes="@raw/smilling_cloud"
+                    app:lottie_autoPlay="true"
+                    app:lottie_loop="true"/>
+
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="@color/white">
-                    <TextView
-                        android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    app:cardCornerRadius="0dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:shapeAppearanceOverlay="@style/BubbleShapeAppearance">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="16dp"
-                        android:text="¡Sigue así para desbloquear el Nivel 2! 🎉"
-                        android:textColor="@color/text_primary"
-                        android:textStyle="bold"/>
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <TextView
+                            android:id="@+id/tvWelcomeBubble"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="¡Llevas 7 días seguidos! 🎉"
+                            android:textColor="@color/text_primary"
+                            android:fontFamily="sans-serif-black"
+                            android:textSize="14sp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Sigue así para desbloquear Nivel 4"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"/>
+                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
+            <!-- ─── Sección: Juegos Rápidos ─── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:layout_marginBottom="14dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="⚡ Juegos Rápidos"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-black"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVerRanking"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ranking 🏆"
+                    android:textColor="@color/upp_primary"
+                    android:fontFamily="sans-serif-black"
+                    android:textSize="13sp"
+                    app:rippleColor="#20003366"/>
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="8dp"
+                android:overScrollMode="never"
+                android:scrollbars="none"
+                android:layout_marginBottom="28dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:clipChildren="false">
+
+                    <!-- Trivia -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnJugarModoDesafio"
+                        android:layout_width="130dp"
+                        android:layout_height="168dp"
+                        android:layout_marginEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:stateListAnimator="@animator/card_press_anim"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_card_purple"
+                            android:padding="16dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/iconBgTrivia"
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="#30FFFFFF"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:padding="10dp"
+                                    android:src="@drawable/ic_game_trivia"
+                                    app:tint="@color/white"/>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tvTriviaTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Trivia"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-black"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tvTriviaDesc"/>
+
+                            <TextView
+                                android:id="@+id/tvTriviaDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Opción múltiple"
+                                android:textColor="#CCE0FFFF"
+                                android:textSize="11sp"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- V/F -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnJugarVerdaderoFalso"
+                        android:layout_width="130dp"
+                        android:layout_height="168dp"
+                        android:layout_marginEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:stateListAnimator="@animator/card_press_anim"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_card_blue"
+                            android:padding="16dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/iconBgVF"
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="#30FFFFFF"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:padding="10dp"
+                                    android:src="@drawable/ic_game_vf"
+                                    app:tint="@color/white"/>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tvVFTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="V / F"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-black"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tvVFDesc"/>
+
+                            <TextView
+                                android:id="@+id/tvVFDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Decide rápido"
+                                android:textColor="#CCE0FFFF"
+                                android:textSize="11sp"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Ahorcado -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnJugarAhorcado"
+                        android:layout_width="130dp"
+                        android:layout_height="168dp"
+                        android:layout_marginEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:stateListAnimator="@animator/card_press_anim"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_card_pink"
+                            android:padding="16dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/iconBgAhorcado"
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="#30FFFFFF"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:padding="10dp"
+                                    android:src="@drawable/ic_game_hangman"
+                                    app:tint="@color/white"/>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tvAhorcadoTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Ahorcado"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-black"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tvAhorcadoDesc"/>
+
+                            <TextView
+                                android:id="@+id/tvAhorcadoDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Salva al monito"
+                                android:textColor="#CCE0FFFF"
+                                android:textSize="11sp"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Memorama -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnJugarMemorama"
+                        android:layout_width="130dp"
+                        android:layout_height="168dp"
+                        android:layout_marginEnd="12dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:stateListAnimator="@animator/card_press_anim"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_card_orange"
+                            android:padding="16dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/iconBgMemorama"
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="#30FFFFFF"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:padding="10dp"
+                                    android:src="@drawable/ic_game_trivia"
+                                    app:tint="@color/white"/>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tvMemoramaTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Memorama"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-black"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tvMemoramaDesc"/>
+
+                            <TextView
+                                android:id="@+id/tvMemoramaDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Encuentra pares"
+                                android:textColor="#CCE0FFFF"
+                                android:textSize="11sp"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Sopa de Letras -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnJugarSopaLetras"
+                        android:layout_width="130dp"
+                        android:layout_height="168dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:stateListAnimator="@animator/card_press_anim"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="6dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_card_green"
+                            android:padding="16dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/iconBgSopa"
+                                android:layout_width="44dp"
+                                android:layout_height="44dp"
+                                app:cardCornerRadius="14dp"
+                                app:cardElevation="0dp"
+                                app:cardBackgroundColor="#30FFFFFF"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent">
+                                <ImageView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:padding="10dp"
+                                    android:src="@drawable/ic_game_trivia"
+                                    app:tint="@color/white"/>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <TextView
+                                android:id="@+id/tvSopaLetrasTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Sopa Letras"
+                                android:textColor="@color/white"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-black"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toTopOf="@+id/tvSopaLetrasDesc"/>
+
+                            <TextView
+                                android:id="@+id/tvSopaLetrasDesc"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Busca palabras"
+                                android:textColor="#CCE0FFFF"
+                                android:textSize="11sp"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintBottom_toBottomOf="parent"/>
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- ─── Sección: Tu Camino ─── -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -174,57 +705,531 @@
                 android:text="🎯 Tu Camino"
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:fontFamily="sans-serif-black"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="20dp">
+                android:paddingHorizontal="20dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
 
+                <!-- Derechos — DESBLOQUEADO con progress 70% -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarDerechos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardBackgroundColor="@color/category_derechos_bg">
-                    <TextView
+                    android:layout_marginBottom="10dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/white">
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="20dp"
-                        android:text="Nivel 1: Derechos"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"/>
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+
+                        <!-- Acento lateral (color) -->
+                        <View
+                            android:layout_width="5dp"
+                            android:layout_height="52dp"
+                            android:background="@drawable/gradient_card_blue"
+                            android:layout_marginEnd="14dp"/>
+
+                        <!-- Icono -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="14dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="@color/category_derechos_bg">
+                            <ImageView
+                                android:id="@+id/ivDerechos"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="14dp"
+                                android:src="@drawable/ic_derechos"/>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Info + progress -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvDerechos"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Derechos"
+                                android:textSize="16sp"
+                                android:textColor="@color/text_primary"
+                                android:fontFamily="sans-serif-black"/>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginBottom="8dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Nivel 1"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textColor="@color/text_secondary"
+                                    android:layout_marginEnd="8dp"/>
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="24dp"
+                                    android:text="Desbloqueado"
+                                    android:textSize="10sp"
+                                    app:chipBackgroundColor="#1A10B981"
+                                    android:textColor="#065F46"
+                                    app:chipMinHeight="24dp"
+                                    app:chipStrokeWidth="0dp"/>
+                            </LinearLayout>
+                            <!-- Barra de progreso -->
+                            <ProgressBar
+                                android:id="@+id/progressDerechos"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="4dp"
+                                android:progress="70"
+                                android:progressDrawable="@drawable/progress_bar_indigo"
+                                android:max="100"/>
+                        </LinearLayout>
+
+                        <!-- Flecha -->
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="8dp"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_send"
+                            app:tint="@color/category_derechos"/>
+                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Obligaciones — DESBLOQUEADO con progress 30% -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/btnJugarObligaciones"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardBackgroundColor="@color/category_obligaciones_bg">
-                    <TextView
+                    android:layout_marginBottom="10dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="4dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/white">
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="20dp"
-                        android:text="Nivel 2: Obligaciones"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/text_primary"/>
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="5dp"
+                            android:layout_height="52dp"
+                            android:background="@drawable/gradient_card_orange"
+                            android:layout_marginEnd="14dp"/>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="14dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="@color/category_obligaciones_bg">
+                            <ImageView
+                                android:id="@+id/ivObligaciones"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="14dp"
+                                android:src="@drawable/ic_obligaciones"/>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvObligaciones"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Obligaciones"
+                                android:textSize="16sp"
+                                android:textColor="@color/text_primary"
+                                android:fontFamily="sans-serif-black"/>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginBottom="8dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Nivel 2"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textColor="@color/text_secondary"
+                                    android:layout_marginEnd="8dp"/>
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="24dp"
+                                    android:text="Desbloqueado"
+                                    android:textSize="10sp"
+                                    app:chipBackgroundColor="#1A10B981"
+                                    android:textColor="#065F46"
+                                    app:chipMinHeight="24dp"
+                                    app:chipStrokeWidth="0dp"/>
+                            </LinearLayout>
+                            <ProgressBar
+                                android:id="@+id/progressObligaciones"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="4dp"
+                                android:progress="30"
+                                android:progressDrawable="@drawable/progress_bar_orange"
+                                android:max="100"/>
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="8dp"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_send"
+                            app:tint="@color/category_obligaciones"/>
+                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <Button android:id="@+id/btnJugarModoDesafio" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Modo Trivia" android:layout_marginBottom="8dp"/>
-                <Button android:id="@+id/btnJugarAhorcado" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ahorcado" android:layout_marginBottom="8dp"/>
-                <Button android:id="@+id/btnJugarMemorama" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Memorama" android:layout_marginBottom="8dp"/>
-                <Button android:id="@+id/btnVerRanking" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Ver Ranking Global" android:backgroundTint="@color/upp_secondary"/>
+                <!-- Prohibiciones — BLOQUEADO -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnJugarProhibiciones"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:alpha="0.55"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/white">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="5dp"
+                            android:layout_height="52dp"
+                            android:background="@drawable/gradient_card_pink"
+                            android:layout_marginEnd="14dp"/>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="14dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="@color/category_prohibiciones_bg">
+                            <ImageView
+                                android:id="@+id/ivProhibiciones"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="14dp"
+                                android:src="@drawable/ic_prohibiciones"/>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvProhibiciones"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Prohibiciones"
+                                android:textSize="16sp"
+                                android:textColor="@color/text_primary"
+                                android:fontFamily="sans-serif-black"/>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginBottom="8dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Nivel 3"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textColor="@color/text_secondary"
+                                    android:layout_marginEnd="8dp"/>
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="24dp"
+                                    android:text="🔒 Bloqueado"
+                                    android:textSize="10sp"
+                                    app:chipBackgroundColor="#1A9CA3AF"
+                                    android:textColor="@color/text_secondary"
+                                    app:chipMinHeight="24dp"
+                                    app:chipStrokeWidth="0dp"/>
+                            </LinearLayout>
+                            <ProgressBar
+                                android:id="@+id/progressProhibiciones"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="4dp"
+                                android:progress="0"
+                                android:progressDrawable="@drawable/progress_bar_pink"
+                                android:max="100"/>
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="8dp"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_lock"
+                            app:tint="@color/text_secondary"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Sanciones — BLOQUEADO -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnJugarSanciones"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:alpha="0.55"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/white">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="5dp"
+                            android:layout_height="52dp"
+                            android:background="@drawable/gradient_card_purple"
+                            android:layout_marginEnd="14dp"/>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="14dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="@color/category_sanciones_bg">
+                            <ImageView
+                                android:id="@+id/ivSanciones"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="14dp"
+                                android:src="@drawable/ic_sanciones"/>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvSanciones"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Sanciones"
+                                android:textSize="16sp"
+                                android:textColor="@color/text_primary"
+                                android:fontFamily="sans-serif-black"/>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginBottom="8dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Nivel 4"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textColor="@color/text_secondary"
+                                    android:layout_marginEnd="8dp"/>
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="24dp"
+                                    android:text="🔒 Bloqueado"
+                                    android:textSize="10sp"
+                                    app:chipBackgroundColor="#1A9CA3AF"
+                                    android:textColor="@color/text_secondary"
+                                    app:chipMinHeight="24dp"
+                                    app:chipStrokeWidth="0dp"/>
+                            </LinearLayout>
+                            <ProgressBar
+                                android:id="@+id/progressSanciones"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="4dp"
+                                android:progress="0"
+                                android:progressDrawable="@drawable/progress_bar_purple"
+                                android:max="100"/>
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="8dp"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_lock"
+                            app:tint="@color/text_secondary"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Reconocimientos — BLOQUEADO -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btnJugarReconocimientos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:alpha="0.55"
+                    android:stateListAnimator="@animator/card_press_anim"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="2dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/white">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="14dp"
+                        android:gravity="center_vertical">
+
+                        <View
+                            android:layout_width="5dp"
+                            android:layout_height="52dp"
+                            android:background="@drawable/gradient_card_green"
+                            android:layout_marginEnd="14dp"/>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="52dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="14dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:cardBackgroundColor="@color/category_reconocimientos_bg">
+                            <ImageView
+                                android:id="@+id/ivReconocimientos"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:padding="14dp"
+                                android:src="@drawable/ic_reconocimientos"/>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tvReconocimientos"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Reconocimientos"
+                                android:textSize="16sp"
+                                android:textColor="@color/text_primary"
+                                android:fontFamily="sans-serif-black"/>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginBottom="8dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Nivel 5"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textColor="@color/text_secondary"
+                                    android:layout_marginEnd="8dp"/>
+                                <com.google.android.material.chip.Chip
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="24dp"
+                                    android:text="🔒 Bloqueado"
+                                    android:textSize="10sp"
+                                    app:chipBackgroundColor="#1A9CA3AF"
+                                    android:textColor="@color/text_secondary"
+                                    app:chipMinHeight="24dp"
+                                    app:chipStrokeWidth="0dp"/>
+                            </LinearLayout>
+                            <ProgressBar
+                                android:id="@+id/progressReconocimientos"
+                                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="4dp"
+                                android:progress="0"
+                                android:progressDrawable="@drawable/progress_bar_green"
+                                android:max="100"/>
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="8dp"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_lock"
+                            app:tint="@color/text_secondary"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <!-- ═══════════════════════════════════════════
+         BOTTOM NAVIGATION BAR
+    ═══════════════════════════════════════════ -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
@@ -234,6 +1239,7 @@
         app:elevation="16dp"
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
+        app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
