@@ -2,13 +2,13 @@ package com.example.reglamentoupp;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
@@ -20,7 +20,7 @@ public class RankingActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private MaterialCardView btnVolver;
+    private ImageButton btnVolver;
     private RankingAdapter adapter;
     private List<Usuario> listaUsuarios;
     private FirebaseFirestore mStore;
