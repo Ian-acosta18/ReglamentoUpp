@@ -3,6 +3,7 @@ package com.example.reglamentoupp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.bumptech.glide.Glide;
 import com.example.reglamentoupp.databinding.ActivityMainBinding;
@@ -57,7 +58,9 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 binding.tvUserLevel.setText("Nivel " + userNivel);
 
                 String fotoUrl = doc.getString("fotoUrl");
-                if (fotoUrl != null) Glide.with(this).load(fotoUrl).circleCrop().into(binding.ivUserProfile);
+                if (fotoUrl != null && !fotoUrl.isEmpty()) {
+                    Glide.with(this).load(fotoUrl).circleCrop().into(binding.ivUserProfile);
+                }
 
                 actualizarInterfazNiveles();
             }
@@ -77,7 +80,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
         card.setAlpha(unlocked ? 1.0f : 0.5f);
         card.setClickable(unlocked);
 
-        if (lockOrProgress instanceof ImageView) {
+        // Corrección: Verificación segura de tipo para evitar crashes
+        if (lockOrProgress != null) {
             lockOrProgress.setVisibility(unlocked ? View.GONE : View.VISIBLE);
         }
 
@@ -87,6 +91,8 @@ public class MainActivity extends AppCompatActivity implements BaseReglamentoFra
                 i.putExtra("nivelJuego", "Nivel " + nivelReq);
                 startActivity(i);
             });
+        } else {
+            card.setOnClickListener(null);
         }
     }
 

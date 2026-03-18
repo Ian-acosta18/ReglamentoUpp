@@ -1,7 +1,16 @@
-<style name="BubbleShapeAppearance" parent="ShapeAppearance.MaterialComponents.SmallComponent">
-    <item name="cornerFamily">rounded</item>
-    <item name="cornerSizeTopLeft">0dp</item>
-    <item name="cornerSizeTopRight">16dp</item>
-    <item name="cornerSizeBottomRight">16dp</item>
-    <item name="cornerSizeBottomLeft">16dp</item>
-</style>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.ReglamentoUpp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.ReglamentoUpp.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.ReglamentoUpp.MediumComponent</item>
+    </style>
+
+    <style name="ShapeAppearance.ReglamentoUpp.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="ShapeAppearance.ReglamentoUpp.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+</resources>

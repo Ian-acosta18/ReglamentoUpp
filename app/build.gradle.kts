@@ -26,6 +26,8 @@ android {
             )
         }
     }
+
+    // Esta sección define la versión de Java para tus archivos .java
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -37,33 +39,29 @@ android {
 }
 
 dependencies {
+    // Librerías base
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
 
-    // Cloudinary para subir imágenes
+    // Gestión de Imágenes y Animaciones
     implementation("com.cloudinary:cloudinary-android:2.5.0")
-
-    // Glide para mostrar imágenes
     implementation("com.github.bumptech.glide:glide:4.16.0")
-
     implementation("com.airbnb.android:lottie:6.3.0")
 
-    // 1. Añade el "Bill of Materials" (BOM)
+    // Firebase (BOM)
     implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
-
-    // 2. Añade las librerías de Firebase:
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
-
-    // --> NUEVO: FIREBASE STORAGE PARA GUARDAR LA FOTO <--
     implementation("com.google.firebase:firebase-storage")
 
-    implementation("com.google.android.material:material:1.11.0")
+    // UI
+    implementation("androidx.gridlayout:gridlayout:1.0.0")
+    implementation("androidx.cardview:cardview:1.0.0")
+
+    // Tests
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("androidx.gridlayout:gridlayout:1.0.0")
-    implementation("androidx.cardview:cardview:1.0.0")
 }

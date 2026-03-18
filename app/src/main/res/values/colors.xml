@@ -1,24 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="upp_primary">#4F46E5</color>
-    <color name="upp_primary_dark">#4338CA</color>
-    <color name="app_bg">#F5F5F7</color>
-    <color name="white">#FFFFFF</color>
-    <color name="black">#000000</color>
-    <color name="text_primary">#1A1A2E</color>
-    <color name="text_secondary">#6B7280</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
 
-    <color name="category_derechos">#6366F1</color>
-    <color name="category_derechos_bg">#EEF2FF</color>
-    <color name="category_obligaciones">#F97316</color>
-    <color name="category_obligaciones_bg">#FFF7ED</color>
-    <color name="category_prohibiciones">#EC4899</color>
-    <color name="category_prohibiciones_bg">#FDF2F8</color>
-    <color name="category_sanciones">#8B5CF6</color>
-    <color name="category_sanciones_bg">#F5F3FF</color>
-    <color name="category_reconocimientos">#10B981</color>
-    <color name="category_reconocimientos_bg">#ECFDF5</color>
+    <color name="text_light">#F5F5F5</color>
+    <color name="upp_secondary">#03DAC5</color> <color name="surface_color">#FFFFFF</color>
 
-    <color name="status_green">#10B981</color>
-    <color name="gray">#9CA3AF</color>
+    <color name="game_success">#4CAF50</color>
+    <color name="game_fail">#F44336</color>
+    <color name="upp_primary">#6200EE</color>
 </resources>
