@@ -1,8 +1,11 @@
 package com.example.reglamentoupp;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
     private TextView tvUserName, tvUserPuntaje, tvUserLevel;
     private View btnLogout;
 
+    // Declaramos las barras de progreso
+    private ProgressBar progressDerechos, progressObligaciones, progressProhibiciones, progressSanciones, progressReconocimientos;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +43,16 @@ public class MainActivity extends AppCompatActivity {
         tvUserPuntaje = findViewById(R.id.tvUserPuntaje);
         tvUserLevel = findViewById(R.id.tvUserLevel);
         btnLogout = findViewById(R.id.btnLogout);
+
+        // Inicializamos las barras
+        progressDerechos = findViewById(R.id.progressDerechos);
+        progressObligaciones = findViewById(R.id.progressObligaciones);
+        progressProhibiciones = findViewById(R.id.progressProhibiciones);
+        progressSanciones = findViewById(R.id.progressSanciones);
+        progressReconocimientos = findViewById(R.id.progressReconocimientos);
+
+        // Ponemos todas las barras en 0 al iniciar
+        reiniciarBarras();
 
         cargarDatosUsuario();
         configurarBottomNavigation();
@@ -52,6 +68,14 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             });
         }
+    }
+
+    private void reiniciarBarras() {
+        if (progressDerechos != null) progressDerechos.setProgress(0);
+        if (progressObligaciones != null) progressObligaciones.setProgress(0);
+        if (progressProhibiciones != null) progressProhibiciones.setProgress(0);
+        if (progressSanciones != null) progressSanciones.setProgress(0);
+        if (progressReconocimientos != null) progressReconocimientos.setProgress(0);
     }
 
     private void cargarDatosUsuario() {
@@ -74,13 +98,51 @@ public class MainActivity extends AppCompatActivity {
                                 if (tvUserPuntaje != null) {
                                     tvUserPuntaje.setText("⚡ " + puntaje + " XP");
                                 }
-                                long nivel = (puntaje / 100) + 1;
+                                // Corregido: Calculamos el nivel en base a 50 puntos como en GameLevelActivity
+                                long nivel = (puntaje / 50) + 1;
                                 if (tvUserLevel != null) {
                                     tvUserLevel.setText("🏆 Nivel " + nivel);
                                 }
+
+                                // Actualizamos las barras de progreso con animación
+                                actualizarProgresoBarras(puntaje);
                             }
                         }
                     });
+        }
+    }
+
+    private void actualizarProgresoBarras(long puntaje) {
+        int maxXP = 50; // Cada nivel requiere 50 puntos
+
+        // Nivel 1: Derechos (0 - 50 XP)
+        int p1 = (int) Math.min(maxXP, Math.max(0, puntaje));
+        animarBarra(progressDerechos, (p1 * 100) / maxXP);
+
+        // Nivel 2: Obligaciones (50 - 100 XP)
+        int p2 = (int) Math.min(maxXP, Math.max(0, puntaje - 50));
+        animarBarra(progressObligaciones, (p2 * 100) / maxXP);
+
+        // Nivel 3: Prohibiciones (100 - 150 XP)
+        int p3 = (int) Math.min(maxXP, Math.max(0, puntaje - 100));
+        animarBarra(progressProhibiciones, (p3 * 100) / maxXP);
+
+        // Nivel 4: Sanciones (150 - 200 XP)
+        int p4 = (int) Math.min(maxXP, Math.max(0, puntaje - 150));
+        animarBarra(progressSanciones, (p4 * 100) / maxXP);
+
+        // Nivel 5: Reconocimientos (200 - 250 XP)
+        int p5 = (int) Math.min(maxXP, Math.max(0, puntaje - 200));
+        animarBarra(progressReconocimientos, (p5 * 100) / maxXP);
+    }
+
+    // Método para hacer que la barra se llene suavemente
+    private void animarBarra(ProgressBar bar, int progresoDestino) {
+        if (bar != null) {
+            ObjectAnimator animation = ObjectAnimator.ofInt(bar, "progress", bar.getProgress(), progresoDestino);
+            animation.setDuration(1200); // 1.2 segundos de animación
+            animation.setInterpolator(new DecelerateInterpolator()); // Inicia rápido y termina suave
+            animation.start();
         }
     }
 
