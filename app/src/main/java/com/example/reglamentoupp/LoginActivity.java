@@ -8,7 +8,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.reglamentoupp.databinding.ActivityLoginBinding;
-
 import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
@@ -28,10 +27,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.e("LOGIN_FIREBASE_ERROR", "Error al inicializar Firebase: " + e.getMessage());
             Toast.makeText(this, "Error fatal de configuración de Firebase.", Toast.LENGTH_LONG).show();
 
-            binding.btnLogin.setEnabled(false);
-            binding.tvRegister.setEnabled(false); // CORREGIDO: Ahora es tvRegister
-            binding.etEmail.setEnabled(false);
-            binding.etPassword.setEnabled(false);
+            setInputsEnabled(false);
             return;
         }
 
@@ -45,7 +41,6 @@ public class LoginActivity extends AppCompatActivity {
         // Configurar listeners
         binding.btnLogin.setOnClickListener(v -> loginUser());
 
-        // CORREGIDO: Listener actualizado para el nuevo TextView
         binding.tvRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
@@ -53,15 +48,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser() {
-        String email = "";
-        if (binding.etEmail.getText() != null) {
-            email = binding.etEmail.getText().toString().trim();
-        }
+        if (binding.etEmail.getText() == null || binding.etPassword.getText() == null) return;
 
-        String password = "";
-        if (binding.etPassword.getText() != null) {
-            password = binding.etPassword.getText().toString().trim();
-        }
+        String email = binding.etEmail.getText().toString().trim();
+        String password = binding.etPassword.getText().toString().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Por favor, llena todos los campos", Toast.LENGTH_SHORT).show();
@@ -99,14 +89,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setLoading(boolean isLoading) {
-        if (isLoading) {
-            binding.progressBar.setVisibility(View.VISIBLE);
-            binding.btnLogin.setEnabled(false);
-            binding.tvRegister.setEnabled(false); // CORREGIDO
-        } else {
-            binding.progressBar.setVisibility(View.GONE);
-            binding.btnLogin.setEnabled(true);
-            binding.tvRegister.setEnabled(true); // CORREGIDO
-        }
+        binding.progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        setInputsEnabled(!isLoading);
+    }
+
+    private void setInputsEnabled(boolean enabled) {
+        binding.btnLogin.setEnabled(enabled);
+        binding.tvRegister.setEnabled(enabled);
+        binding.etEmail.setEnabled(enabled);
+        binding.etPassword.setEnabled(enabled);
     }
 }

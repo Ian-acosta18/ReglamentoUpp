@@ -93,7 +93,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Nombre(s)"
-                    app:startIconDrawable="@drawable/ic_derechos"
+                    app:startIconDrawable="@android:drawable/ic_menu_edit"
                     app:startIconTint="@color/upp_primary">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_nombre"
@@ -109,7 +109,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="Apellidos"
-                    app:startIconDrawable="@drawable/ic_derechos"
+                    app:startIconDrawable="@android:drawable/ic_menu_edit"
                     app:startIconTint="@color/upp_primary">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_apellidos"
@@ -143,7 +143,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:hint="Correo Institucional"
-                    app:startIconDrawable="@drawable/ic_send"
+                    app:startIconDrawable="@android:drawable/ic_dialog_email"
                     app:startIconTint="@color/upp_primary">
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/et_email_register"

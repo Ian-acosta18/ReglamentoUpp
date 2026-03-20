@@ -26,15 +26,11 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore mStore;
     private static final String TAG = "RegisterActivity";
-
-    // Variables para imagen
     private Uri imageUri;
     private ActivityResultLauncher<String> galleryLauncher;
 
-    // --- DATOS DE CLOUDINARY ---
-    // Verifica que estos coincidan exactamente con tu Dashboard
     private static final String CLOUD_NAME = "dfgj9sdma";
-    private static final String UPLOAD_PRESET = "mi_app_preset"; // ¡Debe ser Unsigned en la web!
+    private static final String UPLOAD_PRESET = "mi_app_preset";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +38,10 @@ public class RegisterActivity extends AppCompatActivity {
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Inicializar Cloudinary
         initCloudinary();
-
         mAuth = FirebaseAuth.getInstance();
         mStore = FirebaseFirestore.getInstance();
 
-        // Configurar galería
         galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
@@ -76,7 +69,8 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void validateAndRegisterUser() {
-        if (binding.etNombre.getText() == null || binding.etApellidos.getText() == null) return;
+        if (binding.etNombre.getText() == null || binding.etApellidos.getText() == null ||
+                binding.etEmailRegister.getText() == null || binding.etPasswordRegister.getText() == null) return;
 
         String nombre = binding.etNombre.getText().toString().trim();
         String apellidos = binding.etApellidos.getText().toString().trim();
@@ -86,13 +80,15 @@ public class RegisterActivity extends AppCompatActivity {
         String confirmPassword = binding.etConfirmPassword.getText() != null ? binding.etConfirmPassword.getText().toString().trim() : "";
 
         if (nombre.isEmpty() || apellidos.isEmpty() || email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Llena todos los campos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Llena todos los campos obligatorios", Toast.LENGTH_SHORT).show();
             return;
         }
+
         if (password.length() < 6) {
             binding.etPasswordRegister.setError("Mínimo 6 caracteres");
             return;
         }
+
         if (!password.equals(confirmPassword)) {
             binding.etConfirmPassword.setError("Las contraseñas no coinciden");
             return;
@@ -110,52 +106,37 @@ public class RegisterActivity extends AppCompatActivity {
                             createNewUserInFirestore(user, nombre, apellidos, telefono, "");
                         }
                     } else {
-                        Log.e(TAG, "Error Auth", task.getException());
-                        Toast.makeText(RegisterActivity.this, "Error registro: " +
-                                (task.getException() != null ? task.getException().getMessage() : ""), Toast.LENGTH_LONG).show();
                         setLoading(false);
+                        String error = task.getException() != null ? task.getException().getMessage() : "Error desconocido";
+                        Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
     private void uploadImageToCloudinary(FirebaseUser user, String nombre, String apellidos, String telefono) {
-        Log.d(TAG, "Iniciando subida a Cloudinary...");
-
         MediaManager.get().upload(imageUri)
-                .unsigned(UPLOAD_PRESET) // Usa el preset configurado
+                .unsigned(UPLOAD_PRESET)
                 .callback(new UploadCallback() {
                     @Override
-                    public void onStart(String requestId) {
-                        Log.d(TAG, "Subida iniciada: " + requestId);
-                    }
-
+                    public void onStart(String requestId) {}
                     @Override
-                    public void onProgress(String requestId, long bytes, long totalBytes) { }
+                    public void onProgress(String requestId, long bytes, long totalBytes) {}
 
                     @Override
                     public void onSuccess(String requestId, Map resultData) {
-                        Log.d(TAG, "Subida exitosa: " + resultData.get("secure_url"));
                         String url = (String) resultData.get("secure_url");
                         createNewUserInFirestore(user, nombre, apellidos, telefono, url);
                     }
 
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
-                        // AQUÍ VERÁS EL ERROR REAL EN EL LOGCAT
-                        Log.e(TAG, "ERROR CLOUDINARY: " + error.getDescription());
-                        Log.e(TAG, "CÓDIGO ERROR: " + error.getCode());
-
-                        Toast.makeText(RegisterActivity.this,
-                                "Error foto: " + error.getDescription(), Toast.LENGTH_LONG).show();
-
-                        // Guardamos sin foto para no perder el usuario
+                        Log.e(TAG, "Error Cloudinary: " + error.getDescription());
                         createNewUserInFirestore(user, nombre, apellidos, telefono, "");
                     }
 
                     @Override
-                    public void onReschedule(String requestId, ErrorInfo error) { }
-                })
-                .dispatch();
+                    public void onReschedule(String requestId, ErrorInfo error) {}
+                }).dispatch();
     }
 
     private void createNewUserInFirestore(FirebaseUser firebaseUser, String nombre, String apellidos, String telefono, String fotoUrl) {
@@ -176,25 +157,21 @@ public class RegisterActivity extends AppCompatActivity {
 
         mStore.collection("usuarios").document(firebaseUser.getUid())
                 .set(userData)
-                .addOnSuccessListener(aVoid -> {
-                    navigateToMain();
-                })
+                .addOnSuccessListener(aVoid -> navigateToMain())
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error Firestore", e);
-                    Toast.makeText(RegisterActivity.this, "Error al guardar datos.", Toast.LENGTH_SHORT).show();
                     setLoading(false);
+                    Toast.makeText(this, "Error al guardar perfil", Toast.LENGTH_SHORT).show();
                 });
     }
 
     private void navigateToMain() {
-        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
 
     private void setLoading(boolean isLoading) {
-        if (binding == null) return;
         binding.progressBarRegister.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         binding.btnDoRegister.setEnabled(!isLoading);
     }
