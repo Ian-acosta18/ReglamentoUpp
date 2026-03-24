@@ -80,7 +80,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:text="Toca para cambiar foto"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="@color/black"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -101,38 +101,48 @@
                 android:orientation="horizontal"
                 android:weightSum="5"
                 android:baselineAligned="false"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="28dp">
 
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                    <ImageView android:id="@+id/logroDerechos" android:layout_width="45dp" android:layout_height="45dp" android:src="@drawable/ic_derechos" app:tint="#D3D3D3"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Derechos" android:textSize="10sp" android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:textAlignment="center"/>
+                    <com.google.android.material.card.MaterialCardView android:id="@+id/cardLogroDerechos" android:layout_width="54dp" android:layout_height="54dp" app:cardCornerRadius="27dp" app:cardElevation="2dp" app:strokeWidth="0dp" app:cardBackgroundColor="#E0E0E0">
+                        <ImageView android:id="@+id/logroDerechos" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:src="@drawable/ic_derechos" app:tint="#9E9E9E"/>
+                    </com.google.android.material.card.MaterialCardView>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Derechos" android:textSize="11sp" android:textColor="@color/text_primary" android:textStyle="bold" android:layout_marginTop="6dp"/>
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                    <ImageView android:id="@+id/logroObligaciones" android:layout_width="45dp" android:layout_height="45dp" android:src="@drawable/ic_obligaciones" app:tint="#D3D3D3"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Deberes" android:textSize="10sp" android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:textAlignment="center"/>
+                    <com.google.android.material.card.MaterialCardView android:id="@+id/cardLogroObligaciones" android:layout_width="54dp" android:layout_height="54dp" app:cardCornerRadius="27dp" app:cardElevation="2dp" app:strokeWidth="0dp" app:cardBackgroundColor="#E0E0E0">
+                        <ImageView android:id="@+id/logroObligaciones" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:src="@drawable/ic_obligaciones" app:tint="#9E9E9E"/>
+                    </com.google.android.material.card.MaterialCardView>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Deberes" android:textSize="11sp" android:textColor="@color/text_primary" android:textStyle="bold" android:layout_marginTop="6dp"/>
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                    <ImageView android:id="@+id/logroProhibiciones" android:layout_width="45dp" android:layout_height="45dp" android:src="@drawable/ic_prohibiciones" app:tint="#D3D3D3"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Prohibido" android:textSize="10sp" android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:textAlignment="center"/>
+                    <com.google.android.material.card.MaterialCardView android:id="@+id/cardLogroProhibiciones" android:layout_width="54dp" android:layout_height="54dp" app:cardCornerRadius="27dp" app:cardElevation="2dp" app:strokeWidth="0dp" app:cardBackgroundColor="#E0E0E0">
+                        <ImageView android:id="@+id/logroProhibiciones" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:src="@drawable/ic_prohibiciones" app:tint="#9E9E9E"/>
+                    </com.google.android.material.card.MaterialCardView>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Prohibido" android:textSize="11sp" android:textColor="@color/text_primary" android:textStyle="bold" android:layout_marginTop="6dp"/>
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                    <ImageView android:id="@+id/logroSanciones" android:layout_width="45dp" android:layout_height="45dp" android:src="@drawable/ic_sanciones" app:tint="#D3D3D3"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sanciones" android:textSize="10sp" android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:textAlignment="center"/>
+                    <com.google.android.material.card.MaterialCardView android:id="@+id/cardLogroSanciones" android:layout_width="54dp" android:layout_height="54dp" app:cardCornerRadius="27dp" app:cardElevation="2dp" app:strokeWidth="0dp" app:cardBackgroundColor="#E0E0E0">
+                        <ImageView android:id="@+id/logroSanciones" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:src="@drawable/ic_sanciones" app:tint="#9E9E9E"/>
+                    </com.google.android.material.card.MaterialCardView>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sanciones" android:textSize="11sp" android:textColor="@color/text_primary" android:textStyle="bold" android:layout_marginTop="6dp"/>
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                    <ImageView android:id="@+id/logroReconocimientos" android:layout_width="45dp" android:layout_height="45dp" android:src="@drawable/ic_reconocimientos" app:tint="#D3D3D3"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premios" android:textSize="10sp" android:textColor="@color/text_secondary" android:layout_marginTop="4dp" android:textAlignment="center"/>
+                    <com.google.android.material.card.MaterialCardView android:id="@+id/cardLogroReconocimientos" android:layout_width="54dp" android:layout_height="54dp" app:cardCornerRadius="27dp" app:cardElevation="2dp" app:strokeWidth="0dp" app:cardBackgroundColor="#E0E0E0">
+                        <ImageView android:id="@+id/logroReconocimientos" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:src="@drawable/ic_reconocimientos" app:tint="#9E9E9E"/>
+                    </com.google.android.material.card.MaterialCardView>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premios" android:textSize="11sp" android:textColor="@color/text_primary" android:textStyle="bold" android:layout_marginTop="6dp"/>
                 </LinearLayout>
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 app:cardBackgroundColor="@color/white"
                 android:layout_marginBottom="20dp">
@@ -153,7 +163,7 @@
                         android:layout_marginBottom="16dp"/>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Rounded"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColorHint="#000000"
@@ -167,7 +177,7 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Rounded"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
@@ -182,7 +192,7 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Rounded"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
@@ -201,17 +211,17 @@
                         android:id="@+id/btnSaveProfile"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="20dp"
                         android:text="Guardar Cambios"
                         android:backgroundTint="@color/upp_primary"
-                        app:cornerRadius="12dp"/>
+                        app:cornerRadius="28dp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="20dp"
+                app:cardCornerRadius="24dp"
                 app:cardElevation="4dp"
                 app:cardBackgroundColor="@color/white"
                 android:layout_marginBottom="20dp">
@@ -232,7 +242,7 @@
                         android:layout_marginBottom="16dp"/>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Rounded"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textColorHint="#000000"
@@ -248,7 +258,7 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Rounded"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
@@ -269,11 +279,11 @@
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="20dp"
                         android:text="Actualizar Contraseña"
                         android:textColor="@color/upp_primary"
                         app:strokeColor="@color/upp_primary"
-                        app:cornerRadius="12dp"/>
+                        app:cornerRadius="28dp"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

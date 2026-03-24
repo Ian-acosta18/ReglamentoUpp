@@ -7,17 +7,10 @@
         <item name="colorSecondaryVariant">@color/upp_secondary</item>
         <item name="colorOnSecondary">@color/white</item>
 
-        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.ReglamentoUpp.SmallComponent</item>
-        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.ReglamentoUpp.MediumComponent</item>
-    </style>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.App.MediumComponent</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.App.LargeComponent</item>
 
-    <style name="ShapeAppearance.ReglamentoUpp.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">8dp</item>
-    </style>
-
-    <style name="ShapeAppearance.ReglamentoUpp.MediumComponent" parent="ShapeAppearance.MaterialComponents.MediumComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">16dp</item>
+        <item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Rounded</item>
     </style>
 </resources>

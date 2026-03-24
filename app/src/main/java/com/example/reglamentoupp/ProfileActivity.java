@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
+import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,6 +30,7 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText etNombre, etApellidos, etTelefono, etNewPassword, etConfirmNewPassword;
     private ImageView ivProfilePhoto;
     private ImageView logroDerechos, logroObligaciones, logroProhibiciones, logroSanciones, logroReconocimientos;
+    private MaterialCardView cardLogroDerechos, cardLogroObligaciones, cardLogroProhibiciones, cardLogroSanciones, cardLogroReconocimientos;
     private ProgressBar progressBar;
 
     private FirebaseAuth mAuth;
@@ -76,15 +78,23 @@ public class ProfileActivity extends AppCompatActivity {
         etApellidos = findViewById(R.id.etEditApellidos);
         etTelefono = findViewById(R.id.etEditTelefono);
         etNewPassword = findViewById(R.id.etNewPassword);
-        etConfirmNewPassword = findViewById(R.id.etConfirmNewPassword); // Vinculamos el nuevo campo
+        etConfirmNewPassword = findViewById(R.id.etConfirmNewPassword);
         ivProfilePhoto = findViewById(R.id.ivProfilePhoto);
         progressBar = findViewById(R.id.progressProfile);
 
+        // Íconos
         logroDerechos = findViewById(R.id.logroDerechos);
         logroObligaciones = findViewById(R.id.logroObligaciones);
         logroProhibiciones = findViewById(R.id.logroProhibiciones);
         logroSanciones = findViewById(R.id.logroSanciones);
         logroReconocimientos = findViewById(R.id.logroReconocimientos);
+
+        // Fondos de Medalla (Círculos)
+        cardLogroDerechos = findViewById(R.id.cardLogroDerechos);
+        cardLogroObligaciones = findViewById(R.id.cardLogroObligaciones);
+        cardLogroProhibiciones = findViewById(R.id.cardLogroProhibiciones);
+        cardLogroSanciones = findViewById(R.id.cardLogroSanciones);
+        cardLogroReconocimientos = findViewById(R.id.cardLogroReconocimientos);
     }
 
     private void cargarDatosUsuario() {
@@ -145,17 +155,14 @@ public class ProfileActivity extends AppCompatActivity {
         String newPass = etNewPassword.getText().toString().trim();
         String confirmPass = etConfirmNewPassword.getText().toString().trim();
 
-        // Validaciones
         if (newPass.isEmpty()) {
             etNewPassword.setError("Ingresa una nueva contraseña");
             return;
         }
-
         if (newPass.length() < 6) {
             etNewPassword.setError("Mínimo 6 caracteres");
             return;
         }
-
         if (!newPass.equals(confirmPass)) {
             etConfirmNewPassword.setError("Las contraseñas no coinciden");
             return;
@@ -205,11 +212,26 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void iluminarLogros(long puntaje) {
-        // Colorea los iconos dependiendo del puntaje actual del usuario
-        if (puntaje >= 0) logroDerechos.setColorFilter(Color.parseColor("#448AFF")); // Azul
-        if (puntaje >= 50) logroObligaciones.setColorFilter(Color.parseColor("#FF9800")); // Naranja
-        if (puntaje >= 100) logroProhibiciones.setColorFilter(Color.parseColor("#E91E63")); // Rosa
-        if (puntaje >= 150) logroSanciones.setColorFilter(Color.parseColor("#9C27B0")); // Morado
-        if (puntaje >= 200) logroReconocimientos.setColorFilter(Color.parseColor("#4CAF50")); // Verde
+        // Se pinta el fondo de la tarjeta de color y el ícono de blanco para que resalte
+        if (puntaje >= 0) {
+            cardLogroDerechos.setCardBackgroundColor(Color.parseColor("#448AFF")); // Azul
+            logroDerechos.setColorFilter(Color.WHITE);
+        }
+        if (puntaje >= 50) {
+            cardLogroObligaciones.setCardBackgroundColor(Color.parseColor("#FF9800")); // Naranja
+            logroObligaciones.setColorFilter(Color.WHITE);
+        }
+        if (puntaje >= 100) {
+            cardLogroProhibiciones.setCardBackgroundColor(Color.parseColor("#E91E63")); // Rosa
+            logroProhibiciones.setColorFilter(Color.WHITE);
+        }
+        if (puntaje >= 150) {
+            cardLogroSanciones.setCardBackgroundColor(Color.parseColor("#9C27B0")); // Morado
+            logroSanciones.setColorFilter(Color.WHITE);
+        }
+        if (puntaje >= 200) {
+            cardLogroReconocimientos.setCardBackgroundColor(Color.parseColor("#4CAF50")); // Verde
+            logroReconocimientos.setColorFilter(Color.WHITE);
+        }
     }
 }
