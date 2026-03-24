@@ -82,19 +82,20 @@
                 android:layout_height="wrap_content"
                 android:hint="Correo Institucional"
                 app:boxStrokeColor="@color/upp_primary"
-                app:startIconDrawable="@drawable/ic_send"
+                app:startIconDrawable="@drawable/ic_email"
                 app:startIconTint="@color/upp_primary"
                 app:boxCornerRadiusTopStart="18dp"
                 app:boxCornerRadiusTopEnd="18dp"
                 app:boxCornerRadiusBottomStart="18dp"
                 app:boxCornerRadiusBottomEnd="18dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingVertical="16dp"
                     android:textSize="16sp"
-                    android:textColor="@android:color/black"
+                    android:textColor="#000000"
                     android:textColorHint="#757575"
                     android:inputType="textEmailAddress"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -114,13 +115,14 @@
                 app:boxCornerRadiusTopEnd="18dp"
                 app:boxCornerRadiusBottomStart="18dp"
                 app:boxCornerRadiusBottomEnd="18dp">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingVertical="16dp"
                     android:textSize="16sp"
-                    android:textColor="@android:color/black"
+                    android:textColor="#000000"
                     android:textColorHint="#757575"
                     android:inputType="textPassword"/>
             </com.google.android.material.textfield.TextInputLayout>
