@@ -2,9 +2,7 @@ package com.example.reglamentoupp;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
@@ -12,14 +10,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.cloudinary.android.MediaManager;
-import com.cloudinary.android.callback.ErrorInfo;
-import com.cloudinary.android.callback.UploadCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -45,10 +39,6 @@ public class MainActivity extends AppCompatActivity {
 
     // Declaramos las barras de progreso
     private ProgressBar progressDerechos, progressObligaciones, progressProhibiciones, progressSanciones, progressReconocimientos;
-
-    // Variables para la imagen de perfil
-    private ActivityResultLauncher<String> galleryLauncher;
-    private Uri newImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,21 +71,12 @@ public class MainActivity extends AppCompatActivity {
         configurarJuegosRapidos();
         configurarCaminoCategorias();
 
-        // Configurar el seleccionador de imágenes
-        galleryLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        newImageUri = uri;
-                        ivUserProfile.setImageURI(uri);
-                        actualizarImagenEnBaseDeDatos(uri);
-                    }
-                }
-        );
+        // Al presionar la foto de perfil de arriba, abrimos la pantalla de Perfil
+        cardProfilePic.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+        });
 
-        // Al presionar la foto de perfil, abrimos la galería
-        cardProfilePic.setOnClickListener(v -> galleryLauncher.launch("image/*"));
-
+        // Botón para cerrar sesión
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
                 mAuth.signOut();
@@ -105,6 +86,14 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             });
         }
+    }
+
+    // Este método se ejecuta cada vez que regresas a esta pantalla (Por ejemplo, desde el Perfil)
+    // Sirve para recargar la foto y el nombre por si los cambiaste.
+    @Override
+    protected void onResume() {
+        super.onResume();
+        cargarDatosUsuario();
     }
 
     // Aseguramos que Cloudinary esté listo
@@ -137,11 +126,11 @@ public class MainActivity extends AppCompatActivity {
                         if (documentSnapshot.exists()) {
                             String nombre = documentSnapshot.getString("nombre");
                             Long puntaje = documentSnapshot.getLong("puntaje");
-                            String fotoUrl = documentSnapshot.getString("fotoUrl"); // Obtenemos la URL de la foto
+                            String fotoUrl = documentSnapshot.getString("fotoUrl");
 
                             if (nombre != null && tvUserName != null) {
                                 String[] partesNombre = nombre.split(" ");
-                                tvUserName.setText(partesNombre[0]);
+                                tvUserName.setText(partesNombre[0]); // Mostramos solo el primer nombre
                             }
 
                             if (puntaje != null) {
@@ -165,44 +154,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
         }
-    }
-
-    private void actualizarImagenEnBaseDeDatos(Uri imageUri) {
-        Toast.makeText(this, "Subiendo nueva imagen de perfil...", Toast.LENGTH_SHORT).show();
-
-        MediaManager.get().upload(imageUri)
-                .unsigned("mi_app_preset") // Tu preset
-                .callback(new UploadCallback() {
-                    @Override
-                    public void onStart(String requestId) {}
-                    @Override
-                    public void onProgress(String requestId, long bytes, long totalBytes) {}
-                    @Override
-                    public void onReschedule(String requestId, ErrorInfo error) {}
-
-                    @Override
-                    public void onSuccess(String requestId, Map resultData) {
-                        String newUrl = (String) resultData.get("secure_url");
-                        FirebaseUser user = mAuth.getCurrentUser();
-
-                        if(user != null) {
-                            db.collection("usuarios").document(user.getUid())
-                                    .update("fotoUrl", newUrl)
-                                    .addOnSuccessListener(aVoid -> {
-                                        Toast.makeText(MainActivity.this, "¡Foto actualizada con éxito!", Toast.LENGTH_SHORT).show();
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Toast.makeText(MainActivity.this, "Error al guardar en base de datos", Toast.LENGTH_SHORT).show();
-                                    });
-                        }
-                    }
-
-                    @Override
-                    public void onError(String requestId, ErrorInfo error) {
-                        Toast.makeText(MainActivity.this, "Error al subir imagen a Cloudinary", Toast.LENGTH_SHORT).show();
-                        Log.e("CLOUDINARY_ERROR", error.getDescription());
-                    }
-                }).dispatch();
     }
 
     private void actualizarProgresoBarras(long puntaje) {
@@ -247,7 +198,8 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(MainActivity.this, RankingActivity.class));
                     return true;
                 } else if (id == R.id.nav_profile) {
-                    Toast.makeText(this, "Toca tu foto arriba para cambiarla ☝️", Toast.LENGTH_SHORT).show();
+                    // Abrimos la pantalla de Perfil desde la barra de abajo
+                    startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                     return true;
                 }
                 return false;
