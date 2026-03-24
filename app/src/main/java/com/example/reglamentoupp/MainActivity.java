@@ -2,19 +2,32 @@ package com.example.reglamentoupp;
 
 import android.animation.ObjectAnimator;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+import com.cloudinary.android.MediaManager;
+import com.cloudinary.android.callback.ErrorInfo;
+import com.cloudinary.android.callback.UploadCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,15 +39,23 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
 
     private TextView tvUserName, tvUserPuntaje, tvUserLevel;
+    private ImageView ivUserProfile;
+    private MaterialCardView cardProfilePic;
     private View btnLogout;
 
     // Declaramos las barras de progreso
     private ProgressBar progressDerechos, progressObligaciones, progressProhibiciones, progressSanciones, progressReconocimientos;
 
+    // Variables para la imagen de perfil
+    private ActivityResultLauncher<String> galleryLauncher;
+    private Uri newImageUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        initCloudinary(); // Iniciamos Cloudinary por si la app entra directo aquí
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -43,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         tvUserPuntaje = findViewById(R.id.tvUserPuntaje);
         tvUserLevel = findViewById(R.id.tvUserLevel);
         btnLogout = findViewById(R.id.btnLogout);
+        ivUserProfile = findViewById(R.id.ivUserProfile);
+        cardProfilePic = findViewById(R.id.cardProfilePic);
 
         // Inicializamos las barras
         progressDerechos = findViewById(R.id.progressDerechos);
@@ -53,11 +76,25 @@ public class MainActivity extends AppCompatActivity {
 
         // Ponemos todas las barras en 0 al iniciar
         reiniciarBarras();
-
         cargarDatosUsuario();
         configurarBottomNavigation();
         configurarJuegosRapidos();
         configurarCaminoCategorias();
+
+        // Configurar el seleccionador de imágenes
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(),
+                uri -> {
+                    if (uri != null) {
+                        newImageUri = uri;
+                        ivUserProfile.setImageURI(uri);
+                        actualizarImagenEnBaseDeDatos(uri);
+                    }
+                }
+        );
+
+        // Al presionar la foto de perfil, abrimos la galería
+        cardProfilePic.setOnClickListener(v -> galleryLauncher.launch("image/*"));
 
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
@@ -67,6 +104,18 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             });
+        }
+    }
+
+    // Aseguramos que Cloudinary esté listo
+    private void initCloudinary() {
+        try {
+            MediaManager.get();
+        } catch (IllegalStateException e) {
+            Map<String, Object> config = new HashMap<>();
+            config.put("cloud_name", "dfgj9sdma"); // Tu nombre de Cloudinary
+            config.put("secure", true);
+            MediaManager.init(this, config);
         }
     }
 
@@ -88,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         if (documentSnapshot.exists()) {
                             String nombre = documentSnapshot.getString("nombre");
                             Long puntaje = documentSnapshot.getLong("puntaje");
+                            String fotoUrl = documentSnapshot.getString("fotoUrl"); // Obtenemos la URL de la foto
 
                             if (nombre != null && tvUserName != null) {
                                 String[] partesNombre = nombre.split(" ");
@@ -98,50 +148,86 @@ public class MainActivity extends AppCompatActivity {
                                 if (tvUserPuntaje != null) {
                                     tvUserPuntaje.setText("⚡ " + puntaje + " XP");
                                 }
-                                // Corregido: Calculamos el nivel en base a 50 puntos como en GameLevelActivity
                                 long nivel = (puntaje / 50) + 1;
                                 if (tvUserLevel != null) {
                                     tvUserLevel.setText("🏆 Nivel " + nivel);
                                 }
-
-                                // Actualizamos las barras de progreso con animación
                                 actualizarProgresoBarras(puntaje);
+                            }
+
+                            // Cargamos la imagen de perfil con Glide
+                            if (fotoUrl != null && !fotoUrl.isEmpty() && ivUserProfile != null) {
+                                Glide.with(MainActivity.this)
+                                        .load(fotoUrl)
+                                        .centerCrop()
+                                        .into(ivUserProfile);
                             }
                         }
                     });
         }
     }
 
-    private void actualizarProgresoBarras(long puntaje) {
-        int maxXP = 50; // Cada nivel requiere 50 puntos
+    private void actualizarImagenEnBaseDeDatos(Uri imageUri) {
+        Toast.makeText(this, "Subiendo nueva imagen de perfil...", Toast.LENGTH_SHORT).show();
 
-        // Nivel 1: Derechos (0 - 50 XP)
+        MediaManager.get().upload(imageUri)
+                .unsigned("mi_app_preset") // Tu preset
+                .callback(new UploadCallback() {
+                    @Override
+                    public void onStart(String requestId) {}
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {}
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {}
+
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        String newUrl = (String) resultData.get("secure_url");
+                        FirebaseUser user = mAuth.getCurrentUser();
+
+                        if(user != null) {
+                            db.collection("usuarios").document(user.getUid())
+                                    .update("fotoUrl", newUrl)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(MainActivity.this, "¡Foto actualizada con éxito!", Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Toast.makeText(MainActivity.this, "Error al guardar en base de datos", Toast.LENGTH_SHORT).show();
+                                    });
+                        }
+                    }
+
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        Toast.makeText(MainActivity.this, "Error al subir imagen a Cloudinary", Toast.LENGTH_SHORT).show();
+                        Log.e("CLOUDINARY_ERROR", error.getDescription());
+                    }
+                }).dispatch();
+    }
+
+    private void actualizarProgresoBarras(long puntaje) {
+        int maxXP = 50;
         int p1 = (int) Math.min(maxXP, Math.max(0, puntaje));
         animarBarra(progressDerechos, (p1 * 100) / maxXP);
 
-        // Nivel 2: Obligaciones (50 - 100 XP)
         int p2 = (int) Math.min(maxXP, Math.max(0, puntaje - 50));
         animarBarra(progressObligaciones, (p2 * 100) / maxXP);
 
-        // Nivel 3: Prohibiciones (100 - 150 XP)
         int p3 = (int) Math.min(maxXP, Math.max(0, puntaje - 100));
         animarBarra(progressProhibiciones, (p3 * 100) / maxXP);
 
-        // Nivel 4: Sanciones (150 - 200 XP)
         int p4 = (int) Math.min(maxXP, Math.max(0, puntaje - 150));
         animarBarra(progressSanciones, (p4 * 100) / maxXP);
 
-        // Nivel 5: Reconocimientos (200 - 250 XP)
         int p5 = (int) Math.min(maxXP, Math.max(0, puntaje - 200));
         animarBarra(progressReconocimientos, (p5 * 100) / maxXP);
     }
 
-    // Método para hacer que la barra se llene suavemente
     private void animarBarra(ProgressBar bar, int progresoDestino) {
         if (bar != null) {
             ObjectAnimator animation = ObjectAnimator.ofInt(bar, "progress", bar.getProgress(), progresoDestino);
-            animation.setDuration(1200); // 1.2 segundos de animación
-            animation.setInterpolator(new DecelerateInterpolator()); // Inicia rápido y termina suave
+            animation.setDuration(1200);
+            animation.setInterpolator(new DecelerateInterpolator());
             animation.start();
         }
     }
@@ -161,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(new Intent(MainActivity.this, RankingActivity.class));
                     return true;
                 } else if (id == R.id.nav_profile) {
-                    Toast.makeText(this, "Tus datos de perfil están en la parte superior ☝️", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Toca tu foto arriba para cambiarla ☝️", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
