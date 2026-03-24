@@ -1,11 +1,19 @@
 package com.example.reglamentoupp;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import androidx.core.splashscreen.SplashScreen;
 
 import com.example.reglamentoupp.databinding.ActivityLoginBinding;
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,33 +25,69 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 1. Instalar el Splash Screen
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+
         super.onCreate(savedInstanceState);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // 2. Animación de salida del Splash Screen
+        splashScreen.setOnExitAnimationListener(splashScreenViewProvider -> {
+            ObjectAnimator fadeOut = ObjectAnimator.ofFloat(
+                    splashScreenViewProvider.getView(),
+                    View.ALPHA,
+                    1f,
+                    0f
+            );
+            fadeOut.setDuration(500);
+            fadeOut.setInterpolator(new AccelerateInterpolator());
+            fadeOut.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    splashScreenViewProvider.remove();
+                }
+            });
+            fadeOut.start();
+
+            // 3. Entrada animada del formulario
+            try {
+                Animation formAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_up);
+                binding.getRoot().startAnimation(formAnimation);
+            } catch (Exception e) {
+                binding.getRoot().setAlpha(0f);
+                binding.getRoot().setTranslationY(50f);
+                binding.getRoot().animate().alpha(1f).translationY(0f).setDuration(600).start();
+            }
+        });
+
+        // Configuración de Firebase
         try {
             mAuth = FirebaseAuth.getInstance();
         } catch (IllegalStateException e) {
-            Log.e("LOGIN_FIREBASE_ERROR", "Error al inicializar Firebase: " + e.getMessage());
-            Toast.makeText(this, "Error fatal de configuración de Firebase.", Toast.LENGTH_LONG).show();
-
+            Log.e("LOGIN_FIREBASE_ERROR", "Error Firebase: " + e.getMessage());
+            Toast.makeText(this, "Error de configuración de Firebase.", Toast.LENGTH_LONG).show();
             setInputsEnabled(false);
             return;
         }
 
-        // Autologueo si el usuario ya está activo
         if (mAuth.getCurrentUser() != null) {
-            Log.d("LoginActivity", "Usuario ya logueado, saltando a MainActivity.");
             navigateToMain();
             return;
         }
 
-        // Configurar listeners
+        // Listeners de botones
         binding.btnLogin.setOnClickListener(v -> loginUser());
 
         binding.tvRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-            startActivity(intent);
+            try {
+                // CINTURÓN DE SEGURIDAD: Evita que la app crashee si la vista de registro falla
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+            } catch (Throwable e) {
+                Log.e("ERROR_NAVEGACION", "Fallo al abrir RegisterActivity", e);
+                Toast.makeText(LoginActivity.this, "Error de diseño en Registro: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
         });
     }
 
@@ -63,10 +107,8 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        Log.d("LoginActivity", "Inicio de sesión exitoso.");
                         navigateToMain();
                     } else {
-                        Log.w("LoginActivity", "Fallo signIn: ", task.getException());
                         String errorMessage = "Error de autenticación.";
                         if (task.getException() != null && task.getException().getMessage() != null) {
                             if (task.getException().getMessage().contains("INVALID_LOGIN_CREDENTIALS")) {
@@ -85,6 +127,7 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         finish();
     }
 
