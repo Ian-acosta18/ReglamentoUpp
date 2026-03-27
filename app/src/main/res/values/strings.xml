@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Reglamento UPP</string>
+    <string name="app_name">Reglamento UPPue</string>
 
     <string name="login_title">¡Bienvenido!</string>
     <string name="login_button">Ingresar</string>
     <string name="register_prompt">¿Nuevo alumno? Regístrate aquí</string>
-    <string name="register_title">Crear Cuenta UPP</string>
+    <string name="register_title">Crear Cuenta UPPue</string>
     <string name="register_button">Registrarse</string>
     <string name="login_prompt">¿Ya tienes cuenta? Inicia sesión</string>
 

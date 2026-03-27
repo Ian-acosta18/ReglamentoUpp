@@ -17,6 +17,8 @@ import androidx.core.splashscreen.SplashScreen;
 
 import com.example.reglamentoupp.databinding.ActivityLoginBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -66,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             mAuth = FirebaseAuth.getInstance();
         } catch (IllegalStateException e) {
             Log.e("LOGIN_FIREBASE_ERROR", "Error Firebase: " + e.getMessage());
-            Toast.makeText(this, "Error de configuración de Firebase.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error de configuración. Inténtalo de nuevo.", Toast.LENGTH_LONG).show();
             setInputsEnabled(false);
             return;
         }
@@ -81,12 +83,11 @@ public class LoginActivity extends AppCompatActivity {
 
         binding.tvRegister.setOnClickListener(v -> {
             try {
-                // CINTURÓN DE SEGURIDAD: Evita que la app crashee si la vista de registro falla
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
             } catch (Throwable e) {
                 Log.e("ERROR_NAVEGACION", "Fallo al abrir RegisterActivity", e);
-                Toast.makeText(LoginActivity.this, "Error de diseño en Registro: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, "Error en la pantalla de registro.", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -109,12 +110,17 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         navigateToMain();
                     } else {
-                        String errorMessage = "Error de autenticación.";
-                        if (task.getException() != null && task.getException().getMessage() != null) {
-                            if (task.getException().getMessage().contains("INVALID_LOGIN_CREDENTIALS")) {
+                        // Traducción de errores de Firebase a Español
+                        String errorMessage = "Error de autenticación. Inténtalo más tarde.";
+                        if (task.getException() != null) {
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthInvalidUserException e) {
+                                errorMessage = "No existe una cuenta registrada con este correo.";
+                            } catch (FirebaseAuthInvalidCredentialsException e) {
                                 errorMessage = "Credenciales inválidas. Revisa tu correo y contraseña.";
-                            } else {
-                                errorMessage = task.getException().getMessage();
+                            } catch (Exception e) {
+                                errorMessage = "Error de inicio de sesión. Revisa tu conexión.";
                             }
                         }
                         Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();

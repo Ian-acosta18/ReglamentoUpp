@@ -16,6 +16,9 @@ import com.cloudinary.android.callback.UploadCallback;
 import com.example.reglamentoupp.databinding.ActivityRegisterBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,7 +99,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Validación: Correo institucional de la UPPuebla
+        // Validación: Correo institucional
         if (!email.endsWith("@uppuebla.edu.mx")) {
             binding.etEmailRegister.setError("Usa tu correo de @uppuebla.edu.mx");
             return;
@@ -132,8 +135,23 @@ public class RegisterActivity extends AppCompatActivity {
                         }
                     } else {
                         setLoading(false);
-                        String error = task.getException() != null ? task.getException().getMessage() : "Error desconocido";
-                        Toast.makeText(this, "Error: " + error, Toast.LENGTH_LONG).show();
+
+                        // Traducción de errores de Firebase al español
+                        String mensajeError = "Error desconocido al registrar";
+                        if (task.getException() != null) {
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthWeakPasswordException e) {
+                                mensajeError = "La contraseña es muy débil.";
+                            } catch (FirebaseAuthInvalidCredentialsException e) {
+                                mensajeError = "El correo electrónico es inválido.";
+                            } catch (FirebaseAuthUserCollisionException e) {
+                                mensajeError = "Este correo ya se encuentra registrado.";
+                            } catch (Exception e) {
+                                mensajeError = "Error en el registro. Inténtalo más tarde.";
+                            }
+                        }
+                        Toast.makeText(this, mensajeError, Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -156,6 +174,7 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onError(String requestId, ErrorInfo error) {
                         Log.e(TAG, "Error Cloudinary: " + error.getDescription());
+                        Toast.makeText(RegisterActivity.this, "Aviso: No se pudo subir la foto de perfil", Toast.LENGTH_SHORT).show();
                         createNewUserInFirestore(user, nombre, apellidos, telefono, "");
                     }
 
@@ -182,10 +201,14 @@ public class RegisterActivity extends AppCompatActivity {
 
         mStore.collection("usuarios").document(firebaseUser.getUid())
                 .set(userData)
-                .addOnSuccessListener(aVoid -> navigateToMain())
+                .addOnSuccessListener(aVoid -> {
+                    // Mensaje Toast personalizado como solicitaste
+                    Toast.makeText(RegisterActivity.this, "¡Registro exitoso en UPPue!", Toast.LENGTH_SHORT).show();
+                    navigateToMain();
+                })
                 .addOnFailureListener(e -> {
                     setLoading(false);
-                    Toast.makeText(this, "Error al guardar perfil", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error al guardar tu perfil de usuario", Toast.LENGTH_SHORT).show();
                 });
     }
 
