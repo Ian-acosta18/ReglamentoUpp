@@ -66,7 +66,9 @@
                     android:focusable="true"
                     app:cardCornerRadius="60dp"
                     app:cardElevation="6dp"
-                    app:strokeWidth="0dp">
+                    app:strokeWidth="3dp"
+                    app:strokeColor="@color/upp_secondary">
+
                     <ImageView
                         android:id="@+id/ivProfilePhoto"
                         android:layout_width="match_parent"
@@ -95,49 +97,190 @@
                 android:layout_marginBottom="16dp"
                 android:layout_gravity="center_horizontal"/>
 
-            <LinearLayout
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="5"
-                android:baselineAligned="false"
-                android:layout_marginBottom="28dp">
+                android:clipToPadding="false"
+                android:paddingBottom="24dp"
+                android:scrollbars="none">
 
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                    <com.google.android.material.card.MaterialCardView android:id="@+id/cardLogroDerechos" android:layout_width="54dp" android:layout_height="54dp" app:cardCornerRadius="27dp" app:cardElevation="2dp" app:strokeWidth="0dp" app:cardBackgroundColor="#E0E0E0">
-                        <ImageView android:id="@+id/logroDerechos" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:src="@drawable/ic_derechos" app:tint="#9E9E9E"/>
-                    </com.google.android.material.card.MaterialCardView>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Derechos" android:textSize="11sp" android:textColor="@color/text_primary" android:textStyle="bold" android:layout_marginTop="6dp"/>
-                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                    <com.google.android.material.card.MaterialCardView android:id="@+id/cardLogroObligaciones" android:layout_width="54dp" android:layout_height="54dp" app:cardCornerRadius="27dp" app:cardElevation="2dp" app:strokeWidth="0dp" app:cardBackgroundColor="#E0E0E0">
-                        <ImageView android:id="@+id/logroObligaciones" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:src="@drawable/ic_obligaciones" app:tint="#9E9E9E"/>
-                    </com.google.android.material.card.MaterialCardView>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Deberes" android:textSize="11sp" android:textColor="@color/text_primary" android:textStyle="bold" android:layout_marginTop="6dp"/>
-                </LinearLayout>
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardLogroDerechos"
+                        android:layout_width="110dp"
+                        android:layout_height="120dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="@color/white">
 
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                    <com.google.android.material.card.MaterialCardView android:id="@+id/cardLogroProhibiciones" android:layout_width="54dp" android:layout_height="54dp" app:cardCornerRadius="27dp" app:cardElevation="2dp" app:strokeWidth="0dp" app:cardBackgroundColor="#E0E0E0">
-                        <ImageView android:id="@+id/logroProhibiciones" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:src="@drawable/ic_prohibiciones" app:tint="#9E9E9E"/>
-                    </com.google.android.material.card.MaterialCardView>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Prohibido" android:textSize="11sp" android:textColor="@color/text_primary" android:textStyle="bold" android:layout_marginTop="6dp"/>
-                </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="12dp">
 
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                    <com.google.android.material.card.MaterialCardView android:id="@+id/cardLogroSanciones" android:layout_width="54dp" android:layout_height="54dp" app:cardCornerRadius="27dp" app:cardElevation="2dp" app:strokeWidth="0dp" app:cardBackgroundColor="#E0E0E0">
-                        <ImageView android:id="@+id/logroSanciones" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:src="@drawable/ic_sanciones" app:tint="#9E9E9E"/>
-                    </com.google.android.material.card.MaterialCardView>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sanciones" android:textSize="11sp" android:textColor="@color/text_primary" android:textStyle="bold" android:layout_marginTop="6dp"/>
-                </LinearLayout>
+                            <ImageView
+                                android:id="@+id/logroDerechos"
+                                android:layout_width="45dp"
+                                android:layout_height="45dp"
+                                android:src="@drawable/ic_derechos" />
 
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                    <com.google.android.material.card.MaterialCardView android:id="@+id/cardLogroReconocimientos" android:layout_width="54dp" android:layout_height="54dp" app:cardCornerRadius="27dp" app:cardElevation="2dp" app:strokeWidth="0dp" app:cardBackgroundColor="#E0E0E0">
-                        <ImageView android:id="@+id/logroReconocimientos" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:src="@drawable/ic_reconocimientos" app:tint="#9E9E9E"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:text="Derechos"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Premios" android:textSize="11sp" android:textColor="@color/text_primary" android:textStyle="bold" android:layout_marginTop="6dp"/>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardLogroObligaciones"
+                        android:layout_width="110dp"
+                        android:layout_height="120dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:id="@+id/logroObligaciones"
+                                android:layout_width="45dp"
+                                android:layout_height="45dp"
+                                android:src="@drawable/ic_obligaciones" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:text="Deberes"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardLogroProhibiciones"
+                        android:layout_width="110dp"
+                        android:layout_height="120dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:id="@+id/logroProhibiciones"
+                                android:layout_width="45dp"
+                                android:layout_height="45dp"
+                                android:src="@drawable/ic_prohibiciones" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:text="Prohibido"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardLogroSanciones"
+                        android:layout_width="110dp"
+                        android:layout_height="120dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:id="@+id/logroSanciones"
+                                android:layout_width="45dp"
+                                android:layout_height="45dp"
+                                android:src="@drawable/ic_sanciones" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:text="Sanciones"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardLogroReconocimientos"
+                        android:layout_width="110dp"
+                        android:layout_height="120dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <ImageView
+                                android:id="@+id/logroReconocimientos"
+                                android:layout_width="45dp"
+                                android:layout_height="45dp"
+                                android:src="@drawable/ic_reconocimientos" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="12dp"
+                                android:text="Premios"
+                                android:textAlignment="center"
+                                android:textColor="@color/black"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
                 </LinearLayout>
-            </LinearLayout>
+            </HorizontalScrollView>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
