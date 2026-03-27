@@ -8,7 +8,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -37,19 +36,35 @@ public class MainActivity extends AppCompatActivity {
     private MaterialCardView cardProfilePic;
     private View btnLogout;
 
-    // Declaramos las barras de progreso
+    // Barras de progreso para las 5 categorías
     private ProgressBar progressDerechos, progressObligaciones, progressProhibiciones, progressSanciones, progressReconocimientos;
+
+    // Textos e Íconos de Estado para "Tu Camino"
+    private TextView tvStatusDerechos, tvStatusObligaciones, tvStatusProhibiciones, tvStatusSanciones, tvStatusReconocimientos;
+    private ImageView ivStatusDerechos, ivStatusObligaciones, ivStatusProhibiciones, ivStatusSanciones, ivStatusReconocimientos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initCloudinary(); // Iniciamos Cloudinary por si la app entra directo aquí
+        initCloudinary();
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
+        vincularVistas();
+        configurarNavegacion();
+        configurarAcciones();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        cargarDatosUsuario();
+    }
+
+    private void vincularVistas() {
         tvUserName = findViewById(R.id.tvUserName);
         tvUserPuntaje = findViewById(R.id.tvUserPuntaje);
         tvUserLevel = findViewById(R.id.tvUserLevel);
@@ -57,26 +72,33 @@ public class MainActivity extends AppCompatActivity {
         ivUserProfile = findViewById(R.id.ivUserProfile);
         cardProfilePic = findViewById(R.id.cardProfilePic);
 
-        // Inicializamos las barras
+        // Barras de Progreso
         progressDerechos = findViewById(R.id.progressDerechos);
         progressObligaciones = findViewById(R.id.progressObligaciones);
         progressProhibiciones = findViewById(R.id.progressProhibiciones);
         progressSanciones = findViewById(R.id.progressSanciones);
         progressReconocimientos = findViewById(R.id.progressReconocimientos);
 
-        // Ponemos todas las barras en 0 al iniciar
+        // Textos de estado (Nivel 1 • Desbloqueado, etc.)
+        tvStatusDerechos = findViewById(R.id.tvStatusDerechos);
+        tvStatusObligaciones = findViewById(R.id.tvStatusObligaciones);
+        tvStatusProhibiciones = findViewById(R.id.tvStatusProhibiciones);
+        tvStatusSanciones = findViewById(R.id.tvStatusSanciones);
+        tvStatusReconocimientos = findViewById(R.id.tvStatusReconocimientos);
+
+        // Íconos de estado (Candado / Palomita)
+        ivStatusDerechos = findViewById(R.id.ivStatusDerechos);
+        ivStatusObligaciones = findViewById(R.id.ivStatusObligaciones);
+        ivStatusProhibiciones = findViewById(R.id.ivStatusProhibiciones);
+        ivStatusSanciones = findViewById(R.id.ivStatusSanciones);
+        ivStatusReconocimientos = findViewById(R.id.ivStatusReconocimientos);
+
         reiniciarBarras();
-        cargarDatosUsuario();
-        configurarBottomNavigation();
-        configurarJuegosRapidos();
-        configurarCaminoCategorias();
+    }
 
-        // Al presionar la foto de perfil de arriba, abrimos la pantalla de Perfil
-        cardProfilePic.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-        });
+    private void configurarAcciones() {
+        cardProfilePic.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ProfileActivity.class)));
 
-        // Botón para cerrar sesión
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
                 mAuth.signOut();
@@ -86,25 +108,122 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             });
         }
+
+        // Configuración de clics para juegos rápidos
+        View btnModoDesafio = findViewById(R.id.btnJugarModoDesafio);
+        if(btnModoDesafio != null) btnModoDesafio.setOnClickListener(v -> startActivity(new Intent(this, QuizActivity.class)));
+
+        View btnVf = findViewById(R.id.btnJugarVerdaderoFalso);
+        if(btnVf != null) btnVf.setOnClickListener(v -> startActivity(new Intent(this, TrueFalseActivity.class)));
+
+        View btnAhorcado = findViewById(R.id.btnJugarAhorcado);
+        if(btnAhorcado != null) btnAhorcado.setOnClickListener(v -> startActivity(new Intent(this, HangmanActivity.class)));
+
+        View btnMemorama = findViewById(R.id.btnJugarMemorama);
+        if(btnMemorama != null) btnMemorama.setOnClickListener(v -> startActivity(new Intent(this, MemoryGameActivity.class)));
+
+        View btnSopa = findViewById(R.id.btnJugarSopaLetras);
+        if(btnSopa != null) btnSopa.setOnClickListener(v -> startActivity(new Intent(this, WordSearchActivity.class)));
+
+        // Caminos de categoría
+        View btnDerechos = findViewById(R.id.btnJugarDerechos);
+        if(btnDerechos != null) btnDerechos.setOnClickListener(v -> abrirApartado("Derechos"));
+
+        View btnObligaciones = findViewById(R.id.btnJugarObligaciones);
+        if(btnObligaciones != null) btnObligaciones.setOnClickListener(v -> abrirApartado("Obligaciones"));
+
+        View btnProhibiciones = findViewById(R.id.btnJugarProhibiciones);
+        if(btnProhibiciones != null) btnProhibiciones.setOnClickListener(v -> abrirApartado("Prohibiciones"));
+
+        View btnSanciones = findViewById(R.id.btnJugarSanciones);
+        if(btnSanciones != null) btnSanciones.setOnClickListener(v -> abrirApartado("Sanciones"));
+
+        View btnReconocimientos = findViewById(R.id.btnJugarReconocimientos);
+        if(btnReconocimientos != null) btnReconocimientos.setOnClickListener(v -> abrirApartado("Reconocimientos"));
     }
 
-    // Este método se ejecuta cada vez que regresas a esta pantalla (Por ejemplo, desde el Perfil)
-    // Sirve para recargar la foto y el nombre por si los cambiaste.
-    @Override
-    protected void onResume() {
-        super.onResume();
-        cargarDatosUsuario();
+    private void cargarDatosUsuario() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            db.collection("usuarios").document(currentUser.getUid()).get()
+                    .addOnSuccessListener(document -> {
+                        if (document.exists()) {
+                            String nombre = document.getString("nombre");
+                            Long puntaje = document.getLong("puntaje");
+                            String fotoUrl = document.getString("fotoUrl");
+
+                            if (nombre != null && tvUserName != null) {
+                                tvUserName.setText(nombre.split(" ")[0]);
+                            }
+
+                            if (puntaje != null) {
+                                if (tvUserPuntaje != null) tvUserPuntaje.setText(puntaje + " XP");
+                                if (tvUserLevel != null) tvUserLevel.setText("Nivel " + ((puntaje / 50) + 1));
+                                actualizarProgresoVisual(puntaje);
+                            }
+
+                            if (fotoUrl != null && !fotoUrl.isEmpty() && ivUserProfile != null) {
+                                Glide.with(this).load(fotoUrl).centerCrop().into(ivUserProfile);
+                            }
+                        }
+                    });
+        }
     }
 
-    // Aseguramos que Cloudinary esté listo
-    private void initCloudinary() {
-        try {
-            MediaManager.get();
-        } catch (IllegalStateException e) {
-            Map<String, Object> config = new HashMap<>();
-            config.put("cloud_name", "dfgj9sdma"); // Tu nombre de Cloudinary
-            config.put("secure", true);
-            MediaManager.init(this, config);
+    /**
+     * Actualiza las 5 barras de progreso y los íconos dinámicamente según la experiencia (XP)
+     */
+    private void actualizarProgresoVisual(long xpActual) {
+        // Nivel 1: Derechos (0 - 50 XP)
+        evaluarEstadoCategoria(progressDerechos, ivStatusDerechos, tvStatusDerechos, xpActual, 0, 50, "Nivel 1");
+
+        // Nivel 2: Obligaciones (50 - 100 XP)
+        evaluarEstadoCategoria(progressObligaciones, ivStatusObligaciones, tvStatusObligaciones, xpActual, 50, 100, "Nivel 2");
+
+        // Nivel 3: Prohibiciones (100 - 150 XP)
+        evaluarEstadoCategoria(progressProhibiciones, ivStatusProhibiciones, tvStatusProhibiciones, xpActual, 100, 150, "Nivel 3");
+
+        // Nivel 4: Sanciones (150 - 200 XP)
+        evaluarEstadoCategoria(progressSanciones, ivStatusSanciones, tvStatusSanciones, xpActual, 150, 200, "Nivel 4");
+
+        // Nivel 5: Reconocimientos (200 - 250 XP)
+        evaluarEstadoCategoria(progressReconocimientos, ivStatusReconocimientos, tvStatusReconocimientos, xpActual, 200, 250, "Nivel 5");
+    }
+
+    /**
+     * Calcula dinámicamente si el módulo está bloqueado, en progreso o completado.
+     * Incluye validaciones por si algún elemento XML aún no ha sido creado.
+     */
+    private void evaluarEstadoCategoria(ProgressBar bar, ImageView ivLockIcon, TextView tvStatus, long xpGlobal, int minXP, int maxXP, String nivelLabel) {
+        int progresoModulo = (int) Math.min(50, Math.max(0, xpGlobal - minXP));
+
+        // Animamos la barra de progreso
+        if (bar != null) {
+            ObjectAnimator anim = ObjectAnimator.ofInt(bar, "progress", bar.getProgress(), (progresoModulo * 100) / 50);
+            anim.setDuration(1000);
+            anim.setInterpolator(new DecelerateInterpolator());
+            anim.start();
+        }
+
+        // Cambiamos textos y colores solo si las vistas existen
+        if (ivLockIcon != null && tvStatus != null) {
+            if (xpGlobal >= maxXP) {
+                // Nivel Completado
+                ivLockIcon.setImageResource(R.drawable.ic_check_circle);
+                ivLockIcon.setColorFilter(getResources().getColor(R.color.game_success)); // <-- ¡Aquí está la corrección!
+                tvStatus.setText(nivelLabel + " • Completado");
+                ivLockIcon.setVisibility(View.VISIBLE);
+            } else if (xpGlobal >= minXP) {
+                // Nivel Actual (Desbloqueado)
+                tvStatus.setText(nivelLabel + " • Desbloqueado");
+                ivLockIcon.setVisibility(View.GONE); // Ocultamos el ícono porque está jugándolo
+            } else {
+                // Nivel Bloqueado
+                ivLockIcon.setImageResource(R.drawable.ic_lock);
+                ivLockIcon.setColorFilter(getResources().getColor(android.R.color.darker_gray));
+                tvStatus.setText(nivelLabel + " • Bloqueado");
+                ivLockIcon.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -116,148 +235,29 @@ public class MainActivity extends AppCompatActivity {
         if (progressReconocimientos != null) progressReconocimientos.setProgress(0);
     }
 
-    private void cargarDatosUsuario() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser != null) {
-            String userId = currentUser.getUid();
-
-            db.collection("usuarios").document(userId).get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            String nombre = documentSnapshot.getString("nombre");
-                            Long puntaje = documentSnapshot.getLong("puntaje");
-                            String fotoUrl = documentSnapshot.getString("fotoUrl");
-
-                            if (nombre != null && tvUserName != null) {
-                                String[] partesNombre = nombre.split(" ");
-                                tvUserName.setText(partesNombre[0]); // Mostramos solo el primer nombre
-                            }
-
-                            if (puntaje != null) {
-                                if (tvUserPuntaje != null) {
-                                    tvUserPuntaje.setText("⚡ " + puntaje + " XP");
-                                }
-                                long nivel = (puntaje / 50) + 1;
-                                if (tvUserLevel != null) {
-                                    tvUserLevel.setText("🏆 Nivel " + nivel);
-                                }
-                                actualizarProgresoBarras(puntaje);
-                            }
-
-                            // Cargamos la imagen de perfil con Glide
-                            if (fotoUrl != null && !fotoUrl.isEmpty() && ivUserProfile != null) {
-                                Glide.with(MainActivity.this)
-                                        .load(fotoUrl)
-                                        .centerCrop()
-                                        .into(ivUserProfile);
-                            }
-                        }
-                    });
-        }
-    }
-
-    private void actualizarProgresoBarras(long puntaje) {
-        int maxXP = 50;
-        int p1 = (int) Math.min(maxXP, Math.max(0, puntaje));
-        animarBarra(progressDerechos, (p1 * 100) / maxXP);
-
-        int p2 = (int) Math.min(maxXP, Math.max(0, puntaje - 50));
-        animarBarra(progressObligaciones, (p2 * 100) / maxXP);
-
-        int p3 = (int) Math.min(maxXP, Math.max(0, puntaje - 100));
-        animarBarra(progressProhibiciones, (p3 * 100) / maxXP);
-
-        int p4 = (int) Math.min(maxXP, Math.max(0, puntaje - 150));
-        animarBarra(progressSanciones, (p4 * 100) / maxXP);
-
-        int p5 = (int) Math.min(maxXP, Math.max(0, puntaje - 200));
-        animarBarra(progressReconocimientos, (p5 * 100) / maxXP);
-    }
-
-    private void animarBarra(ProgressBar bar, int progresoDestino) {
-        if (bar != null) {
-            ObjectAnimator animation = ObjectAnimator.ofInt(bar, "progress", bar.getProgress(), progresoDestino);
-            animation.setDuration(1200);
-            animation.setInterpolator(new DecelerateInterpolator());
-            animation.start();
-        }
-    }
-
-    private void configurarBottomNavigation() {
+    private void configurarNavegacion() {
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         if (bottomNav != null) {
             bottomNav.setSelectedItemId(R.id.nav_home);
             bottomNav.setOnItemSelectedListener(item -> {
                 int id = item.getItemId();
-                if (id == R.id.nav_home) {
-                    return true;
-                } else if (id == R.id.nav_games) {
-                    startActivity(new Intent(MainActivity.this, ManualJuegosActivity.class));
-                    return true;
-                } else if (id == R.id.nav_ranking) {
-                    startActivity(new Intent(MainActivity.this, RankingActivity.class));
-                    return true;
-                } else if (id == R.id.nav_profile) {
-                    // Abrimos la pantalla de Perfil desde la barra de abajo
-                    startActivity(new Intent(MainActivity.this, ProfileActivity.class));
-                    return true;
-                }
+                if (id == R.id.nav_home) return true;
+                if (id == R.id.nav_games) startActivity(new Intent(this, ManualJuegosActivity.class));
+                else if (id == R.id.nav_ranking) startActivity(new Intent(this, RankingActivity.class));
+                else if (id == R.id.nav_profile) startActivity(new Intent(this, ProfileActivity.class));
                 return false;
             });
         }
     }
 
-    private void configurarJuegosRapidos() {
-        View btnJugarModoDesafio = findViewById(R.id.btnJugarModoDesafio);
-        if (btnJugarModoDesafio != null) {
-            btnJugarModoDesafio.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, QuizActivity.class)));
-        }
-
-        View btnJugarAhorcado = findViewById(R.id.btnJugarAhorcado);
-        if (btnJugarAhorcado != null) {
-            btnJugarAhorcado.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, HangmanActivity.class)));
-        }
-
-        View btnJugarMemorama = findViewById(R.id.btnJugarMemorama);
-        if (btnJugarMemorama != null) {
-            btnJugarMemorama.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, MemoryGameActivity.class)));
-        }
-
-        View btnJugarVerdaderoFalso = findViewById(R.id.btnJugarVerdaderoFalso);
-        if (btnJugarVerdaderoFalso != null) {
-            btnJugarVerdaderoFalso.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TrueFalseActivity.class)));
-        }
-
-        View btnJugarSopaLetras = findViewById(R.id.btnJugarSopaLetras);
-        if (btnJugarSopaLetras != null) {
-            btnJugarSopaLetras.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, WordSearchActivity.class)));
-        }
-    }
-
-    private void configurarCaminoCategorias() {
-        View btnDerechos = findViewById(R.id.btnJugarDerechos);
-        if (btnDerechos != null) {
-            btnDerechos.setOnClickListener(v -> abrirApartado("Derechos"));
-        }
-
-        View btnObligaciones = findViewById(R.id.btnJugarObligaciones);
-        if (btnObligaciones != null) {
-            btnObligaciones.setOnClickListener(v -> abrirApartado("Obligaciones"));
-        }
-
-        View btnProhibiciones = findViewById(R.id.btnJugarProhibiciones);
-        if (btnProhibiciones != null) {
-            btnProhibiciones.setOnClickListener(v -> abrirApartado("Prohibiciones"));
-        }
-
-        View btnSanciones = findViewById(R.id.btnJugarSanciones);
-        if (btnSanciones != null) {
-            btnSanciones.setOnClickListener(v -> abrirApartado("Sanciones"));
-        }
-
-        View btnReconocimientos = findViewById(R.id.btnJugarReconocimientos);
-        if (btnReconocimientos != null) {
-            btnReconocimientos.setOnClickListener(v -> abrirApartado("Reconocimientos"));
+    private void initCloudinary() {
+        try {
+            MediaManager.get();
+        } catch (IllegalStateException e) {
+            Map<String, Object> config = new HashMap<>();
+            config.put("cloud_name", "dfgj9sdma");
+            config.put("secure", true);
+            MediaManager.init(this, config);
         }
     }
 

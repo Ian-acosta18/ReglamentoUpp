@@ -4,42 +4,36 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
-import com.example.reglamentoupp.databinding.ActivityGameLevelBinding;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
-
-// --- IMPLEMENTAMOS LA NUEVA INTERFAZ DEL QUIZ ---
 public class GameLevelActivity extends AppCompatActivity implements
         BaseReglamentoFragment.ReglamentoInteractionListener,
         QuizBottomSheetFragment.OnQuizCompleteListener {
 
-    private ActivityGameLevelBinding binding;
     private String nivelJuego; // "Derechos", "Obligaciones", etc.
-    private long puntajeActual;
-    private int nivelActualDesbloqueado; // 1, 2, 3, etc.
+    private long puntajeActual = 0;
+    private int nivelActualDesbloqueado = 1;
 
     private FirebaseFirestore mStore;
     private FirebaseUser currentUser;
-    private static final String TAG = "GameLevelActivity";
+    private MaterialToolbar toolbarLevel;
 
+    private static final String TAG = "GameLevelActivity";
     // Puntos necesarios para desbloquear el siguiente nivel
     private static final int PUNTOS_PARA_DESBLOQUEAR = 50;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityGameLevelBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        // Usamos el layout tradicional en lugar de ViewBinding
+        setContentView(R.layout.activity_game_level);
 
         mStore = FirebaseFirestore.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -50,11 +44,11 @@ public class GameLevelActivity extends AppCompatActivity implements
             return;
         }
 
-        // Obtener datos pasados desde MainActivity
-        nivelJuego = getIntent().getStringExtra(MainActivity.KEY_NIVEL_JUEGO);
-        puntajeActual = getIntent().getLongExtra(MainActivity.KEY_PUNTAJE_ACTUAL, 0);
-        nivelActualDesbloqueado = getIntent().getIntExtra(MainActivity.KEY_NIVEL_DESBLOQUEADO, 1);
+        // Vincular Vistas
+        toolbarLevel = findViewById(R.id.toolbar_level);
 
+        // Obtener el nivel seleccionado desde MainActivity
+        nivelJuego = getIntent().getStringExtra(MainActivity.KEY_NIVEL_JUEGO);
 
         if (nivelJuego == null) {
             Log.e(TAG, "No se recibió el nombre del nivel.");
@@ -64,11 +58,36 @@ public class GameLevelActivity extends AppCompatActivity implements
         }
 
         // Configurar la Toolbar
-        binding.toolbarLevel.setTitle(nivelJuego);
-        binding.toolbarLevel.setNavigationOnClickListener(v -> finish()); // Botón de regresar
+        toolbarLevel.setTitle(nivelJuego);
+        toolbarLevel.setNavigationOnClickListener(v -> finish()); // Botón de regresar
+
+        // ⚠️ CARGAMOS LOS PUNTOS REALES DESDE FIRESTORE PARA NO SOBRESCRIBIRLOS A CERO
+        cargarPuntajeRealUsuario();
 
         // Cargar el fragmento correcto en el contenedor
         loadLevelFragment(nivelJuego);
+    }
+
+    /**
+     * Consulta Firestore al abrir la actividad para saber exactamente
+     * cuántos puntos y qué nivel tiene el usuario actualmente.
+     */
+    private void cargarPuntajeRealUsuario() {
+        mStore.collection("usuarios").document(currentUser.getUid()).get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        Long puntajeBD = document.getLong("puntaje");
+                        Long nivelBD = document.getLong("nivelDesbloqueado");
+
+                        if (puntajeBD != null) {
+                            this.puntajeActual = puntajeBD;
+                        }
+                        if (nivelBD != null) {
+                            this.nivelActualDesbloqueado = nivelBD.intValue();
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error al cargar datos del usuario", e));
     }
 
     private void loadLevelFragment(String nivel) {
@@ -106,9 +125,6 @@ public class GameLevelActivity extends AppCompatActivity implements
 
     // --- Implementación de los clics del Fragment ---
 
-    /**
-     * Se llama cuando el usuario hace clic en una tarjeta de regla (para el Quiz).
-     */
     @Override
     public void onQuizClick(String itemText, String itemType) {
         Log.d(TAG, "Iniciando Quiz para: " + itemType);
@@ -116,9 +132,6 @@ public class GameLevelActivity extends AppCompatActivity implements
         quizFragment.show(getSupportFragmentManager(), "QuizBottomSheet");
     }
 
-    /**
-     * Se llama cuando el usuario hace clic en el botón "Analizar Caso".
-     */
     @Override
     public void onCaseStudyClick(String itemText, String itemType) {
         Log.d(TAG, "Iniciando Caso de Estudio para: " + itemType);
@@ -126,23 +139,21 @@ public class GameLevelActivity extends AppCompatActivity implements
         caseFragment.show(getSupportFragmentManager(), "CaseStudyBottomSheet");
     }
 
-    /**
-     * Se llama cuando el QuizBottomSheetFragment se cierra y reporta el resultado.
-     * Esta es la implementación de la interfaz QuizBottomSheetFragment.OnQuizCompleteListener.
-     */
+    // --- Implementación de finalización del Quiz ---
+
     @Override
     public void onQuizComplete(int puntos, boolean esCorrecto) {
         Log.d(TAG, "Quiz completado. Puntos ganados: " + puntos);
 
         if (puntos > 0) {
-            // Actualizar puntaje local
+            // Sumamos los puntos al total que obtuvimos de la base de datos
             puntajeActual += puntos;
             Toast.makeText(this, "¡+10 puntos!", Toast.LENGTH_SHORT).show();
 
             // Guardar el nuevo puntaje en Firestore
             actualizarPuntajeEnFirestore();
 
-            // Verificar si se desbloquea el siguiente nivel
+            // Verificar si el nuevo puntaje alcanza para desbloquear el siguiente nivel
             verificarDesbloqueoDeNivel();
         } else {
             Toast.makeText(this, "Respuesta incorrecta. ¡Sigue intentando!", Toast.LENGTH_SHORT).show();
@@ -159,16 +170,13 @@ public class GameLevelActivity extends AppCompatActivity implements
     }
 
     private void verificarDesbloqueoDeNivel() {
-        // Obtenemos el nivel que se está jugando (ej: "Derechos" es nivel 1)
         int nivelJugando = getNivelIndex(nivelJuego);
 
-        // Solo intentamos desbloquear si estamos jugando el nivel más alto que tenemos
+        // Solo verificamos el progreso si estamos jugando el nivel más alto que tenemos desbloqueado
         if (nivelJugando == nivelActualDesbloqueado) {
-            // Verificamos si el puntaje actual supera el umbral del nivel
-            // (Ej: 50 pts para Nivel 2, 100 para Nivel 3, etc.)
+            // Ejemplo: Si estoy en Nivel 1 (Derechos), necesito 50 puntos para desbloquear Nivel 2.
             if (puntajeActual >= (nivelJugando * PUNTOS_PARA_DESBLOQUEAR)) {
                 int proximoNivel = nivelJugando + 1;
-                // Actualizar el nivel en Firestore
                 desbloquearSiguienteNivel(proximoNivel);
             }
         }
@@ -177,9 +185,9 @@ public class GameLevelActivity extends AppCompatActivity implements
     private void desbloquearSiguienteNivel(int proximoNivel) {
         if (currentUser == null) return;
 
-        // Máximo 5 niveles
+        // Máximo 5 niveles en el sistema
         if (proximoNivel > 5) {
-            Log.d(TAG, "¡Felicidades! Todos los niveles están desbloqueados.");
+            Log.d(TAG, "Todos los niveles están desbloqueados.");
             return;
         }
 
@@ -188,16 +196,15 @@ public class GameLevelActivity extends AppCompatActivity implements
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "¡Nivel " + proximoNivel + " desbloqueado!");
                     this.nivelActualDesbloqueado = proximoNivel;
-                    // Mostrar un diálogo de felicitación
+
                     new MaterialAlertDialogBuilder(this)
                             .setTitle("¡Nivel Desbloqueado!")
-                            .setMessage("¡Felicidades! Has desbloqueado el nivel: " + getNivelNombre(proximoNivel))
+                            .setMessage("¡Felicidades! Has desbloqueado el módulo de: " + getNivelNombre(proximoNivel))
                             .setPositiveButton("Genial", null)
                             .show();
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Error al desbloquear el nivel", e));
     }
-
 
     private int getNivelIndex(String nombreNivel) {
         switch (nombreNivel) {
