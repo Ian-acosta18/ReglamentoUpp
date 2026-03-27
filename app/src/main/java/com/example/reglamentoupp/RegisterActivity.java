@@ -79,11 +79,36 @@ public class RegisterActivity extends AppCompatActivity {
         String password = binding.etPasswordRegister.getText().toString().trim();
         String confirmPassword = binding.etConfirmPassword.getText() != null ? binding.etConfirmPassword.getText().toString().trim() : "";
 
+        // Validación de campos vacíos
         if (nombre.isEmpty() || apellidos.isEmpty() || email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Llena todos los campos obligatorios", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Validación: Nombre y Apellidos solo letras (incluye espacios y acentos)
+        String regexLetras = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$";
+        if (!nombre.matches(regexLetras)) {
+            binding.etNombre.setError("El nombre solo debe contener letras");
+            return;
+        }
+        if (!apellidos.matches(regexLetras)) {
+            binding.etApellidos.setError("Los apellidos solo deben contener letras");
+            return;
+        }
+
+        // Validación: Correo institucional de la UPPuebla
+        if (!email.endsWith("@uppuebla.edu.mx")) {
+            binding.etEmailRegister.setError("Usa tu correo de @uppuebla.edu.mx");
+            return;
+        }
+
+        // Validación: Teléfono solo números
+        if (!telefono.isEmpty() && !telefono.matches("^[0-9]+$")) {
+            binding.etTelefono.setError("El teléfono solo debe contener números");
+            return;
+        }
+
+        // Validación: Contraseña
         if (password.length() < 6) {
             binding.etPasswordRegister.setError("Mínimo 6 caracteres");
             return;
