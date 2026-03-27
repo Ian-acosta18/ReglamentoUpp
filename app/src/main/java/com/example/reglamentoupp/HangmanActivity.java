@@ -13,6 +13,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -29,7 +30,6 @@ public class HangmanActivity extends AppCompatActivity {
     private Vibrator vibrator;
     private MediaPlayer mediaPlayer;
 
-    // Matriz con [Palabra Respuesta] y [Situación Práctica]
     private String[][] palabrasConPistas = {
             {"ESTADIA", "Etapa final donde aplicas lo aprendido trabajando en un proyecto dentro de una empresa real:"},
             {"CALIDAD", "Si repruebas tus materias al límite, pierdes esta condición como estudiante de la UPP:"},
@@ -40,14 +40,13 @@ public class HangmanActivity extends AppCompatActivity {
             {"CONSEJO", "Grupo de especialistas externos que opina y evalúa para que tu carrera tenga mejor nivel:"},
             {"SANCION", "Lo que recibes si te descubren haciendo trampa en un examen o faltando al respeto:"},
             {"COMITE", "Si sufres de acoso o discriminación en la universidad, debes acudir a este grupo:"},
-            {"CREDITO", "Valor numérico que se le da a cada materia; necesitas juntar todos para poder graduarte:"},
-            {"ASISTENCIA", "Debes mantener al menos el 80% de esto en el parcial para tener derecho a calificación ordinaria:"},
-            {"RENUNCIA", "Si decides irte de la universidad definitivamente por cuenta propia, debes firmar tu:"}
+            {"CREDITO", "Valor numérico que se le da a cada materia; necesitas juntar todos para poder graduarte:"}
     };
 
     private String palabraSecreta;
     private char[] palabraAdivinada;
     private int vidas = 6;
+    private int pistasRestantes = 2; // NUEVO: Límite de pistas
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,32 +59,48 @@ public class HangmanActivity extends AppCompatActivity {
         iniciarJuego();
 
         binding.btnBack.setOnClickListener(v -> finish());
-
-        // Listener del botón de ayuda con el ícono de foco
-        binding.btnHelp.setOnClickListener(v -> mostrarInstrucciones());
+        binding.btnHelp.setOnClickListener(v -> usarPista());
     }
 
-    private void mostrarInstrucciones() {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Instrucciones: Ahorcado")
-                .setMessage("1. Lee cuidadosamente la definición que aparece en el recuadro blanco.\n\n" +
-                        "2. Toca las letras en el teclado para adivinar la palabra oculta.\n\n" +
-                        "3. Tienes 6 vidas (❤️). Cada error te restará una.\n\n" +
-                        "4. ¡Adivina toda la palabra antes de perder tus vidas!")
-                .setPositiveButton("¡Entendido!", (dialog, which) -> dialog.dismiss())
-                .show();
+    // NUEVA FUNCIONALIDAD: Foquito autocompleta 1 letra correcta
+    private void usarPista() {
+        if (vidas <= 0) return;
+        if (pistasRestantes <= 0) {
+            Toast.makeText(this, "Se agotaron tus pistas", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Buscar la primera letra que falte
+        for (int i = 0; i < palabraSecreta.length(); i++) {
+            if (palabraAdivinada[i] == '_') {
+                char letraOculta = palabraSecreta.charAt(i);
+
+                // Encontrar el botón de esa letra y simular que se presiona
+                for (int r = 0; r < binding.layoutTeclado.getChildCount(); r++) {
+                    LinearLayout row = (LinearLayout) binding.layoutTeclado.getChildAt(r);
+                    for (int c = 0; c < row.getChildCount(); c++) {
+                        MaterialButton btn = (MaterialButton) row.getChildAt(c);
+                        if (btn.getText().toString().charAt(0) == letraOculta && btn.isEnabled()) {
+                            pistasRestantes--;
+                            Toast.makeText(this, "¡Pista! (" + pistasRestantes + " restantes)", Toast.LENGTH_SHORT).show();
+                            onLetraClick(btn);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void iniciarJuego() {
         vidas = 6;
+        pistasRestantes = 2;
         int index = new Random().nextInt(palabrasConPistas.length);
         palabraSecreta = palabrasConPistas[index][0];
         String definicion = palabrasConPistas[index][1];
 
         palabraAdivinada = new char[palabraSecreta.length()];
-        for (int i = 0; i < palabraSecreta.length(); i++) {
-            palabraAdivinada[i] = '_';
-        }
+        for (int i = 0; i < palabraSecreta.length(); i++) palabraAdivinada[i] = '_';
 
         binding.tvQuestion.setText(definicion);
         actualizarUI();
@@ -94,36 +109,20 @@ public class HangmanActivity extends AppCompatActivity {
 
     private void actualizarUI() {
         StringBuilder sb = new StringBuilder();
-        for (char c : palabraAdivinada) {
-            sb.append(c).append(" ");
-        }
+        for (char c : palabraAdivinada) sb.append(c).append(" ");
         binding.tvHangmanWord.setText(sb.toString());
-
         binding.tvHangmanLives.setText("❤️ " + vidas);
-        if (vidas <= 2) {
-            binding.tvHangmanLives.setTextColor(ContextCompat.getColor(this, R.color.game_fail));
-        } else {
-            binding.tvHangmanLives.setTextColor(Color.WHITE);
-        }
+        binding.tvHangmanLives.setTextColor(vidas <= 2 ? ContextCompat.getColor(this, R.color.game_fail) : Color.WHITE);
     }
 
     private void generarTecladoQWERTY() {
         binding.layoutTeclado.removeAllViews();
-
-        String[] filas = {
-                "QWERTYUIOP",
-                "ASDFGHJKLÑ",
-                "ZXCVBNM"
-        };
-
+        String[] filas = {"QWERTYUIOP", "ASDFGHJKLÑ", "ZXCVBNM"};
         int heightPx = (int) (60 * getResources().getDisplayMetrics().density);
 
         for (String filaLetras : filas) {
             LinearLayout rowLayout = new LinearLayout(this);
-            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(-1, -2);
             rowParams.setMargins(0, 4, 0, 4);
             rowLayout.setLayoutParams(rowParams);
             rowLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -134,22 +133,15 @@ public class HangmanActivity extends AppCompatActivity {
                 MaterialButton btnLetra = new MaterialButton(this);
                 btnLetra.setText(String.valueOf(c));
                 btnLetra.setOnClickListener(this::onLetraClick);
-
                 btnLetra.setBackgroundResource(R.drawable.fondo_tecla_ahorcado);
                 btnLetra.setTextColor(Color.WHITE);
                 btnLetra.setTypeface(null, Typeface.BOLD);
                 btnLetra.setTextSize(26);
-
                 btnLetra.setPadding(0, 0, 0, 0);
-                btnLetra.setInsetTop(0);
-                btnLetra.setInsetBottom(0);
-                btnLetra.setMinHeight(0);
-                btnLetra.setMinimumHeight(0);
+                btnLetra.setInsetTop(0); btnLetra.setInsetBottom(0); btnLetra.setMinHeight(0); btnLetra.setMinimumHeight(0);
 
                 LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(0, heightPx);
-                btnParams.weight = 1f;
-                btnParams.setMargins(6, 6, 6, 6);
-
+                btnParams.weight = 1f; btnParams.setMargins(6, 6, 6, 6);
                 btnLetra.setLayoutParams(btnParams);
                 rowLayout.addView(btnLetra);
             }
@@ -161,69 +153,47 @@ public class HangmanActivity extends AppCompatActivity {
         MaterialButton btn = (MaterialButton) view;
         btn.setEnabled(false);
         btn.setAlpha(0.5f);
-
         String letra = btn.getText().toString();
 
         if (palabraSecreta.contains(letra)) {
             vibrar(50);
             reproducirSonido(R.raw.correct_ding);
-
             btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.status_green)));
             btn.setTextColor(Color.WHITE);
-
             binding.tvHangmanWord.animate().scaleX(1.1f).scaleY(1.1f).setDuration(100)
                     .withEndAction(() -> binding.tvHangmanWord.animate().scaleX(1f).scaleY(1f).start()).start();
 
             boolean gano = true;
             for (int i = 0; i < palabraSecreta.length(); i++) {
-                if (palabraSecreta.charAt(i) == letra.charAt(0)) {
-                    palabraAdivinada[i] = letra.charAt(0);
-                }
-                if (palabraAdivinada[i] == '_') {
-                    gano = false;
-                }
+                if (palabraSecreta.charAt(i) == letra.charAt(0)) palabraAdivinada[i] = letra.charAt(0);
+                if (palabraAdivinada[i] == '_') gano = false;
             }
-
             if (gano) mostrarDialogo("¡Excelente!", "La palabra era: " + palabraSecreta, true);
         } else {
             vibrar(300);
             reproducirSonido(R.raw.megaman_x_error);
-
             btn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FFC107")));
             btn.setTextColor(Color.BLACK);
-
             binding.tvHangmanLives.startAnimation(AnimationUtils.loadAnimation(this, R.anim.shake_error));
             vidas--;
-            if (vidas <= 0) mostrarDialogo("¡Juego Terminado!", "La palabra correcta era: " + palabraSecreta, false);
+            if (vidas <= 0) mostrarDialogo("¡Juego Terminado!", "La palabra era: " + palabraSecreta, false);
         }
         actualizarUI();
     }
 
-    private void vibrar(long milisegundos) {
+    private void vibrar(long ms) {
         if (vibrator != null && vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(milisegundos, VibrationEffect.DEFAULT_AMPLITUDE));
-            } else {
-                vibrator.vibrate(milisegundos);
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) vibrator.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE));
+            else vibrator.vibrate(ms);
         }
     }
 
-    private void reproducirSonido(int soundResource) {
+    private void reproducirSonido(int resId) {
         try {
-            if (mediaPlayer != null) {
-                mediaPlayer.release();
-                mediaPlayer = null;
-            }
-            mediaPlayer = MediaPlayer.create(this, soundResource);
-            if (mediaPlayer != null) {
-                mediaPlayer.start();
-                mediaPlayer.setOnCompletionListener(mp -> {
-                    mp.release();
-                    mediaPlayer = null;
-                });
-            }
-        } catch (Exception e) { e.printStackTrace(); }
+            if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
+            mediaPlayer = MediaPlayer.create(this, resId);
+            if (mediaPlayer != null) mediaPlayer.start();
+        } catch (Exception e) {}
     }
 
     private void mostrarDialogo(String titleText, String msgText, boolean ganado) {
@@ -241,15 +211,9 @@ public class HangmanActivity extends AppCompatActivity {
         android.text.SpannableString mensaje = new android.text.SpannableString(msgText);
         mensaje.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.DKGRAY), 0, mensaje.length(), 0);
 
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(titulo)
-                .setMessage(mensaje)
-                .setIcon(icon)
-                .setPositiveButton("Jugar Otra vez", (d, w) -> iniciarJuego())
-                .setNegativeButton("Salir", (d, w) -> finish())
-                .setCancelable(false)
-                .setBackground(shape)
-                .show();
+        new MaterialAlertDialogBuilder(this).setTitle(titulo).setMessage(mensaje).setIcon(icon)
+                .setPositiveButton("Otra vez", (d, w) -> iniciarJuego()).setNegativeButton("Salir", (d, w) -> finish())
+                .setCancelable(false).setBackground(shape).show();
     }
 
     @Override

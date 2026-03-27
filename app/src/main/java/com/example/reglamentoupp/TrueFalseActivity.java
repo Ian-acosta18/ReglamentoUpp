@@ -37,15 +37,15 @@ public class TrueFalseActivity extends AppCompatActivity {
     private int score = 0;
     private int lives = 3;
     private boolean botonesBloqueados = false;
+    private boolean pistaUsada = false;
 
     private static final int MAX_PREGUNTAS = 10;
-
     private CountDownTimer temporizador;
-    private static final long TIEMPO_POR_PREGUNTA = 10000;
+    private long tiempoRestante = 10000;
+
     private int racha = 0;
     private Vibrator vibrator;
     private MediaPlayer mediaPlayer;
-
     private long ultimoClickTrue = 0;
     private long ultimoClickFalse = 0;
 
@@ -63,31 +63,21 @@ public class TrueFalseActivity extends AppCompatActivity {
         questionList = new ArrayList<>();
 
         binding.tvSpeechBubble.setText("¡Verdadero o Falso!");
-        if (binding.lottieCharacter != null) {
-            binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
-        }
+        if (binding.lottieCharacter != null) binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
 
         loadQuestions();
 
         binding.btnTrue.setOnClickListener(v -> {
             if (botonesBloqueados) return;
-            long tiempoActual = System.currentTimeMillis();
-            if (tiempoActual - ultimoClickFalse < 300) {
-                Toast.makeText(this, "No es válido presionar dos botones al mismo tiempo", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            ultimoClickTrue = tiempoActual;
+            if (System.currentTimeMillis() - ultimoClickFalse < 300) return;
+            ultimoClickTrue = System.currentTimeMillis();
             checkAnswer(true);
         });
 
         binding.btnFalse.setOnClickListener(v -> {
             if (botonesBloqueados) return;
-            long tiempoActual = System.currentTimeMillis();
-            if (tiempoActual - ultimoClickTrue < 300) {
-                Toast.makeText(this, "No es válido presionar dos botones al mismo tiempo", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            ultimoClickFalse = tiempoActual;
+            if (System.currentTimeMillis() - ultimoClickTrue < 300) return;
+            ultimoClickFalse = System.currentTimeMillis();
             checkAnswer(false);
         });
 
@@ -98,46 +88,38 @@ public class TrueFalseActivity extends AppCompatActivity {
             });
         }
 
+        // NUEVO: Funcionalidad de Pista (Tiempo Extra)
         if(binding.btnHelpTF != null) {
-            binding.btnHelpTF.setOnClickListener(v -> mostrarInstrucciones());
+            binding.btnHelpTF.setOnClickListener(v -> usarPista());
         }
     }
 
-    private void mostrarInstrucciones() {
+    private void usarPista() {
+        if (pistaUsada || botonesBloqueados) {
+            Toast.makeText(this, "Ya usaste esta pista", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        pistaUsada = true;
+
         if (temporizador != null) temporizador.cancel();
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Instrucciones: Verdadero o Falso")
-                .setMessage("1. Analiza la afirmación sobre el reglamento que aparece en el centro.\n\n" +
-                        "2. Decide rápidamente si es VERDADERO o FALSO antes de que pasen 10 segundos.\n\n" +
-                        "3. ¡Responde correctamente de forma consecutiva para ganar racha de puntos!")
-                .setPositiveButton("Continuar", (dialog, which) -> {
-                    dialog.dismiss();
-                    if (lives > 0) iniciarTemporizador();
-                })
-                .setCancelable(false)
-                .show();
+        tiempoRestante += 5000; // Suma 5 segundos
+        binding.tvSpeechBubble.setText("¡+5 Segundos extra! ⏳");
+        binding.tvSpeechBubble.setTextColor(Color.parseColor("#4CAF50")); // Verde
+
+        iniciarTemporizador(tiempoRestante);
     }
 
     private void loadQuestions() {
-        db.collection("preguntasVF")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if(isFinishing()) return;
-                    if (queryDocumentSnapshots.isEmpty()) return;
-
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        try { questionList.add(doc.toObject(PreguntaVF.class)); } catch (Exception e) {}
-                    }
-                    Collections.shuffle(questionList);
-                    if (questionList.size() > MAX_PREGUNTAS) {
-                        questionList = questionList.subList(0, MAX_PREGUNTAS);
-                    }
-                    binding.progressBar.setMax(questionList.size());
-                    if(!questionList.isEmpty()) showQuestion();
-                })
-                .addOnFailureListener(e -> {
-                    if(!isFinishing()) Toast.makeText(this, "Error al cargar", Toast.LENGTH_SHORT).show();
-                });
+        db.collection("preguntasVF").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if(isFinishing()) return;
+            for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                try { questionList.add(doc.toObject(PreguntaVF.class)); } catch (Exception e) {}
+            }
+            Collections.shuffle(questionList);
+            if (questionList.size() > MAX_PREGUNTAS) questionList = questionList.subList(0, MAX_PREGUNTAS);
+            binding.progressBar.setMax(questionList.size());
+            if(!questionList.isEmpty()) showQuestion();
+        });
     }
 
     private void showQuestion() {
@@ -145,41 +127,42 @@ public class TrueFalseActivity extends AppCompatActivity {
 
         if (currentQuestionIndex < questionList.size() && lives > 0) {
             botonesBloqueados = false;
+            pistaUsada = false;
+            tiempoRestante = 10000; // Reiniciar tiempo a 10s
+
             binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
             binding.lottieCharacter.playAnimation();
             binding.lottieCharacter.setSpeed(1.0f);
 
             PreguntaVF q = questionList.get(currentQuestionIndex);
             binding.tvQuestion.setText(q.getAfirmacion());
-
             binding.progressBar.setProgress(currentQuestionIndex + 1);
             binding.tvScore.setText("🏆 " + score);
             binding.tvLives.setText("❤️ " + lives);
 
-            iniciarTemporizador();
+            iniciarTemporizador(tiempoRestante);
         } else {
             finishGame();
         }
     }
 
-    private void iniciarTemporizador() {
+    private void iniciarTemporizador(long millisRestantes) {
         if (temporizador != null) temporizador.cancel();
-
         binding.tvSpeechBubble.setTextColor(Color.BLACK);
-        binding.tvSpeechBubble.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
-        binding.tvSpeechBubble.setTypeface(null, Typeface.NORMAL);
 
-        temporizador = new CountDownTimer(TIEMPO_POR_PREGUNTA, 1000) {
+        temporizador = new CountDownTimer(millisRestantes, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 if(isFinishing()) { cancel(); return; }
+                tiempoRestante = millisUntilFinished;
                 int segundos = (int) (millisUntilFinished / 1000);
-                binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
+
+                if(!binding.tvSpeechBubble.getText().toString().contains("extra")) {
+                    binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
+                }
 
                 if (segundos <= 3) {
                     binding.tvSpeechBubble.setTextColor(Color.RED);
-                    binding.tvSpeechBubble.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
-                    binding.tvSpeechBubble.setTypeface(null, Typeface.BOLD);
                     binding.lottieCharacter.setSpeed(1.5f);
                 }
             }
@@ -199,9 +182,7 @@ public class TrueFalseActivity extends AppCompatActivity {
         if (temporizador != null) temporizador.cancel();
 
         boolean correctAnswer = questionList.get(currentQuestionIndex).isRespuesta();
-        boolean isCorrect = (userSelectedTrue == correctAnswer);
-
-        procesarResultado(isCorrect, false);
+        procesarResultado((userSelectedTrue == correctAnswer), false);
     }
 
     private void procesarResultado(boolean isCorrect, boolean porTiempo) {
@@ -209,13 +190,8 @@ public class TrueFalseActivity extends AppCompatActivity {
 
         if (isCorrect) {
             racha++;
-            int puntos = 10;
-            if (racha >= 3) {
-                puntos += 5;
-                binding.tvSpeechBubble.setText("¡Racha de " + racha + "! 🔥");
-            } else {
-                binding.tvSpeechBubble.setText(frasesExito[(int) (Math.random() * frasesExito.length)]);
-            }
+            int puntos = (racha >= 3) ? 15 : 10;
+            binding.tvSpeechBubble.setText(racha >= 3 ? "¡Racha de " + racha + "! 🔥" : frasesExito[(int) (Math.random() * frasesExito.length)]);
             score += puntos;
             vibrar(50);
             playSound(R.raw.correct_ding);
@@ -226,9 +202,7 @@ public class TrueFalseActivity extends AppCompatActivity {
             vibrar(400);
             playSound(R.raw.megaman_x_error);
             actualizarMascota(false);
-            if(!porTiempo) {
-                binding.tvSpeechBubble.setText(frasesError[(int) (Math.random() * frasesError.length)]);
-            }
+            if(!porTiempo) binding.tvSpeechBubble.setText(frasesError[(int) (Math.random() * frasesError.length)]);
         }
 
         currentQuestionIndex++;
@@ -238,8 +212,7 @@ public class TrueFalseActivity extends AppCompatActivity {
     }
 
     private void actualizarMascota(boolean esCorrecto) {
-        int animacionRes = esCorrecto ? R.raw.happy_sun : R.raw.angry_thunderstorm;
-        binding.lottieCharacter.setAnimation(animacionRes);
+        binding.lottieCharacter.setAnimation(esCorrecto ? R.raw.happy_sun : R.raw.angry_thunderstorm);
         binding.lottieCharacter.playAnimation();
     }
 
@@ -247,28 +220,22 @@ public class TrueFalseActivity extends AppCompatActivity {
         try {
             if(mediaPlayer != null) mediaPlayer.release();
             mediaPlayer = MediaPlayer.create(this, resId);
-            if (mediaPlayer != null) {
-                mediaPlayer.start();
-                mediaPlayer.setOnCompletionListener(MediaPlayer::release);
-            }
-        } catch (Exception e) { e.printStackTrace(); }
+            if (mediaPlayer != null) mediaPlayer.start();
+        } catch (Exception e) {}
     }
 
     private void vibrar(long milisegundos) {
         if (vibrator != null && vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(milisegundos, VibrationEffect.DEFAULT_AMPLITUDE));
-            } else {
-                vibrator.vibrate(milisegundos);
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) vibrator.vibrate(VibrationEffect.createOneShot(milisegundos, VibrationEffect.DEFAULT_AMPLITUDE));
+            else vibrator.vibrate(milisegundos);
         }
     }
 
     private void finishGame() {
         if(isFinishing()) return;
-        saveScore();
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (uid != null && score > 0) db.collection("usuarios").document(uid).update("puntaje", FieldValue.increment(score));
 
-        // Configuración visual de Dialogo
         android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
         shape.setColor(android.graphics.Color.WHITE);
         shape.setCornerRadius(40f);
@@ -280,20 +247,9 @@ public class TrueFalseActivity extends AppCompatActivity {
         android.text.SpannableString mensaje = new android.text.SpannableString("Puntaje Final: " + score);
         mensaje.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.DKGRAY), 0, mensaje.length(), 0);
 
-        new MaterialAlertDialogBuilder(this)
-                .setTitle(titulo)
-                .setMessage(mensaje)
+        new MaterialAlertDialogBuilder(this).setTitle(titulo).setMessage(mensaje)
                 .setPositiveButton("Salir", (dialog, which) -> finish())
-                .setCancelable(false)
-                .setBackground(shape)
-                .show();
-    }
-
-    private void saveScore() {
-        String uid = FirebaseAuth.getInstance().getUid();
-        if (uid != null && score > 0) {
-            db.collection("usuarios").document(uid).update("puntaje", FieldValue.increment(score));
-        }
+                .setCancelable(false).setBackground(shape).show();
     }
 
     @Override

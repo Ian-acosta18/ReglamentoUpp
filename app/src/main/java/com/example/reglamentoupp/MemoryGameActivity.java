@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -49,6 +50,7 @@ public class MemoryGameActivity extends AppCompatActivity {
     private int lives = 6;
     private int pairsFound = 0;
     private int racha = 0;
+    private int pistasRestantes = 1; // Pista 1 uso
 
     private final CardDefinition[] definitions = {
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (I)", "Cursar los estudios según planes vigentes."),
@@ -56,9 +58,7 @@ public class MemoryGameActivity extends AppCompatActivity {
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VII)", "Conocer resultados de evaluaciones."),
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VIII)", "Obtener credencial al inscribirse."),
             new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (I)", "Ser responsables de su formación."),
-            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (V)", "Asistir puntualmente a clases."),
-            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (X)", "Cuidar espacios y materiales."),
-            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (XII)", "Mostrar credencial al ingresar.")
+            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (V)", "Asistir puntualmente a clases.")
     };
 
     @Override
@@ -72,27 +72,44 @@ public class MemoryGameActivity extends AppCompatActivity {
         tvMessage = findViewById(R.id.tvMessage);
         lottieMascot = findViewById(R.id.lottieMascot);
 
-        try {
-            vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        } catch (Exception e) { e.printStackTrace(); }
+        try { vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE); } catch (Exception e) {}
 
         View toolbar = findViewById(R.id.toolbarMemory);
         if (toolbar instanceof Toolbar) ((Toolbar) toolbar).setNavigationOnClickListener(v -> finish());
         else toolbar.setOnClickListener(v -> finish());
 
-        findViewById(R.id.btnHelpMemory).setOnClickListener(v -> mostrarInstrucciones());
+        // NUEVO: Vistazo rápido a las cartas
+        findViewById(R.id.btnHelpMemory).setOnClickListener(v -> usarPista());
 
         startNewGame();
     }
 
-    private void mostrarInstrucciones() {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Instrucciones: Memorama")
-                .setMessage("1. Voltea las tarjetas para encontrar los 4 pares correspondientes (Artículo y su definición).\n\n" +
-                        "2. Tienes un tiempo límite de 2 minutos para encontrar todos los pares.\n\n" +
-                        "3. Hay una tarjeta ¡Comodín! escondida, encuéntrala y te dará 20 puntos extra sin restar vidas.")
-                .setPositiveButton("¡A Jugar!", (dialog, which) -> dialog.dismiss())
-                .show();
+    private void usarPista() {
+        if (isProcessing || pistasRestantes <= 0) {
+            Toast.makeText(this, pistasRestantes <= 0 ? "Ya usaste el vistazo rápido" : "Espera un momento", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        pistasRestantes--;
+        isProcessing = true;
+        tvMessage.setText("¡Pista! Vistazo rápido...");
+
+        List<View> cartasVolteadas = new ArrayList<>();
+        for (int i = 0; i < glCards.getChildCount(); i++) {
+            View cardView = glCards.getChildAt(i);
+            MemoryCard cardData = (MemoryCard) cardView.getTag();
+            if (!cardData.isMatched && cardData != selectedDetails1) {
+                flipCard(cardView, true);
+                cartasVolteadas.add(cardView);
+            }
+        }
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (!isFinishing() && !isDestroyed()) {
+                for (View cardView : cartasVolteadas) flipCard(cardView, false);
+                isProcessing = false;
+                tvMessage.setText("¡Sigue buscando!");
+            }
+        }, 1500); // 1.5 Segundos
     }
 
     private void startNewGame() {
@@ -100,6 +117,7 @@ public class MemoryGameActivity extends AppCompatActivity {
         lives = 6;
         pairsFound = 0;
         racha = 0;
+        pistasRestantes = 1;
         isProcessing = false;
         selectedDetails1 = null;
         selectedView1 = null;
@@ -140,8 +158,7 @@ public class MemoryGameActivity extends AppCompatActivity {
             if (ivIcon != null) ivIcon.setImageResource(card.iconResId);
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.width = 0;
-            params.height = dpToPx(150);
+            params.width = 0; params.height = dpToPx(150);
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
             params.setMargins(dpToPx(4), dpToPx(4), dpToPx(4), dpToPx(4));
@@ -157,34 +174,21 @@ public class MemoryGameActivity extends AppCompatActivity {
     private void onCardClick(View view) {
         if (isProcessing) return;
         MemoryCard cardData = (MemoryCard) view.getTag();
-
         if (cardData.isMatched || cardData == selectedDetails1) return;
 
         flipCard(view, true);
 
         if (cardData.matchId == -1) {
-            cardData.isMatched = true;
-            score += 20;
-            tvMessage.setText("¡Carta Comodín! +20 Puntos");
-            playSound(R.raw.correct_ding);
-            vibrarSafe(100);
-            updateUI();
-
-            if (view instanceof MaterialCardView) {
-                ((MaterialCardView) view).setStrokeColor(Color.parseColor("#FFD700"));
-                ((MaterialCardView) view).setStrokeWidth(dpToPx(3));
-            }
-
-            selectedDetails1 = null;
-            selectedView1 = null;
-            isProcessing = false;
-
+            cardData.isMatched = true; score += 20;
+            tvMessage.setText("¡Carta Comodín! +20 Pts");
+            playSound(R.raw.correct_ding); vibrarSafe(100); updateUI();
+            setCardStroke(view, "#FFD700", 3);
+            selectedDetails1 = null; selectedView1 = null; isProcessing = false;
             return;
         }
 
         if (selectedDetails1 == null) {
-            selectedDetails1 = cardData;
-            selectedView1 = view;
+            selectedDetails1 = cardData; selectedView1 = view;
         } else {
             isProcessing = true;
             checkMatch(view, cardData);
@@ -193,101 +197,46 @@ public class MemoryGameActivity extends AppCompatActivity {
 
     private void checkMatch(View view2, MemoryCard cardData2) {
         if (selectedDetails1.matchId == cardData2.matchId) {
-            handleMatch(selectedView1, view2);
+            racha++; score += (15 + (racha * 5)); pairsFound++;
+            playSound(R.raw.correct_ding); vibrarSafe(50);
+            ((MemoryCard) selectedView1.getTag()).isMatched = true; cardData2.isMatched = true;
+            tvMessage.setText("¡Correcto!");
+            if (lottieMascot != null) { lottieMascot.setAnimation(R.raw.happy_sun); lottieMascot.playAnimation(); }
+            setCardStroke(selectedView1, "#4CAF50", 3); setCardStroke(view2, "#4CAF50", 3);
+            selectedDetails1 = null; selectedView1 = null; isProcessing = false; updateUI();
+            if (pairsFound == TOTAL_PAIRS) endGame(true);
         } else {
-            handleMismatch(selectedView1, view2);
+            racha = 0; lives--;
+            playSound(R.raw.megaman_x_error); vibrarSafe(200);
+            tvMessage.setText("¡Intenta de nuevo!");
+            if (lottieMascot != null) { lottieMascot.setAnimation(R.raw.angry_thunderstorm); lottieMascot.playAnimation(); }
+            setCardStroke(selectedView1, "#F44336", 3); setCardStroke(view2, "#F44336", 3);
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                if (!isFinishing() && !isDestroyed()) {
+                    flipCard(selectedView1, false); flipCard(view2, false);
+                    setCardStroke(selectedView1, "#D3DCE6", 0); setCardStroke(view2, "#D3DCE6", 0);
+                    selectedDetails1 = null; selectedView1 = null; isProcessing = false; updateUI();
+                    if (lives <= 0) endGame(false);
+                }
+            }, 1200);
         }
-    }
-
-    private void handleMatch(View view1, View view2) {
-        racha++;
-        score += (15 + (racha * 5));
-        pairsFound++;
-
-        playSound(R.raw.correct_ding);
-        vibrarSafe(50);
-
-        MemoryCard c1 = (MemoryCard) view1.getTag();
-        MemoryCard c2 = (MemoryCard) view2.getTag();
-        c1.isMatched = true;
-        c2.isMatched = true;
-
-        tvMessage.setText("¡Correcto!");
-        if (lottieMascot != null) {
-            lottieMascot.setAnimation(R.raw.happy_sun);
-            lottieMascot.playAnimation();
-        }
-
-        setCardStroke(view1, "#4CAF50", 3);
-        setCardStroke(view2, "#4CAF50", 3);
-
-        selectedDetails1 = null;
-        selectedView1 = null;
-        isProcessing = false;
-        updateUI();
-
-        if (pairsFound == TOTAL_PAIRS) {
-            endGame(true);
-        }
-    }
-
-    private void handleMismatch(View view1, View view2) {
-        racha = 0;
-        lives--;
-        playSound(R.raw.megaman_x_error);
-        vibrarSafe(200);
-
-        tvMessage.setText("¡Intenta de nuevo!");
-        if (lottieMascot != null) {
-            lottieMascot.setAnimation(R.raw.angry_thunderstorm);
-            lottieMascot.playAnimation();
-        }
-
-        setCardStroke(view1, "#F44336", 3);
-        setCardStroke(view2, "#F44336", 3);
-
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            if (!isFinishing() && !isDestroyed()) {
-                flipCard(view1, false);
-                flipCard(view2, false);
-
-                setCardStroke(view1, "#D3DCE6", 0);
-                setCardStroke(view2, "#D3DCE6", 0);
-
-                selectedDetails1 = null;
-                selectedView1 = null;
-                isProcessing = false;
-                updateUI();
-                if (lives <= 0) endGame(false);
-            }
-        }, 1200);
     }
 
     private void setCardStroke(View view, String hexColor, int widthDp) {
         if (view instanceof MaterialCardView) {
             MaterialCardView card = (MaterialCardView) view;
-            if (widthDp > 0) {
-                card.setStrokeColor(Color.parseColor(hexColor));
-                card.setStrokeWidth(dpToPx(widthDp));
-            } else {
-                card.setStrokeWidth(dpToPx(1.5f));
-                card.setStrokeColor(Color.parseColor(hexColor));
-            }
+            if (widthDp > 0) { card.setStrokeColor(Color.parseColor(hexColor)); card.setStrokeWidth(dpToPx(widthDp)); }
+            else { card.setStrokeWidth(dpToPx(1.5f)); card.setStrokeColor(Color.parseColor(hexColor)); }
         }
     }
 
     private void flipCard(View view, boolean showFace) {
         final View front = view.findViewById(R.id.layout_front);
         final View back = view.findViewById(R.id.layout_back);
-
         view.animate().scaleX(0f).setDuration(150).withEndAction(() -> {
-            if (showFace) {
-                if(front != null) front.setVisibility(View.VISIBLE);
-                if(back != null) back.setVisibility(View.GONE);
-            } else {
-                if(front != null) front.setVisibility(View.GONE);
-                if(back != null) back.setVisibility(View.VISIBLE);
-            }
+            if (showFace) { if(front!=null) front.setVisibility(View.VISIBLE); if(back!=null) back.setVisibility(View.GONE); }
+            else { if(front!=null) front.setVisibility(View.GONE); if(back!=null) back.setVisibility(View.VISIBLE); }
             view.animate().scaleX(1f).setDuration(150).start();
         }).start();
     }
@@ -295,75 +244,43 @@ public class MemoryGameActivity extends AppCompatActivity {
     private void startTimer() {
         if (timer != null) timer.cancel();
         timer = new CountDownTimer(GAME_TIME_MS, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                if(isFinishing() || isDestroyed()) { cancel(); return; }
-                int sec = (int) (millisUntilFinished / 1000);
-                tvMessage.setText("Tiempo: " + sec + "s");
-                if (sec < 10) tvMessage.setTextColor(Color.RED);
-                else tvMessage.setTextColor(ContextCompat.getColor(MemoryGameActivity.this, R.color.upp_primary));
+            @Override public void onTick(long m) {
+                if(isFinishing()) { cancel(); return; }
+                int sec = (int) (m / 1000);
+                if (!tvMessage.getText().toString().contains("Pista")) tvMessage.setText("Tiempo: " + sec + "s");
+                tvMessage.setTextColor(sec < 10 ? Color.RED : ContextCompat.getColor(MemoryGameActivity.this, R.color.upp_primary));
             }
-            @Override
-            public void onFinish() {
-                if(!isFinishing() && !isDestroyed()){
-                    endGame(false);
-                }
-            }
+            @Override public void onFinish() { if(!isFinishing()){ endGame(false); } }
         }.start();
     }
 
     private void endGame(boolean win) {
         if (timer != null) timer.cancel();
-        if(isFinishing() || isDestroyed()) return;
-
-        String titleText = win ? "¡Felicidades!" : "Juego Terminado";
-        String msgText = win ? "¡Encontraste los pares! Puntaje: " + score : "Se acabaron las vidas o el tiempo.";
-        int icon = win ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones;
+        if(isFinishing()) return;
 
         android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
-        shape.setColor(android.graphics.Color.WHITE);
-        shape.setCornerRadius(40f);
+        shape.setColor(android.graphics.Color.WHITE); shape.setCornerRadius(40f);
 
-        android.text.SpannableString titulo = new android.text.SpannableString(titleText);
+        android.text.SpannableString titulo = new android.text.SpannableString(win ? "¡Felicidades!" : "Juego Terminado");
         titulo.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.BLACK), 0, titulo.length(), 0);
         titulo.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, titulo.length(), 0);
 
-        android.text.SpannableString mensaje = new android.text.SpannableString(msgText);
+        android.text.SpannableString mensaje = new android.text.SpannableString(win ? "¡Encontraste los pares! Puntaje: " + score : "Se acabaron las vidas o el tiempo.");
         mensaje.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.DKGRAY), 0, mensaje.length(), 0);
 
-        try {
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle(titulo)
-                    .setMessage(mensaje)
-                    .setIcon(icon)
-                    .setCancelable(false)
-                    .setPositiveButton("Reintentar", (d, w) -> startNewGame())
-                    .setNegativeButton("Salir", (d, w) -> finish())
-                    .setBackground(shape)
-                    .show();
-        } catch (Exception e) { finish(); }
+        new MaterialAlertDialogBuilder(this).setTitle(titulo).setMessage(mensaje).setIcon(win ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones)
+                .setCancelable(false).setPositiveButton("Reintentar", (d, w) -> startNewGame()).setNegativeButton("Salir", (d, w) -> finish())
+                .setBackground(shape).show();
     }
 
-    private void updateUI() {
-        tvScore.setText("🏆 " + score);
-        tvLives.setText("❤️ " + lives);
-    }
+    private void updateUI() { tvScore.setText("🏆 " + score); tvLives.setText("❤️ " + lives); }
 
     private void playSound(int resId) {
         try {
-            if (mediaPlayer != null) {
-                mediaPlayer.release();
-                mediaPlayer = null;
-            }
+            if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
             mediaPlayer = MediaPlayer.create(this, resId);
-            if (mediaPlayer != null) {
-                mediaPlayer.start();
-                mediaPlayer.setOnCompletionListener(mp -> {
-                    mp.release();
-                    mediaPlayer = null;
-                });
-            }
-        } catch (Exception e) { e.printStackTrace(); }
+            if (mediaPlayer != null) mediaPlayer.start();
+        } catch (Exception e) {}
     }
 
     private void vibrarSafe(long ms) {
@@ -375,48 +292,17 @@ public class MemoryGameActivity extends AppCompatActivity {
         } catch (Exception e) {}
     }
 
-    private int dpToPx(float dp) {
-        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics()));
-    }
+    private int dpToPx(float dp) { return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics())); }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (timer != null) timer.cancel();
-        if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (timer != null) timer.cancel();
-        if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
-    }
+    @Override protected void onPause() { super.onPause(); if (timer != null) timer.cancel(); if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; } }
+    @Override protected void onDestroy() { super.onDestroy(); if (timer != null) timer.cancel(); if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; } }
 
     private static class CardDefinition {
-        int iconRes;
-        String textTitle;
-        String textDesc;
-
-        public CardDefinition(int iconRes, String textTitle, String textDesc) {
-            this.iconRes = iconRes;
-            this.textTitle = textTitle;
-            this.textDesc = textDesc;
-        }
+        int iconRes; String textTitle; String textDesc;
+        public CardDefinition(int iconRes, String textTitle, String textDesc) { this.iconRes = iconRes; this.textTitle = textTitle; this.textDesc = textDesc; }
     }
-
     private static class MemoryCard {
-        int id;
-        int iconResId;
-        String textLabel;
-        int matchId;
-        boolean isMatched = false;
-
-        public MemoryCard(int id, int iconResId, String textLabel, int matchId) {
-            this.id = id;
-            this.iconResId = iconResId;
-            this.textLabel = textLabel;
-            this.matchId = matchId;
-        }
+        int id; int iconResId; String textLabel; int matchId; boolean isMatched = false;
+        public MemoryCard(int id, int iconResId, String textLabel, int matchId) { this.id = id; this.iconResId = iconResId; this.textLabel = textLabel; this.matchId = matchId; }
     }
 }

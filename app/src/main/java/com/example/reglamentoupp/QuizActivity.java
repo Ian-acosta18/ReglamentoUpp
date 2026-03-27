@@ -42,6 +42,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private int puntaje = 0;
     private int vidas = 3;
     private boolean botonesBloqueados = false;
+    private boolean pistaUsada = false; // Control de pista
 
     private static final int MAX_PREGUNTAS = 10;
 
@@ -75,62 +76,54 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding.btnQuizOptionC.setOnClickListener(this);
 
         binding.btnBackQuiz.setOnClickListener(v -> {
-            if (temporizador != null) {
-                temporizador.cancel();
-            }
+            if (temporizador != null) temporizador.cancel();
             finish();
         });
 
-        binding.btnHelpQuiz.setOnClickListener(v -> mostrarInstrucciones());
+        // NUEVO: Funcionalidad de Pista
+        binding.btnHelpQuiz.setOnClickListener(v -> usarPista());
 
         cargarTodasLasPreguntas();
     }
 
-    private void mostrarInstrucciones() {
-        if (temporizador != null) temporizador.cancel();
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Instrucciones: Quiz")
-                .setMessage("1. Lee cuidadosamente la pregunta en pantalla.\n\n" +
-                        "2. Selecciona la opción correcta (A, B o C) antes de que se acaben los 15 segundos.\n\n" +
-                        "3. Tienes 3 vidas (❤️). Mantén una racha de respuestas correctas para obtener puntos extra.")
-                .setPositiveButton("¡Entendido!", (dialog, which) -> {
-                    dialog.dismiss();
-                    if (vidas > 0 && indicePreguntaActual <= listaDePreguntas.size()) {
-                        iniciarTemporizador();
-                    }
-                })
-                .setCancelable(false)
-                .show();
+    private void usarPista() {
+        if (pistaUsada || botonesBloqueados || preguntaActual == null) {
+            Toast.makeText(this, "Ya usaste la pista o no está disponible", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        pistaUsada = true;
+
+        String correcta = preguntaActual.getRespuestaCorrecta();
+        List<Button> botones = new ArrayList<>();
+        botones.add(binding.btnQuizOptionA);
+        botones.add(binding.btnQuizOptionB);
+        botones.add(binding.btnQuizOptionC);
+
+        for (Button btn : botones) {
+            if (!btn.getText().toString().equals(correcta) && !btn.getText().toString().isEmpty()) {
+                btn.setText(""); // Oculta el texto
+                btn.setEnabled(false); // Desactiva el botón
+                binding.tvSpeechBubble.setText("¡Pista! Eliminé una opción falsa.");
+                break; // Solo elimina una
+            }
+        }
     }
 
     private void cargarTodasLasPreguntas() {
-        mStore.collection("preguntas")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if(isFinishing()) return;
-                    if (queryDocumentSnapshots.isEmpty()) {
-                        Toast.makeText(this, "No hay preguntas disponibles.", Toast.LENGTH_SHORT).show();
-                        finish();
-                        return;
-                    }
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        try { listaDePreguntas.add(doc.toObject(Pregunta.class)); } catch (Exception e) {}
-                    }
-                    Collections.shuffle(listaDePreguntas);
-                    if (listaDePreguntas.size() > MAX_PREGUNTAS) {
-                        listaDePreguntas = listaDePreguntas.subList(0, MAX_PREGUNTAS);
-                    }
-                    if(!listaDePreguntas.isEmpty()) {
-                        binding.quizProgressBar.setMax(listaDePreguntas.size());
-                        iniciarQuiz();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if(!isFinishing()) {
-                        Toast.makeText(this, "Error al cargar preguntas.", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                });
+        mStore.collection("preguntas").get().addOnSuccessListener(queryDocumentSnapshots -> {
+            if (isFinishing()) return;
+            for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                try { listaDePreguntas.add(doc.toObject(Pregunta.class)); } catch (Exception e) {}
+            }
+            Collections.shuffle(listaDePreguntas);
+            if (listaDePreguntas.size() > MAX_PREGUNTAS) {
+                listaDePreguntas = listaDePreguntas.subList(0, MAX_PREGUNTAS);
+            }
+            if(!listaDePreguntas.isEmpty()) {
+                binding.quizProgressBar.setMax(listaDePreguntas.size());
+                iniciarQuiz();
+            }
+        });
     }
 
     private void iniciarQuiz() {
@@ -144,6 +137,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private void mostrarSiguientePregunta() {
         if (isFinishing()) return;
         tiempoRestante = TIEMPO_POR_PREGUNTA;
+        pistaUsada = false; // Reiniciar pista para la nueva pregunta
 
         if (indicePreguntaActual < listaDePreguntas.size()) {
             botonesBloqueados = false;
@@ -179,9 +173,12 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             public void onTick(long millisUntilFinished) {
                 if(isFinishing()) { cancel(); return; }
                 tiempoRestante = millisUntilFinished;
-
                 int segundos = (int) (millisUntilFinished / 1000);
-                binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
+
+                if (!binding.tvSpeechBubble.getText().toString().contains("Pista")) {
+                    binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
+                }
+
                 if (segundos <= 5) {
                     binding.tvSpeechBubble.setTextColor(Color.RED);
                     binding.lottieCharacter.setSpeed(1.5f);
@@ -189,13 +186,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                     binding.lottieCharacter.setSpeed(1.0f);
                 }
             }
-
             @Override
             public void onFinish() {
-                if(!isFinishing()) {
-                    binding.tvSpeechBubble.setText("¡Tiempo agotado!");
-                    manejarError(null, true);
-                }
+                if(!isFinishing()) manejarError(null, true);
             }
         }.start();
     }
@@ -210,22 +203,15 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         String respuestaElegida = botonPresionado.getText().toString();
         String correcta = preguntaActual.getRespuestaCorrecta();
 
-        if (respuestaElegida.equals(correcta)) {
-            manejarAcierto(botonPresionado);
-        } else {
-            manejarError(botonPresionado, false);
-        }
+        if (respuestaElegida.equals(correcta)) manejarAcierto(botonPresionado);
+        else manejarError(botonPresionado, false);
     }
 
     private void manejarAcierto(Button botonPresionado) {
         racha++;
-        int puntosGanados = 10;
-        if (racha >= 3) {
-            puntosGanados += 5;
-            binding.tvSpeechBubble.setText("¡RACHA x" + racha + "! 🔥");
-        } else {
-            binding.tvSpeechBubble.setText(frasesExito[(int) (Math.random() * frasesExito.length)]);
-        }
+        int puntosGanados = (racha >= 3) ? 15 : 10;
+        if (racha >= 3) binding.tvSpeechBubble.setText("¡RACHA x" + racha + "! 🔥");
+        else binding.tvSpeechBubble.setText(frasesExito[(int) (Math.random() * frasesExito.length)]);
 
         puntaje += puntosGanados;
         vibrar(50);
@@ -233,10 +219,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
         botonPresionado.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.game_success)));
         botonPresionado.setTextColor(Color.WHITE);
-
-        binding.tvQuizScore.animate().scaleX(1.2f).scaleY(1.2f).setDuration(200)
-                .withEndAction(() -> binding.tvQuizScore.animate().scaleX(1f).scaleY(1f).setDuration(200).start()).start();
-
         actualizarMascota(true);
         postQuestionDelay(true);
     }
@@ -262,51 +244,39 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         long delay = acerto ? 2000 : 2500;
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (isFinishing() || isDestroyed()) return;
-            if (vidas <= 0) {
-                mostrarResultadoFinal();
-            } else {
-                mostrarSiguientePregunta();
-            }
+            if (vidas <= 0) mostrarResultadoFinal();
+            else mostrarSiguientePregunta();
         }, delay);
     }
 
     private void actualizarMascota(boolean esCorrecto) {
-        int animacionRes = esCorrecto ? R.raw.happy_sun : R.raw.angry_thunderstorm;
-        if(!esCorrecto && binding.tvSpeechBubble.getText().toString().contains("Tiempo")) {
-            binding.tvSpeechBubble.setText(frasesError[(int) (Math.random() * frasesError.length)]);
-        }
-        binding.lottieCharacter.setAnimation(animacionRes);
+        binding.lottieCharacter.setAnimation(esCorrecto ? R.raw.happy_sun : R.raw.angry_thunderstorm);
         binding.lottieCharacter.playAnimation();
     }
 
     private void reproducirSonido(int soundResource) {
         try {
-            if (mediaPlayer != null) {
-                mediaPlayer.release();
-                mediaPlayer = null;
-            }
+            if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
             mediaPlayer = MediaPlayer.create(this, soundResource);
             if (mediaPlayer != null) {
                 mediaPlayer.start();
-                mediaPlayer.setOnCompletionListener(mp -> {
-                    mp.release();
-                    mediaPlayer = null;
-                });
+                mediaPlayer.setOnCompletionListener(MediaPlayer::release);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {}
     }
 
     private void vibrar(long milisegundos) {
         if (vibrator != null && vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(milisegundos, VibrationEffect.DEFAULT_AMPLITUDE));
-            } else {
-                vibrator.vibrate(milisegundos);
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) vibrator.vibrate(VibrationEffect.createOneShot(milisegundos, VibrationEffect.DEFAULT_AMPLITUDE));
+            else vibrator.vibrate(milisegundos);
         }
     }
 
     private void restaurarBotones() {
+        binding.btnQuizOptionA.setEnabled(true);
+        binding.btnQuizOptionB.setEnabled(true);
+        binding.btnQuizOptionC.setEnabled(true);
+
         binding.btnQuizOptionA.setBackgroundTintList(null);
         binding.btnQuizOptionB.setBackgroundTintList(null);
         binding.btnQuizOptionC.setBackgroundTintList(null);
@@ -345,12 +315,10 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                     .update("puntaje", FieldValue.increment(puntaje));
         }
 
-        // Crear fondo blanco con esquinas redondeadas
         android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
         shape.setColor(android.graphics.Color.WHITE);
         shape.setCornerRadius(40f);
 
-        // Dar formato oscuro al texto para evitar que se pierda en Modo Oscuro
         android.text.SpannableString titulo = new android.text.SpannableString("¡Juego Terminado!");
         titulo.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.BLACK), 0, titulo.length(), 0);
         titulo.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, titulo.length(), 0);

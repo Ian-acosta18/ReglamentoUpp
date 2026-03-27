@@ -1,6 +1,5 @@
 package com.example.reglamentoupp;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -56,6 +55,7 @@ public class WordSearchActivity extends AppCompatActivity {
     private final List<TextView> selectedCells = new ArrayList<>();
     private boolean isSelecting = false;
     private int wordsFoundCount = 0;
+    private int pistasRestantes = 3; // NUEVO: Control de Pistas
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -80,7 +80,9 @@ public class WordSearchActivity extends AppCompatActivity {
         tvScorePuntos = findViewById(R.id.tv_score_puntos);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        findViewById(R.id.btnHelpWS).setOnClickListener(v -> mostrarInstrucciones());
+
+        // NUEVO: Funcionalidad Foquito
+        findViewById(R.id.btnHelpWS).setOnClickListener(v -> usarPista());
 
         initializeWords();
         generarCuadricula();
@@ -90,15 +92,73 @@ public class WordSearchActivity extends AppCompatActivity {
         btnRegresar.setOnClickListener(v -> finish());
     }
 
-    private void mostrarInstrucciones() {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Instrucciones: Sopa de Letras")
-                .setMessage("1. Lee las definiciones listadas en la parte inferior de la pantalla.\n\n" +
-                        "2. Busca la respuesta en el recuadro de letras.\n\n" +
-                        "3. Desliza tu dedo sobre las letras desde el inicio hasta el final de la palabra para seleccionarla.\n\n" +
-                        "4. ¡Encuentra las 10 palabras escondidas!")
-                .setPositiveButton("Entendido", (dialog, which) -> dialog.dismiss())
-                .show();
+    private void usarPista() {
+        if (pistasRestantes <= 0) {
+            Toast.makeText(this, "Se agotaron tus pistas", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Buscar la primera palabra que no ha sido encontrada
+        Word wordToFind = null;
+        for (Word w : wordsToFind) {
+            if (!w.found) { wordToFind = w; break; }
+        }
+        if (wordToFind == null) return;
+
+        String text = wordToFind.text;
+        boolean foundInMatrix = false;
+
+        // Encontrar la palabra en la matriz y resaltar la PRIMERA LETRA
+        for (int r = 0; r < GRID_SIZE && !foundInMatrix; r++) {
+            for (int c = 0; c < GRID_SIZE && !foundInMatrix; c++) {
+                // Chequeo a la derecha
+                if (c + text.length() <= GRID_SIZE) {
+                    boolean match = true;
+                    for (int i = 0; i < text.length(); i++) {
+                        if (matrizLetras[r][c+i] != text.charAt(i)) { match = false; break; }
+                    }
+                    if (match) { resaltarLetraPista(r, c); foundInMatrix = true; break; }
+                }
+                // Chequeo a la izquierda
+                if (c - text.length() >= -1) {
+                    boolean match = true;
+                    for (int i = 0; i < text.length(); i++) {
+                        if (matrizLetras[r][c-i] != text.charAt(i)) { match = false; break; }
+                    }
+                    if (match) { resaltarLetraPista(r, c); foundInMatrix = true; break; }
+                }
+                // Chequeo abajo
+                if (r + text.length() <= GRID_SIZE) {
+                    boolean match = true;
+                    for (int i = 0; i < text.length(); i++) {
+                        if (matrizLetras[r+i][c] != text.charAt(i)) { match = false; break; }
+                    }
+                    if (match) { resaltarLetraPista(r, c); foundInMatrix = true; break; }
+                }
+                // Chequeo arriba
+                if (r - text.length() >= -1) {
+                    boolean match = true;
+                    for (int i = 0; i < text.length(); i++) {
+                        if (matrizLetras[r-i][c] != text.charAt(i)) { match = false; break; }
+                    }
+                    if (match) { resaltarLetraPista(r, c); foundInMatrix = true; break; }
+                }
+            }
+        }
+    }
+
+    private void resaltarLetraPista(int row, int col) {
+        pistasRestantes--;
+        for (int i = 0; i < gridLayout.getChildCount(); i++) {
+            TextView cell = (TextView) gridLayout.getChildAt(i);
+            int[] pos = (int[]) cell.getTag();
+            if (pos[0] == row && pos[1] == col) {
+                cell.setBackgroundColor(Color.YELLOW);
+                cell.setTextColor(Color.BLACK);
+                Toast.makeText(this, "¡Pista! Busca el recuadro amarillo (" + pistasRestantes + " usos)", Toast.LENGTH_SHORT).show();
+                break;
+            }
+        }
     }
 
     private void initializeWords() {
@@ -106,9 +166,7 @@ public class WordSearchActivity extends AppCompatActivity {
                 "JUSTIFICANTE", "REGLAMENTO", "TITULO", "EQUIPO", "REINSCRIPCION",
                 "APELACION", "SOCIAL", "SUSPENSION", "FALSIFICACION", "PROHIBICIONES"
         );
-        for(String word : palabrasClave) {
-            wordsToFind.add(new Word(word));
-        }
+        for(String word : palabrasClave) wordsToFind.add(new Word(word));
     }
 
     private void updateScore(){
@@ -117,13 +175,7 @@ public class WordSearchActivity extends AppCompatActivity {
             db.collection("usuarios").document(currentUser.getUid()).get().addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {
                     Long score = documentSnapshot.getLong("puntaje");
-                    if (score != null) {
-                        if (score == 1) {
-                            tvScorePuntos.setText(score + " Punto");
-                        } else {
-                            tvScorePuntos.setText(score + " Puntos");
-                        }
-                    }
+                    if (score != null) tvScorePuntos.setText(score + (score == 1 ? " Punto" : " Puntos"));
                 }
             });
         }
@@ -141,8 +193,7 @@ public class WordSearchActivity extends AppCompatActivity {
                 cellTextView.setTextColor(Color.WHITE);
                 cellTextView.setGravity(Gravity.CENTER);
                 GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(row, 1f), GridLayout.spec(col, 1f));
-                params.width = 0;
-                params.height = 0;
+                params.width = 0; params.height = 0;
                 cellTextView.setLayoutParams(params);
                 cellTextView.setTag(new int[]{row, col});
                 gridLayout.addView(cellTextView);
@@ -176,9 +227,7 @@ public class WordSearchActivity extends AppCompatActivity {
                     }
                     break;
                 case MotionEvent.ACTION_UP:
-                    if (isSelecting) {
-                        processSelection();
-                    }
+                    if (isSelecting) processSelection();
                     isSelecting = false;
                     clearTemporarySelection();
                     break;
@@ -189,29 +238,19 @@ public class WordSearchActivity extends AppCompatActivity {
 
     private boolean isValidMove(TextView newCell) {
         if (selectedCells.size() < 2) return true;
-
         int[] pos1 = (int[]) selectedCells.get(0).getTag();
         int[] pos2 = (int[]) selectedCells.get(1).getTag();
         int[] newPos = (int[]) newCell.getTag();
-
-        int dx = pos2[1] - pos1[1];
-        int dy = pos2[0] - pos1[0];
-
+        int dx = pos2[1] - pos1[1], dy = pos2[0] - pos1[0];
         int[] lastPos = (int[]) selectedCells.get(selectedCells.size() - 1).getTag();
-        int newDx = newPos[1] - lastPos[1];
-        int newDy = newPos[0] - lastPos[0];
-
+        int newDx = newPos[1] - lastPos[1], newDy = newPos[0] - lastPos[0];
         return dx == newDx && dy == newDy;
     }
 
     private void processSelection() {
         if (selectedCells.isEmpty()) return;
-
         StringBuilder selectedWord = new StringBuilder();
-        for (TextView cell : selectedCells) {
-            selectedWord.append(cell.getText());
-        }
-
+        for (TextView cell : selectedCells) selectedWord.append(cell.getText());
         checkForWordMatch(selectedWord.toString());
         checkForWordMatch(selectedWord.reverse().toString());
     }
@@ -223,10 +262,7 @@ public class WordSearchActivity extends AppCompatActivity {
                 wordsFoundCount++;
 
                 FirebaseUser currentUser = mAuth.getCurrentUser();
-                if (currentUser != null) {
-                    DocumentReference userDocRef = db.collection("usuarios").document(currentUser.getUid());
-                    userDocRef.update("puntaje", com.google.firebase.firestore.FieldValue.increment(10));
-                }
+                if (currentUser != null) db.collection("usuarios").document(currentUser.getUid()).update("puntaje", com.google.firebase.firestore.FieldValue.increment(10));
                 updateScore();
 
                 for (TextView cellInPath : selectedCells) {
@@ -240,11 +276,8 @@ public class WordSearchActivity extends AppCompatActivity {
 
                 if (wordsFoundCount == wordsToFind.size()) {
                     btnRegresar.setVisibility(View.VISIBLE);
-
-                    // Mostramos aquí la tarjeta de Juego Terminado igual a los otros juegos
                     android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
-                    shape.setColor(android.graphics.Color.WHITE);
-                    shape.setCornerRadius(40f);
+                    shape.setColor(android.graphics.Color.WHITE); shape.setCornerRadius(40f);
 
                     android.text.SpannableString titulo = new android.text.SpannableString("¡Juego Terminado!");
                     titulo.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.BLACK), 0, titulo.length(), 0);
@@ -253,13 +286,8 @@ public class WordSearchActivity extends AppCompatActivity {
                     android.text.SpannableString mensaje = new android.text.SpannableString("¡Felicidades, has encontrado todas las palabras!");
                     mensaje.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.DKGRAY), 0, mensaje.length(), 0);
 
-                    new MaterialAlertDialogBuilder(this)
-                            .setTitle(titulo)
-                            .setMessage(mensaje)
-                            .setPositiveButton("Genial", (dialog, which) -> finish())
-                            .setCancelable(false)
-                            .setBackground(shape)
-                            .show();
+                    new MaterialAlertDialogBuilder(this).setTitle(titulo).setMessage(mensaje).setPositiveButton("Genial", (dialog, which) -> finish())
+                            .setCancelable(false).setBackground(shape).show();
                 }
                 return;
             }
@@ -269,7 +297,10 @@ public class WordSearchActivity extends AppCompatActivity {
     private void clearTemporarySelection() {
         for (TextView cell : selectedCells) {
             if (cell.getCurrentTextColor() != Color.BLACK) {
-                cell.setBackgroundColor(Color.TRANSPARENT);
+                // Mantiene el color amarillo de la pista si es que lo tenía, sino lo pone transparente
+                if(cell.getBackground() != null) {
+                    cell.setBackgroundColor(Color.TRANSPARENT);
+                }
             }
         }
         selectedCells.clear();
@@ -280,9 +311,7 @@ public class WordSearchActivity extends AppCompatActivity {
             View child = gridLayout.getChildAt(i);
             Rect hitRect = new Rect();
             child.getHitRect(hitRect);
-            if (hitRect.contains((int) x, (int) y)) {
-                return (TextView) child;
-            }
+            if (hitRect.contains((int) x, (int) y)) return (TextView) child;
         }
         return null;
     }
