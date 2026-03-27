@@ -13,10 +13,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/transparent"
+        app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/ic_logout"
-        app:title="Memorama UPP"
-        app:titleTextColor="@color/white"
-        app:layout_constraintTop_toTopOf="parent">
+        app:title="Memorama UPPue"
+        app:titleTextColor="@color/white">
 
         <ImageButton
             android:id="@+id/btnHelpMemory"
@@ -26,7 +26,7 @@
             android:layout_marginEnd="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_foco"
-            app:tint="@color/white"/>
+            app:tint="@color/white" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <LinearLayout

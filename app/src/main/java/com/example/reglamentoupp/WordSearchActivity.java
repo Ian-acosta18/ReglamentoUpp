@@ -240,7 +240,26 @@ public class WordSearchActivity extends AppCompatActivity {
 
                 if (wordsFoundCount == wordsToFind.size()) {
                     btnRegresar.setVisibility(View.VISIBLE);
-                    Toast.makeText(this, "¡Felicidades, has encontrado todas las palabras!", Toast.LENGTH_LONG).show();
+
+                    // Mostramos aquí la tarjeta de Juego Terminado igual a los otros juegos
+                    android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
+                    shape.setColor(android.graphics.Color.WHITE);
+                    shape.setCornerRadius(40f);
+
+                    android.text.SpannableString titulo = new android.text.SpannableString("¡Juego Terminado!");
+                    titulo.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.BLACK), 0, titulo.length(), 0);
+                    titulo.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, titulo.length(), 0);
+
+                    android.text.SpannableString mensaje = new android.text.SpannableString("¡Felicidades, has encontrado todas las palabras!");
+                    mensaje.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.DKGRAY), 0, mensaje.length(), 0);
+
+                    new MaterialAlertDialogBuilder(this)
+                            .setTitle(titulo)
+                            .setMessage(mensaje)
+                            .setPositiveButton("Genial", (dialog, which) -> finish())
+                            .setCancelable(false)
+                            .setBackground(shape)
+                            .show();
                 }
                 return;
             }

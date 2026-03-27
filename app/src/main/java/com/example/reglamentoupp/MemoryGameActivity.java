@@ -39,8 +39,6 @@ public class MemoryGameActivity extends AppCompatActivity {
     private LottieAnimationView lottieMascot;
     private CountDownTimer timer;
     private Vibrator vibrator;
-
-    // --- CORRECCIÓN APLICADA AQUÍ: Variable global de MediaPlayer ---
     private MediaPlayer mediaPlayer;
 
     private List<MemoryCard> cards;
@@ -177,7 +175,6 @@ public class MemoryGameActivity extends AppCompatActivity {
                 ((MaterialCardView) view).setStrokeWidth(dpToPx(3));
             }
 
-            // --- CORRECCIÓN APLICADA AQUÍ: Limpiar selecciones si es el comodín para evitar bugs lógicos ---
             selectedDetails1 = null;
             selectedView1 = null;
             isProcessing = false;
@@ -319,18 +316,30 @@ public class MemoryGameActivity extends AppCompatActivity {
         if (timer != null) timer.cancel();
         if(isFinishing() || isDestroyed()) return;
 
-        String title = win ? "¡Felicidades!" : "Juego Terminado";
-        String msg = win ? "¡Encontraste los pares! Puntaje: " + score : "Se acabaron las vidas o el tiempo.";
+        String titleText = win ? "¡Felicidades!" : "Juego Terminado";
+        String msgText = win ? "¡Encontraste los pares! Puntaje: " + score : "Se acabaron las vidas o el tiempo.";
         int icon = win ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones;
+
+        android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
+        shape.setColor(android.graphics.Color.WHITE);
+        shape.setCornerRadius(40f);
+
+        android.text.SpannableString titulo = new android.text.SpannableString(titleText);
+        titulo.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.BLACK), 0, titulo.length(), 0);
+        titulo.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, titulo.length(), 0);
+
+        android.text.SpannableString mensaje = new android.text.SpannableString(msgText);
+        mensaje.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.DKGRAY), 0, mensaje.length(), 0);
 
         try {
             new MaterialAlertDialogBuilder(this)
-                    .setTitle(title)
-                    .setMessage(msg)
+                    .setTitle(titulo)
+                    .setMessage(mensaje)
                     .setIcon(icon)
                     .setCancelable(false)
                     .setPositiveButton("Reintentar", (d, w) -> startNewGame())
                     .setNegativeButton("Salir", (d, w) -> finish())
+                    .setBackground(shape)
                     .show();
         } catch (Exception e) { finish(); }
     }
@@ -340,7 +349,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         tvLives.setText("❤️ " + lives);
     }
 
-    // --- CORRECCIÓN APLICADA AQUÍ: Control global del MediaPlayer ---
     private void playSound(int resId) {
         try {
             if (mediaPlayer != null) {
@@ -371,7 +379,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics()));
     }
 
-    // --- CORRECCIÓN APLICADA AQUÍ: Limpieza de recursos al pausar/destruir ---
     @Override
     protected void onPause() {
         super.onPause();

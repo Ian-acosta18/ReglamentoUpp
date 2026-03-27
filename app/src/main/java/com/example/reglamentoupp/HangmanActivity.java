@@ -209,7 +209,6 @@ public class HangmanActivity extends AppCompatActivity {
         }
     }
 
-    // --- CORRECCIÓN APLICADA AQUÍ: Control de memoria del audio ---
     private void reproducirSonido(int soundResource) {
         try {
             if (mediaPlayer != null) {
@@ -227,9 +226,21 @@ public class HangmanActivity extends AppCompatActivity {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    private void mostrarDialogo(String titulo, String mensaje, boolean ganado) {
+    private void mostrarDialogo(String titleText, String msgText, boolean ganado) {
         if(isFinishing() || isDestroyed()) return;
         int icon = ganado ? R.drawable.ic_check_circle : R.drawable.ic_prohibiciones;
+
+        android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
+        shape.setColor(android.graphics.Color.WHITE);
+        shape.setCornerRadius(40f);
+
+        android.text.SpannableString titulo = new android.text.SpannableString(titleText);
+        titulo.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.BLACK), 0, titulo.length(), 0);
+        titulo.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, titulo.length(), 0);
+
+        android.text.SpannableString mensaje = new android.text.SpannableString(msgText);
+        mensaje.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.DKGRAY), 0, mensaje.length(), 0);
+
         new MaterialAlertDialogBuilder(this)
                 .setTitle(titulo)
                 .setMessage(mensaje)
@@ -237,6 +248,7 @@ public class HangmanActivity extends AppCompatActivity {
                 .setPositiveButton("Jugar Otra vez", (d, w) -> iniciarJuego())
                 .setNegativeButton("Salir", (d, w) -> finish())
                 .setCancelable(false)
+                .setBackground(shape)
                 .show();
     }
 

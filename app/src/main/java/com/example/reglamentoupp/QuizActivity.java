@@ -47,7 +47,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private CountDownTimer temporizador;
     private static final long TIEMPO_POR_PREGUNTA = 15000;
-    // --- CORRECCIÓN APLICADA AQUÍ: Variable para el exploit del tiempo ---
     private long tiempoRestante = TIEMPO_POR_PREGUNTA;
 
     private int racha = 0;
@@ -109,7 +108,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if(isFinishing()) return;
-                    // --- CORRECCIÓN APLICADA AQUÍ: Se cierra si la base de datos está vacía ---
                     if (queryDocumentSnapshots.isEmpty()) {
                         Toast.makeText(this, "No hay preguntas disponibles.", Toast.LENGTH_SHORT).show();
                         finish();
@@ -145,8 +143,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private void mostrarSiguientePregunta() {
         if (isFinishing()) return;
-
-        // --- CORRECCIÓN APLICADA AQUÍ: Restaurar los 15s al cambiar de pregunta ---
         tiempoRestante = TIEMPO_POR_PREGUNTA;
 
         if (indicePreguntaActual < listaDePreguntas.size()) {
@@ -174,7 +170,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    // --- CORRECCIÓN APLICADA AQUÍ: Se utiliza la variable tiempoRestante ---
     private void iniciarTemporizador() {
         if (temporizador != null) temporizador.cancel();
         binding.tvSpeechBubble.setTextColor(Color.BLACK);
@@ -183,8 +178,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onTick(long millisUntilFinished) {
                 if(isFinishing()) { cancel(); return; }
-
-                tiempoRestante = millisUntilFinished; // Guardamos el tiempo para el exploit de ayuda
+                tiempoRestante = millisUntilFinished;
 
                 int segundos = (int) (millisUntilFinished / 1000);
                 binding.tvSpeechBubble.setText("Tiempo: " + segundos + "s ⏳");
@@ -285,7 +279,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding.lottieCharacter.playAnimation();
     }
 
-    // --- CORRECCIÓN APLICADA AQUÍ: Control de memoria del audio ---
     private void reproducirSonido(int soundResource) {
         try {
             if (mediaPlayer != null) {
@@ -351,11 +344,26 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             mStore.collection("usuarios").document(mAuth.getCurrentUser().getUid())
                     .update("puntaje", FieldValue.increment(puntaje));
         }
+
+        // Crear fondo blanco con esquinas redondeadas
+        android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
+        shape.setColor(android.graphics.Color.WHITE);
+        shape.setCornerRadius(40f);
+
+        // Dar formato oscuro al texto para evitar que se pierda en Modo Oscuro
+        android.text.SpannableString titulo = new android.text.SpannableString("¡Juego Terminado!");
+        titulo.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.BLACK), 0, titulo.length(), 0);
+        titulo.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), 0, titulo.length(), 0);
+
+        android.text.SpannableString mensaje = new android.text.SpannableString("Tu puntaje final es: " + puntaje);
+        mensaje.setSpan(new android.text.style.ForegroundColorSpan(android.graphics.Color.DKGRAY), 0, mensaje.length(), 0);
+
         new MaterialAlertDialogBuilder(this)
-                .setTitle("¡Juego Terminado!")
-                .setMessage("Tu puntaje final es: " + puntaje)
+                .setTitle(titulo)
+                .setMessage(mensaje)
                 .setPositiveButton("Genial", (dialog, which) -> finish())
                 .setCancelable(false)
+                .setBackground(shape)
                 .show();
     }
 

@@ -110,25 +110,27 @@
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/glass_card_background"
-                            android:paddingHorizontal="12dp"
-                            android:paddingVertical="6dp"
                             android:layout_marginEnd="8dp"
-                            android:gravity="center_vertical">
+                            android:background="@drawable/glass_card_background"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="6dp">
+
                             <ImageView
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_foco"
-                                app:tint="#FFC107"/>
+                                app:tint="#FFC107" />
+
                             <TextView
                                 android:id="@+id/tvUserPuntaje"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
-                                android:text="0 XP"
-                                android:textColor="@color/white"
+                                android:text="0 puntaje"
+                                android:textColor="@color/black"
                                 android:textSize="13sp"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold" />
                         </LinearLayout>
 
                         <LinearLayout
@@ -143,15 +145,16 @@
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_trophy"
                                 app:tint="#4CAF50"/>
+
                             <TextView
                                 android:id="@+id/tvUserLevel"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="6dp"
                                 android:text="Nivel 1"
-                                android:textColor="@color/white"
+                                android:textColor="@color/black"
                                 android:textSize="13sp"
-                                android:textStyle="bold"/>
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
