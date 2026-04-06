@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -37,10 +38,12 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
     private OnQuizCompleteListener mListener;
 
     private TextView tvPregunta, tvQuizTitle, tvQuizFeedback;
-    // Usamos MaterialButton para poder cambiar bordes y colores fácilmente
     private MaterialButton btnOpcionA, btnOpcionB, btnOpcionC;
     private ProgressBar progressBar;
     private LinearLayout optionsContainer;
+
+    // Declaración del LottieAnimationView para el feedback dinámico
+    private LottieAnimationView lottieFeedback;
 
     public interface OnQuizCompleteListener {
         void onQuizComplete(int puntos, boolean esCorrecto);
@@ -83,13 +86,15 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
         tvQuizTitle = view.findViewById(R.id.tv_quiz_title);
         tvQuizFeedback = view.findViewById(R.id.tv_quiz_feedback);
 
-        // Inicializamos como MaterialButton
         btnOpcionA = view.findViewById(R.id.btn_opcion_a);
         btnOpcionB = view.findViewById(R.id.btn_opcion_b);
         btnOpcionC = view.findViewById(R.id.btn_opcion_c);
 
         progressBar = view.findViewById(R.id.progress_bar_quiz);
         optionsContainer = view.findViewById(R.id.quiz_options_container);
+
+        // Inicialización de la vista de Lottie
+        lottieFeedback = view.findViewById(R.id.lottieFeedback);
 
         btnOpcionA.setOnClickListener(this);
         btnOpcionB.setOnClickListener(this);
@@ -130,6 +135,7 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
             progressBar.setVisibility(View.VISIBLE);
             optionsContainer.setVisibility(View.GONE);
             tvPregunta.setVisibility(View.GONE);
+            if (lottieFeedback != null) lottieFeedback.setVisibility(View.GONE);
         } else {
             progressBar.setVisibility(View.GONE);
             optionsContainer.setVisibility(View.VISIBLE);
@@ -145,7 +151,7 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
         btnOpcionB.setText(preguntaActual.getOpcionB());
         btnOpcionC.setText(preguntaActual.getOpcionC());
 
-        resetButtonStyles(); // Esto pondrá los colores por defecto (Morado + Blanco)
+        resetButtonStyles();
         setLoading(false);
     }
 
@@ -169,28 +175,30 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
         new Handler(Looper.getMainLooper()).postDelayed(this::dismiss, 2000);
     }
 
-    // ================================================================
-    //  CORRECCIÓN DE COLORES AQUÍ
-    // ================================================================
-
     private void showFeedback(boolean isCorrect, MaterialButton clickedButton) {
         tvQuizFeedback.setVisibility(View.VISIBLE);
+        lottieFeedback.setVisibility(View.VISIBLE);
 
         if (isCorrect) {
             tvQuizFeedback.setText("¡Correcto!");
-            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_success)); // Texto verde
+            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_success));
 
-            // FONDO VERDE - TEXTO BLANCO
             setButtonColor(clickedButton, R.color.game_success, R.color.white);
+
+            // Animación feliz (puedes dejar la nube o poner otra si acierta)
+            lottieFeedback.setAnimation(R.raw.smilling_cloud);
+            lottieFeedback.playAnimation();
 
         } else {
             tvQuizFeedback.setText("Incorrecto");
-            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_fail)); // Texto rojo
+            tvQuizFeedback.setTextColor(ContextCompat.getColor(getContext(), R.color.game_fail));
 
-            // FONDO ROJO - TEXTO BLANCO
             setButtonColor(clickedButton, R.color.game_fail, R.color.white);
 
-            // Buscar la respuesta correcta para pintarla de verde
+            // ANIMACIÓN DEL BÚHO ENOJADO SI SE EQUIVOCA
+            lottieFeedback.setAnimation(R.raw.buho_1);
+            lottieFeedback.playAnimation();
+
             highlightCorrectAnswer();
         }
     }
@@ -202,7 +210,6 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
         else if (btnOpcionC.getText().toString().equals(preguntaActual.getRespuestaCorrecta())) correctBtn = btnOpcionC;
 
         if (correctBtn != null) {
-            // FONDO VERDE - TEXTO BLANCO
             setButtonColor(correctBtn, R.color.game_success, R.color.white);
         }
     }
@@ -210,27 +217,24 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
     private void resetButtonStyles() {
         setButtonsEnabled(true);
         tvQuizFeedback.setVisibility(View.GONE);
+        if (lottieFeedback != null) {
+            lottieFeedback.setVisibility(View.GONE);
+            lottieFeedback.cancelAnimation();
+        }
 
         MaterialButton[] buttons = {btnOpcionA, btnOpcionB, btnOpcionC};
         for (MaterialButton btn : buttons) {
-            // ESTADO NORMAL: FONDO MORADO (Primary) - TEXTO BLANCO
             setButtonColor(btn, R.color.upp_primary, R.color.white);
             btn.setStrokeWidth(0);
         }
     }
 
-    // Método auxiliar para asegurar que el contraste siempre sea correcto
     private void setButtonColor(MaterialButton btn, int bgColorRes, int textColorRes) {
         Context ctx = getContext();
         if (ctx == null) return;
 
-        // Establece el color de fondo (Tint)
         btn.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(ctx, bgColorRes)));
-
-        // Establece el color del texto
         btn.setTextColor(ContextCompat.getColor(ctx, textColorRes));
-
-        // Nos aseguramos de que el icono (si tuviera) también se pinte
         btn.setIconTint(ColorStateList.valueOf(ContextCompat.getColor(ctx, textColorRes)));
     }
 
