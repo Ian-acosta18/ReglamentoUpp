@@ -4,74 +4,105 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="20dp"
+    android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
     app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="#FFFFFF"
-    app:strokeColor="#F0F0F0"
-    app:strokeWidth="1dp">
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/white">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <TextView
-            android:id="@+id/tvPosicion"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/white_circle_bg"
-            android:backgroundTint="#F5F7FA"
-            android:gravity="center"
+            android:id="@+id/tvRankingPosition"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:text="1"
-            android:textColor="@color/upp_primary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:background="@drawable/white_circle_bg"
+            android:backgroundTint="#9C27B0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <LinearLayout
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivRankingProfile"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="12dp"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/CircleImageView"
+            android:src="@drawable/ic_profile"
+            app:layout_constraintStart_toEndOf="@id/tvRankingPosition"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvRankingName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tvNombreJugador"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nombre del Alumno"
-                android:textColor="#333333"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Estudiante UPP"
-                android:textColor="#757575"
-                android:textSize="13sp" />
-        </LinearLayout>
+            android:text="Nombre Jugador"
+            android:textColor="#212121"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintStart_toEndOf="@id/ivRankingProfile"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/tvRankingScore"
+            app:layout_constraintBottom_toTopOf="@+id/layoutBadges"/>
 
         <LinearLayout
+            android:id="@+id/layoutBadges"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="end|center_vertical"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toEndOf="@id/ivRankingProfile"
+            app:layout_constraintTop_toBottomOf="@id/tvRankingName"
+            app:layout_constraintBottom_toBottomOf="parent">
 
-            <TextView
-                android:id="@+id/tvPuntajeRanking"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0 XP"
-                android:textColor="#4CAF50"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+            <ImageView
+                android:id="@+id/badge1"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_trophy"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone"/>
+
+            <ImageView
+                android:id="@+id/badge2"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_foco"
+                android:layout_marginEnd="4dp"
+                android:visibility="gone"/>
+
+            <ImageView
+                android:id="@+id/badge3"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_games"
+                android:visibility="gone"/>
         </LinearLayout>
 
-    </LinearLayout>
+        <TextView
+            android:id="@+id/tvRankingScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="150 pts"
+            android:textColor="#FF9800"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

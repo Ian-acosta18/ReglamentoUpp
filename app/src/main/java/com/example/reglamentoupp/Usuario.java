@@ -2,22 +2,50 @@ package com.example.reglamentoupp;
 
 public class Usuario {
     private String nombre;
-    private String apellidos;
-    private long puntaje;
-    private String fotoUrl; // Nuevo campo para la foto
+    private String correo;
+    private int puntaje;
+    private String fotoPerfilUrl; // NUEVO: Campo para la foto
 
-    // Constructor vacío requerido por Firestore
-    public Usuario() {}
-
-    public Usuario(String nombre, String apellidos, long puntaje, String fotoUrl) {
-        this.nombre = nombre;
-        this.apellidos = apellidos;
-        this.puntaje = puntaje;
-        this.fotoUrl = fotoUrl;
+    // Constructor vacío obligatorio para Firebase
+    public Usuario() {
     }
 
-    public String getNombre() { return nombre; }
-    public String getApellidos() { return apellidos; }
-    public long getPuntaje() { return puntaje; }
-    public String getFotoUrl() { return fotoUrl; } // Nuevo getter
+    public Usuario(String nombre, String correo, int puntaje, String fotoPerfilUrl) {
+        this.nombre = nombre;
+        this.correo = correo;
+        this.puntaje = puntaje;
+        this.fotoPerfilUrl = fotoPerfilUrl;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public void setCorreo(String correo) {
+        this.correo = correo;
+    }
+
+    public int getPuntaje() {
+        return puntaje;
+    }
+
+    public void setPuntaje(int puntaje) {
+        this.puntaje = puntaje;
+    }
+
+    public String getFotoPerfilUrl() {
+        return fotoPerfilUrl;
+    }
+
+    public void setFotoPerfilUrl(String fotoPerfilUrl) {
+        this.fotoPerfilUrl = fotoPerfilUrl;
+    }
 }
