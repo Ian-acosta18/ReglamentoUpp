@@ -64,7 +64,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding = ActivityQuizBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // SOLUCIÓN 1: Evita que la pantalla se ponga en blanco
+        // Forzar renderizado por software para evitar pantalla en blanco en algunos dispositivos
         binding.lottieCharacter.setRenderMode(RenderMode.SOFTWARE);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -146,10 +146,11 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             botonesBloqueados = false;
             restaurarBotones();
 
-            // SOLUCIÓN 2 y 3: Ponemos el búho y nos saltamos la parte invisible de la animación
+            // === CÓDIGO CORREGIDO PARA EL BÚHO ===
             binding.lottieCharacter.setAnimation(R.raw.buho_1);
-            binding.lottieCharacter.setMinFrame(110);
-            binding.lottieCharacter.playAnimation();
+            binding.lottieCharacter.cancelAnimation(); // Detiene cualquier bucle de invisibilidad
+            binding.lottieCharacter.setFrame(119);     // Fuerza a mostrar el búho 100% visible
+            // =====================================
 
             preguntaActual = listaDePreguntas.get(indicePreguntaActual);
 
@@ -255,10 +256,11 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void actualizarMascota(boolean esCorrecto) {
-        // SOLUCIÓN 4: Reiniciamos el inicio a 0 para que el sol y la tormenta funcionen bien
-        binding.lottieCharacter.setMinFrame(0);
+        // === CÓDIGO CORREGIDO PARA RESTAURAR LA ANIMACIÓN DE RESPUESTAS ===
+        binding.lottieCharacter.setRepeatCount(com.airbnb.lottie.LottieDrawable.INFINITE);
         binding.lottieCharacter.setAnimation(esCorrecto ? R.raw.happy_sun : R.raw.angry_thunderstorm);
         binding.lottieCharacter.playAnimation();
+        // ==================================================================
     }
 
     private void reproducirSonido(int soundResource) {
