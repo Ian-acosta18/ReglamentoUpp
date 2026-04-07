@@ -64,7 +64,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding = ActivityQuizBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Forzar renderizado por software para evitar pantalla en blanco en algunos dispositivos
         binding.lottieCharacter.setRenderMode(RenderMode.SOFTWARE);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -118,8 +117,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                 try {
                     listaDePreguntas.add(doc.toObject(Pregunta.class));
-                } catch (Exception e) {
-                }
+                } catch (Exception e) {}
             }
             Collections.shuffle(listaDePreguntas);
             if (listaDePreguntas.size() > MAX_PREGUNTAS) {
@@ -149,10 +147,11 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             botonesBloqueados = false;
             restaurarBotones();
 
-            // === CÓDIGO CORREGIDO PARA EL BÚHO ===
+            // === SOLUCIÓN DEFINITIVA PARA EL BÚHO ===
             binding.lottieCharacter.setAnimation(R.raw.buho_1);
-            binding.lottieCharacter.cancelAnimation(); // Detiene cualquier bucle de invisibilidad
-            binding.lottieCharacter.setFrame(119);     // Fuerza a mostrar el búho 100% visible
+            // Bloqueamos la animación exactamente en el frame final donde es 100% visible
+            binding.lottieCharacter.setMinAndMaxFrame(119, 119);
+            binding.lottieCharacter.playAnimation();
             // =====================================
 
             preguntaActual = listaDePreguntas.get(indicePreguntaActual);
@@ -201,7 +200,11 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onFinish() {
-                if (!isFinishing()) manejarError(null, true);
+                if (!isFinishing()) {
+                    // === SOLUCIÓN AL BUG DE LAS VIDAS ===
+                    botonesBloqueados = true;
+                    manejarError(null, true);
+                }
             }
         }.start();
     }
@@ -264,11 +267,12 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void actualizarMascota(boolean esCorrecto) {
-        // === CÓDIGO CORREGIDO PARA RESTAURAR LA ANIMACIÓN DE RESPUESTAS ===
+        // === SOLUCIÓN PARA QUE LA NUBE Y EL SOL FUNCIONEN NORMALMENTE ===
+        binding.lottieCharacter.setMinAndMaxProgress(0f, 1f);
         binding.lottieCharacter.setRepeatCount(com.airbnb.lottie.LottieDrawable.INFINITE);
         binding.lottieCharacter.setAnimation(esCorrecto ? R.raw.happy_sun : R.raw.angry_thunderstorm);
         binding.lottieCharacter.playAnimation();
-        // ==================================================================
+        // ================================================================
     }
 
     private void reproducirSonido(int soundResource) {
@@ -282,8 +286,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 mediaPlayer.start();
                 mediaPlayer.setOnCompletionListener(MediaPlayer::release);
             }
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
     }
 
     private void vibrar(long milisegundos) {
