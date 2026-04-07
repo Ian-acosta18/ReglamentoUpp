@@ -19,6 +19,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.airbnb.lottie.RenderMode; // IMPORTANTE: Importación de Lottie
 import com.example.reglamentoupp.databinding.ActivityQuizBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -63,6 +64,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding = ActivityQuizBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // FORZAR RENDERIZADO POR SOFTWARE PARA LOTTIE DESDE JAVA
+        binding.lottieCharacter.setRenderMode(RenderMode.SOFTWARE);
+
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mStore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -80,7 +84,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
             finish();
         });
 
-        // NUEVO: Funcionalidad de Pista
         binding.btnHelpQuiz.setOnClickListener(v -> usarPista());
 
         cargarTodasLasPreguntas();

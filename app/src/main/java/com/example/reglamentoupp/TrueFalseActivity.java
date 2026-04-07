@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.airbnb.lottie.RenderMode; // IMPORTANTE: Importación de Lottie
 import com.example.reglamentoupp.databinding.ActivityTrueFalseBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -58,12 +59,17 @@ public class TrueFalseActivity extends AppCompatActivity {
         binding = ActivityTrueFalseBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // FORZAR RENDERIZADO POR SOFTWARE PARA LOTTIE DESDE JAVA
+        if (binding.lottieCharacter != null) {
+            binding.lottieCharacter.setRenderMode(RenderMode.SOFTWARE);
+            binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
+        }
+
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         db = FirebaseFirestore.getInstance();
         questionList = new ArrayList<>();
 
         binding.tvSpeechBubble.setText("¡Verdadero o Falso!");
-        if (binding.lottieCharacter != null) binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
 
         loadQuestions();
 
@@ -88,7 +94,6 @@ public class TrueFalseActivity extends AppCompatActivity {
             });
         }
 
-        // NUEVO: Funcionalidad de Pista (Tiempo Extra)
         if(binding.btnHelpTF != null) {
             binding.btnHelpTF.setOnClickListener(v -> usarPista());
         }

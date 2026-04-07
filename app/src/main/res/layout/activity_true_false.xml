@@ -84,6 +84,7 @@
             app:lottie_rawRes="@raw/smilling_cloud"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
+            app:lottie_renderMode="software"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="10dp"/>
