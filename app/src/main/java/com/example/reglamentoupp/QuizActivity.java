@@ -116,13 +116,16 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         mStore.collection("preguntas").get().addOnSuccessListener(queryDocumentSnapshots -> {
             if (isFinishing()) return;
             for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                try { listaDePreguntas.add(doc.toObject(Pregunta.class)); } catch (Exception e) {}
+                try {
+                    listaDePreguntas.add(doc.toObject(Pregunta.class));
+                } catch (Exception e) {
+                }
             }
             Collections.shuffle(listaDePreguntas);
             if (listaDePreguntas.size() > MAX_PREGUNTAS) {
                 listaDePreguntas = listaDePreguntas.subList(0, MAX_PREGUNTAS);
             }
-            if(!listaDePreguntas.isEmpty()) {
+            if (!listaDePreguntas.isEmpty()) {
                 binding.quizProgressBar.setMax(listaDePreguntas.size());
                 iniciarQuiz();
             }
@@ -177,7 +180,10 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         temporizador = new CountDownTimer(tiempoRestante, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                if(isFinishing()) { cancel(); return; }
+                if (isFinishing()) {
+                    cancel();
+                    return;
+                }
                 tiempoRestante = millisUntilFinished;
                 int segundos = (int) (millisUntilFinished / 1000);
 
@@ -192,9 +198,10 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                     binding.lottieCharacter.setSpeed(1.0f);
                 }
             }
+
             @Override
             public void onFinish() {
-                if(!isFinishing()) manejarError(null, true);
+                if (!isFinishing()) manejarError(null, true);
             }
         }.start();
     }
@@ -217,7 +224,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         racha++;
         int puntosGanados = (racha >= 3) ? 15 : 10;
         if (racha >= 3) binding.tvSpeechBubble.setText("¡RACHA x" + racha + "! 🔥");
-        else binding.tvSpeechBubble.setText(frasesExito[(int) (Math.random() * frasesExito.length)]);
+        else
+            binding.tvSpeechBubble.setText(frasesExito[(int) (Math.random() * frasesExito.length)]);
 
         puntaje += puntosGanados;
         vibrar(50);
@@ -265,18 +273,23 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
     private void reproducirSonido(int soundResource) {
         try {
-            if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
             mediaPlayer = MediaPlayer.create(this, soundResource);
             if (mediaPlayer != null) {
                 mediaPlayer.start();
                 mediaPlayer.setOnCompletionListener(MediaPlayer::release);
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     private void vibrar(long milisegundos) {
         if (vibrator != null && vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) vibrator.vibrate(VibrationEffect.createOneShot(milisegundos, VibrationEffect.DEFAULT_AMPLITUDE));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                vibrator.vibrate(VibrationEffect.createOneShot(milisegundos, VibrationEffect.DEFAULT_AMPLITUDE));
             else vibrator.vibrate(milisegundos);
         }
     }
@@ -301,7 +314,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void resaltarRespuestaCorrecta() {
-        if(preguntaActual == null) return;
+        if (preguntaActual == null) return;
         String correcta = preguntaActual.getRespuestaCorrecta();
         int colorVerde = ContextCompat.getColor(this, R.color.game_success);
 
@@ -318,7 +331,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void mostrarResultadoFinal() {
-        if(isFinishing()) return;
+        if (isFinishing()) return;
         if (mAuth.getCurrentUser() != null && puntaje > 0) {
             mStore.collection("usuarios").document(mAuth.getCurrentUser().getUid())
                     .update("puntaje", FieldValue.increment(puntaje));
@@ -348,6 +361,9 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause() {
         super.onPause();
         if (temporizador != null) temporizador.cancel();
-        if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 }
