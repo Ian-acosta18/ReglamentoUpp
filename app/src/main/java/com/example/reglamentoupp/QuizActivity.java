@@ -19,7 +19,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.airbnb.lottie.RenderMode; // IMPORTANTE: Importación de Lottie
+import com.airbnb.lottie.RenderMode;
 import com.example.reglamentoupp.databinding.ActivityQuizBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,7 +43,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private int puntaje = 0;
     private int vidas = 3;
     private boolean botonesBloqueados = false;
-    private boolean pistaUsada = false; // Control de pista
+    private boolean pistaUsada = false;
 
     private static final int MAX_PREGUNTAS = 10;
 
@@ -64,7 +64,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         binding = ActivityQuizBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // FORZAR RENDERIZADO POR SOFTWARE PARA LOTTIE DESDE JAVA
+        // SOLUCIÓN 1: Evita que la pantalla se ponga en blanco
         binding.lottieCharacter.setRenderMode(RenderMode.SOFTWARE);
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -104,10 +104,10 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 
         for (Button btn : botones) {
             if (!btn.getText().toString().equals(correcta) && !btn.getText().toString().isEmpty()) {
-                btn.setText(""); // Oculta el texto
-                btn.setEnabled(false); // Desactiva el botón
+                btn.setText("");
+                btn.setEnabled(false);
                 binding.tvSpeechBubble.setText("¡Pista! Eliminé una opción falsa.");
-                break; // Solo elimina una
+                break;
             }
         }
     }
@@ -140,13 +140,15 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private void mostrarSiguientePregunta() {
         if (isFinishing()) return;
         tiempoRestante = TIEMPO_POR_PREGUNTA;
-        pistaUsada = false; // Reiniciar pista para la nueva pregunta
+        pistaUsada = false;
 
         if (indicePreguntaActual < listaDePreguntas.size()) {
             botonesBloqueados = false;
             restaurarBotones();
 
-            binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
+            // SOLUCIÓN 2 y 3: Ponemos el búho y nos saltamos la parte invisible de la animación
+            binding.lottieCharacter.setAnimation(R.raw.buho_1);
+            binding.lottieCharacter.setMinFrame(110);
             binding.lottieCharacter.playAnimation();
 
             preguntaActual = listaDePreguntas.get(indicePreguntaActual);
@@ -253,6 +255,8 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void actualizarMascota(boolean esCorrecto) {
+        // SOLUCIÓN 4: Reiniciamos el inicio a 0 para que el sol y la tormenta funcionen bien
+        binding.lottieCharacter.setMinFrame(0);
         binding.lottieCharacter.setAnimation(esCorrecto ? R.raw.happy_sun : R.raw.angry_thunderstorm);
         binding.lottieCharacter.playAnimation();
     }
