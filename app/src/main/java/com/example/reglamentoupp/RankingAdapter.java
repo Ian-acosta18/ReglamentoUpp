@@ -11,7 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide; // Importación de la librería de imágenes
+import com.bumptech.glide.Glide;
+import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
 
@@ -36,53 +37,64 @@ public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.RankingV
     public void onBindViewHolder(@NonNull RankingViewHolder holder, int position) {
         Usuario usuario = listaUsuarios.get(position);
 
-        // 1. Mostrar Posición, Nombre y Puntaje
+        // 1. Mostrar Posición, Nombre, Nivel y Puntaje
         holder.tvPosition.setText(String.valueOf(position + 1));
         holder.tvName.setText(usuario.getNombre());
         holder.tvScore.setText(usuario.getPuntaje() + " pts");
 
-        // Cambiar color del círculo de posición para los primeros 3 lugares (Oro, Plata, Bronce)
-        if (position == 0) {
+        int nivelActual = usuario.getNivel() > 0 ? usuario.getNivel() : 1;
+        holder.tvLevel.setText("Nivel " + nivelActual);
+
+        // 2. Destacar visualmente el Top 3 en toda la tarjeta
+        if (position == 0) { // ORO
             holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFD700")));
-        } else if (position == 1) {
+            holder.cardRanking.setStrokeColor(Color.parseColor("#FFD700"));
+            holder.cardRanking.setStrokeWidth(5);
+            holder.cardRanking.setCardBackgroundColor(Color.parseColor("#FFFDF0")); // Fondo amarillento muy claro
+        } else if (position == 1) { // PLATA
             holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#C0C0C0")));
-        } else if (position == 2) {
+            holder.cardRanking.setStrokeColor(Color.parseColor("#C0C0C0"));
+            holder.cardRanking.setStrokeWidth(5);
+            holder.cardRanking.setCardBackgroundColor(Color.parseColor("#FAFAFA")); // Fondo gris muy claro
+        } else if (position == 2) { // BRONCE
             holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#CD7F32")));
-        } else {
-            holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#9C27B0"))); // Color por defecto
+            holder.cardRanking.setStrokeColor(Color.parseColor("#CD7F32"));
+            holder.cardRanking.setStrokeWidth(5);
+            holder.cardRanking.setCardBackgroundColor(Color.parseColor("#FFF9F5")); // Fondo anaranjado muy claro
+        } else { // RESTO DE JUGADORES
+            holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#9C27B0"))); // Tu morado
+            holder.cardRanking.setStrokeWidth(0); // Sin borde
+            holder.cardRanking.setCardBackgroundColor(Color.WHITE); // Fondo blanco normal
         }
 
-        // 2. Cargar la Foto de Perfil usando Glide
+        // 3. Cargar la Foto de Perfil usando Glide
         String urlFoto = usuario.getFotoPerfilUrl();
         if (urlFoto != null && !urlFoto.isEmpty()) {
             Glide.with(context)
                     .load(urlFoto)
-                    .placeholder(R.drawable.ic_profile) // Imagen temporal mientras carga
-                    .error(R.drawable.ic_profile)       // Imagen si falla la descarga
-                    .circleCrop()                       // Asegura que sea un círculo
+                    .placeholder(R.drawable.ic_profile)
+                    .error(R.drawable.ic_profile)
+                    .circleCrop()
                     .into(holder.ivProfile);
         } else {
-            // Si el usuario no tiene foto, poner la imagen predeterminada
             holder.ivProfile.setImageResource(R.drawable.ic_profile);
         }
 
-        // 3. Mostrar Insignias de Logros según su puntaje
-        // Primero ocultamos todas para que no haya errores visuales al reciclar las tarjetas
+        // 4. Mostrar Insignias de Logros según su puntaje
         holder.badge1.setVisibility(View.GONE);
         holder.badge2.setVisibility(View.GONE);
         holder.badge3.setVisibility(View.GONE);
 
         int puntos = usuario.getPuntaje();
 
-        // Lógica de insignias (modifica estos valores según la dificultad de tu juego)
         if (puntos >= 50) {
-            holder.badge1.setVisibility(View.VISIBLE); // Gana la primera insignia a los 50 pts
+            holder.badge1.setVisibility(View.VISIBLE);
         }
         if (puntos >= 150) {
-            holder.badge2.setVisibility(View.VISIBLE); // Gana la segunda insignia a los 150 pts
+            holder.badge2.setVisibility(View.VISIBLE);
         }
         if (puntos >= 300) {
-            holder.badge3.setVisibility(View.VISIBLE); // Gana la tercera insignia a los 300 pts
+            holder.badge3.setVisibility(View.VISIBLE);
         }
     }
 
@@ -92,14 +104,17 @@ public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.RankingV
     }
 
     public static class RankingViewHolder extends RecyclerView.ViewHolder {
-        TextView tvPosition, tvName, tvScore;
+        TextView tvPosition, tvName, tvScore, tvLevel;
         ImageView ivProfile, badge1, badge2, badge3;
+        MaterialCardView cardRanking; // NUEVO: Referencia a la tarjeta
 
         public RankingViewHolder(@NonNull View itemView) {
             super(itemView);
+            cardRanking = itemView.findViewById(R.id.cardRanking); // NUEVO
             tvPosition = itemView.findViewById(R.id.tvRankingPosition);
             tvName = itemView.findViewById(R.id.tvRankingName);
             tvScore = itemView.findViewById(R.id.tvRankingScore);
+            tvLevel = itemView.findViewById(R.id.tvRankingLevel);
             ivProfile = itemView.findViewById(R.id.ivRankingProfile);
             badge1 = itemView.findViewById(R.id.badge1);
             badge2 = itemView.findViewById(R.id.badge2);

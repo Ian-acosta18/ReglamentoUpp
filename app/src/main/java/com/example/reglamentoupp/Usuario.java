@@ -4,17 +4,19 @@ public class Usuario {
     private String nombre;
     private String correo;
     private int puntaje;
-    private String fotoPerfilUrl; // NUEVO: Campo para la foto
+    private String fotoPerfilUrl;
+    private int nivel; // NUEVO: Campo para el nivel
 
     // Constructor vacío obligatorio para Firebase
     public Usuario() {
     }
 
-    public Usuario(String nombre, String correo, int puntaje, String fotoPerfilUrl) {
+    public Usuario(String nombre, String correo, int puntaje, String fotoPerfilUrl, int nivel) {
         this.nombre = nombre;
         this.correo = correo;
         this.puntaje = puntaje;
         this.fotoPerfilUrl = fotoPerfilUrl;
+        this.nivel = nivel;
     }
 
     public String getNombre() {
@@ -47,5 +49,13 @@ public class Usuario {
 
     public void setFotoPerfilUrl(String fotoPerfilUrl) {
         this.fotoPerfilUrl = fotoPerfilUrl;
+    }
+
+    public int getNivel() {
+        return nivel;
+    }
+
+    public void setNivel(int nivel) {
+        this.nivel = nivel;
     }
 }

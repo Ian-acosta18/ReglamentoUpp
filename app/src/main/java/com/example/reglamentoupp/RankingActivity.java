@@ -40,7 +40,6 @@ public class RankingActivity extends AppCompatActivity {
         recyclerRanking.setLayoutManager(new LinearLayoutManager(this));
         listaUsuarios = new ArrayList<>();
 
-        // ¡AQUÍ ESTÁ LA CORRECCIÓN! Le pasamos 'this' al adaptador
         adapter = new RankingAdapter(this, listaUsuarios);
         recyclerRanking.setAdapter(adapter);
 
@@ -57,10 +56,10 @@ public class RankingActivity extends AppCompatActivity {
     private void cargarRanking() {
         progressBar.setVisibility(View.VISIBLE);
 
-        // Consultamos los usuarios ordenados por puntaje de mayor a menor, limitando a los mejores 50
+        // Consultamos los usuarios ordenados por puntaje limitando a los 10 mejores
         db.collection("usuarios")
                 .orderBy("puntaje", Query.Direction.DESCENDING)
-                .limit(50)
+                .limit(10) // <-- Modificado para mostrar solo 10
                 .get()
                 .addOnCompleteListener(task -> {
                     progressBar.setVisibility(View.GONE);
@@ -68,7 +67,6 @@ public class RankingActivity extends AppCompatActivity {
                         listaUsuarios.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Usuario usuario = document.toObject(Usuario.class);
-                            // Solo mostramos usuarios que tengan al menos 1 punto
                             if (usuario.getPuntaje() > 0) {
                                 listaUsuarios.add(usuario);
                             }
