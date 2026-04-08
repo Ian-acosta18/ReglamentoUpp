@@ -42,7 +42,8 @@ public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.RankingV
         holder.tvName.setText(usuario.getNombre());
         holder.tvScore.setText(String.valueOf(usuario.getPuntaje()));
 
-        int nivelActual = usuario.getNivel() > 0 ? usuario.getNivel() : 1;
+        // USAMOS EL NUEVO MÉTODO PARA EL NIVEL
+        int nivelActual = usuario.getNivelDesbloqueado() > 0 ? usuario.getNivelDesbloqueado() : 1;
         holder.tvLevel.setText("Nivel " + nivelActual);
 
         // 2. Destacar Top 3 (Oro, Plata, Bronce)
@@ -71,21 +72,22 @@ public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.RankingV
             holder.ivTrophy.setVisibility(View.VISIBLE);
             holder.ivTrophy.setColorFilter(Color.parseColor("#CD7F32"));
         } else { // RESTO DE JUGADORES
-            holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#9C27B0"))); // Color morado UPP
+            holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#9C27B0")));
             holder.cardRanking.setCardBackgroundColor(Color.WHITE);
         }
 
         // 3. Cargar la imagen circularmente con Glide
-        String urlFoto = usuario.getFotoPerfilUrl();
+        // USAMOS EL NUEVO MÉTODO PARA LA FOTO
+        String urlFoto = usuario.getFotoUrl();
+
         if (urlFoto != null && !urlFoto.isEmpty()) {
             Glide.with(context)
                     .load(urlFoto)
                     .placeholder(R.drawable.ic_profile)
                     .error(R.drawable.ic_profile)
-                    .circleCrop() // <-- CRUCIAL: Esto convierte la foto en un círculo perfecto
+                    .circleCrop()
                     .into(holder.ivProfile);
         } else {
-            // Si el usuario no tiene foto, mostramos el icono por defecto circular
             Glide.with(context)
                     .load(R.drawable.ic_profile)
                     .circleCrop()
