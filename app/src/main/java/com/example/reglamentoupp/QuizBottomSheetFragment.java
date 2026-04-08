@@ -5,7 +5,6 @@ import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -177,6 +176,8 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
 
     private void showFeedback(boolean isCorrect, MaterialButton clickedButton) {
         tvQuizFeedback.setVisibility(View.VISIBLE);
+
+        // Hacemos visible el contenedor de animación
         lottieFeedback.setVisibility(View.VISIBLE);
 
         if (isCorrect) {
@@ -185,7 +186,7 @@ public class QuizBottomSheetFragment extends BottomSheetDialogFragment implement
 
             setButtonColor(clickedButton, R.color.game_success, R.color.white);
 
-            // Animación feliz (puedes dejar la nube o poner otra si acierta)
+            // Animación feliz si acierta
             lottieFeedback.setAnimation(R.raw.smilling_cloud);
             lottieFeedback.playAnimation();
 

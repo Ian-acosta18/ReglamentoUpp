@@ -59,7 +59,8 @@
             android:layout_gravity="center"
             android:visibility="gone"
             app:lottie_loop="false"
-            app:lottie_autoPlay="false"/>
+            app:lottie_autoPlay="false"
+            app:lottie_renderMode="automatic"/>
 
         <ProgressBar
             android:id="@+id/progress_bar_quiz"
