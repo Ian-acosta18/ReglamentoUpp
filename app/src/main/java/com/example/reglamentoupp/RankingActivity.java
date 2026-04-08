@@ -31,35 +31,30 @@ public class RankingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ranking);
 
-        // Inicializar Vistas
         recyclerRanking = findViewById(R.id.recyclerRanking);
         progressBar = findViewById(R.id.progressBarRanking);
         btnBack = findViewById(R.id.btnBackRanking);
 
-        // Configurar RecyclerView
         recyclerRanking.setLayoutManager(new LinearLayoutManager(this));
         listaUsuarios = new ArrayList<>();
 
         adapter = new RankingAdapter(this, listaUsuarios);
         recyclerRanking.setAdapter(adapter);
 
-        // Inicializar Firebase
         db = FirebaseFirestore.getInstance();
 
-        // Botón de retroceso
         btnBack.setOnClickListener(v -> finish());
 
-        // Cargar Datos
         cargarRanking();
     }
 
     private void cargarRanking() {
         progressBar.setVisibility(View.VISIBLE);
 
-        // Consultamos los usuarios ordenados por puntaje limitando a los 10 mejores
+        // Limita a los 10 mejores ordenados de mayor a menor puntaje
         db.collection("usuarios")
                 .orderBy("puntaje", Query.Direction.DESCENDING)
-                .limit(10) // <-- Modificado para mostrar solo 10
+                .limit(10)
                 .get()
                 .addOnCompleteListener(task -> {
                     progressBar.setVisibility(View.GONE);
@@ -77,7 +72,7 @@ public class RankingActivity extends AppCompatActivity {
                             Toast.makeText(RankingActivity.this, "Aún no hay jugadores en el ranking", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(RankingActivity.this, "Error al cargar el ranking: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RankingActivity.this, "Error al cargar: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

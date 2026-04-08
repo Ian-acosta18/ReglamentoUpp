@@ -37,64 +37,59 @@ public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.RankingV
     public void onBindViewHolder(@NonNull RankingViewHolder holder, int position) {
         Usuario usuario = listaUsuarios.get(position);
 
-        // 1. Mostrar Posición, Nombre, Nivel y Puntaje
+        // 1. Textos principales
         holder.tvPosition.setText(String.valueOf(position + 1));
         holder.tvName.setText(usuario.getNombre());
-        holder.tvScore.setText(usuario.getPuntaje() + " pts");
+        holder.tvScore.setText(String.valueOf(usuario.getPuntaje()));
 
         int nivelActual = usuario.getNivel() > 0 ? usuario.getNivel() : 1;
         holder.tvLevel.setText("Nivel " + nivelActual);
 
-        // 2. Destacar visualmente el Top 3 en toda la tarjeta
+        // 2. Destacar Top 3 (Oro, Plata, Bronce)
+        holder.ivTrophy.setVisibility(View.GONE);
+        holder.cardRanking.setStrokeWidth(0);
+
         if (position == 0) { // ORO
             holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#FFD700")));
             holder.cardRanking.setStrokeColor(Color.parseColor("#FFD700"));
             holder.cardRanking.setStrokeWidth(5);
-            holder.cardRanking.setCardBackgroundColor(Color.parseColor("#FFFDF0")); // Fondo amarillento muy claro
+            holder.cardRanking.setCardBackgroundColor(Color.parseColor("#FFFDF0"));
+            holder.ivTrophy.setVisibility(View.VISIBLE);
+            holder.ivTrophy.setColorFilter(Color.parseColor("#FFD700"));
         } else if (position == 1) { // PLATA
             holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#C0C0C0")));
             holder.cardRanking.setStrokeColor(Color.parseColor("#C0C0C0"));
             holder.cardRanking.setStrokeWidth(5);
-            holder.cardRanking.setCardBackgroundColor(Color.parseColor("#FAFAFA")); // Fondo gris muy claro
+            holder.cardRanking.setCardBackgroundColor(Color.parseColor("#FAFAFA"));
+            holder.ivTrophy.setVisibility(View.VISIBLE);
+            holder.ivTrophy.setColorFilter(Color.parseColor("#C0C0C0"));
         } else if (position == 2) { // BRONCE
             holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#CD7F32")));
             holder.cardRanking.setStrokeColor(Color.parseColor("#CD7F32"));
             holder.cardRanking.setStrokeWidth(5);
-            holder.cardRanking.setCardBackgroundColor(Color.parseColor("#FFF9F5")); // Fondo anaranjado muy claro
+            holder.cardRanking.setCardBackgroundColor(Color.parseColor("#FFF9F5"));
+            holder.ivTrophy.setVisibility(View.VISIBLE);
+            holder.ivTrophy.setColorFilter(Color.parseColor("#CD7F32"));
         } else { // RESTO DE JUGADORES
-            holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#9C27B0"))); // Tu morado
-            holder.cardRanking.setStrokeWidth(0); // Sin borde
-            holder.cardRanking.setCardBackgroundColor(Color.WHITE); // Fondo blanco normal
+            holder.tvPosition.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#9C27B0"))); // Color morado UPP
+            holder.cardRanking.setCardBackgroundColor(Color.WHITE);
         }
 
-        // 3. Cargar la Foto de Perfil usando Glide
+        // 3. Cargar la imagen circularmente con Glide
         String urlFoto = usuario.getFotoPerfilUrl();
         if (urlFoto != null && !urlFoto.isEmpty()) {
             Glide.with(context)
                     .load(urlFoto)
                     .placeholder(R.drawable.ic_profile)
                     .error(R.drawable.ic_profile)
-                    .circleCrop()
+                    .circleCrop() // <-- CRUCIAL: Esto convierte la foto en un círculo perfecto
                     .into(holder.ivProfile);
         } else {
-            holder.ivProfile.setImageResource(R.drawable.ic_profile);
-        }
-
-        // 4. Mostrar Insignias de Logros según su puntaje
-        holder.badge1.setVisibility(View.GONE);
-        holder.badge2.setVisibility(View.GONE);
-        holder.badge3.setVisibility(View.GONE);
-
-        int puntos = usuario.getPuntaje();
-
-        if (puntos >= 50) {
-            holder.badge1.setVisibility(View.VISIBLE);
-        }
-        if (puntos >= 150) {
-            holder.badge2.setVisibility(View.VISIBLE);
-        }
-        if (puntos >= 300) {
-            holder.badge3.setVisibility(View.VISIBLE);
+            // Si el usuario no tiene foto, mostramos el icono por defecto circular
+            Glide.with(context)
+                    .load(R.drawable.ic_profile)
+                    .circleCrop()
+                    .into(holder.ivProfile);
         }
     }
 
@@ -105,20 +100,18 @@ public class RankingAdapter extends RecyclerView.Adapter<RankingAdapter.RankingV
 
     public static class RankingViewHolder extends RecyclerView.ViewHolder {
         TextView tvPosition, tvName, tvScore, tvLevel;
-        ImageView ivProfile, badge1, badge2, badge3;
-        MaterialCardView cardRanking; // NUEVO: Referencia a la tarjeta
+        ImageView ivProfile, ivTrophy;
+        MaterialCardView cardRanking;
 
         public RankingViewHolder(@NonNull View itemView) {
             super(itemView);
-            cardRanking = itemView.findViewById(R.id.cardRanking); // NUEVO
+            cardRanking = itemView.findViewById(R.id.cardRanking);
             tvPosition = itemView.findViewById(R.id.tvRankingPosition);
             tvName = itemView.findViewById(R.id.tvRankingName);
             tvScore = itemView.findViewById(R.id.tvRankingScore);
             tvLevel = itemView.findViewById(R.id.tvRankingLevel);
             ivProfile = itemView.findViewById(R.id.ivRankingProfile);
-            badge1 = itemView.findViewById(R.id.badge1);
-            badge2 = itemView.findViewById(R.id.badge2);
-            badge3 = itemView.findViewById(R.id.badge3);
+            ivTrophy = itemView.findViewById(R.id.ivTrophy);
         }
     }
 }
