@@ -79,7 +79,7 @@ public class ProfileActivity extends AppCompatActivity {
         pbLoading = findViewById(R.id.pbLoading);
 
         btnLogout = findViewById(R.id.btnLogoutProfile);
-        btnActionEdit = findViewById(R.id.btnActionEditProfile); // ID único asignado en XML
+        btnActionEdit = findViewById(R.id.btnActionEditProfile);
 
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
         btnCancelEdit = findViewById(R.id.btnCancelEdit);
