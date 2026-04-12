@@ -46,7 +46,6 @@ public class QuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
-        // 1. Inicializar Vistas
         tvQuestion = findViewById(R.id.tvQuizQuestion);
         tvLives = findViewById(R.id.tvQuizLives);
         tvScore = findViewById(R.id.tvQuizScore);
@@ -59,17 +58,16 @@ public class QuizActivity extends AppCompatActivity {
         btnHelp = findViewById(R.id.btnHelpQuiz);
         lottieCharacter = findViewById(R.id.lottieCharacter);
 
-        // 2. INICIAR ANIMACIÓN CON EL BÚHO
         if (lottieCharacter != null) {
             lottieCharacter.setVisibility(View.VISIBLE);
-            lottieCharacter.setAnimation(R.raw.buho_1); // <-- AQUÍ REGRESAMOS AL BÚHO
+            // CAMBIO AQUI: Búho inicial
+            lottieCharacter.setAnimation(R.raw.owlie_nodding);
             lottieCharacter.playAnimation();
         }
 
         db = FirebaseFirestore.getInstance();
         listaPreguntas = new ArrayList<>();
 
-        // Obtener datos del Intent
         modoJuego = getIntent().getStringExtra("MODO_JUEGO");
         categoriaSeleccionada = getIntent().getStringExtra("CATEGORIA");
 
@@ -79,7 +77,6 @@ public class QuizActivity extends AppCompatActivity {
         configurarUI();
         cargarPreguntas();
 
-        // Listeners de Botones
         btnBack.setOnClickListener(v -> mostrarDialogoSalida());
         btnHelp.setOnClickListener(v -> usarComodin());
 
@@ -153,15 +150,14 @@ public class QuizActivity extends AppCompatActivity {
             progressBar.setProgress(preguntasRespondidas);
             tvSpeechBubble.setText("¡Excelente!");
 
-            // Animación feliz temporal
-            lottieCharacter.setAnimation(R.raw.happy_sun);
+            // CAMBIO AQUI: Búho asintiendo para el acierto (en vez de sol)
+            lottieCharacter.setAnimation(R.raw.owlie_nodding);
             lottieCharacter.playAnimation();
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 indicePreguntaActual++;
 
-                // <-- REGRESA AL BÚHO PARA LA SIGUIENTE PREGUNTA
-                lottieCharacter.setAnimation(R.raw.buho_1);
+                lottieCharacter.setAnimation(R.raw.owlie_nodding);
                 lottieCharacter.playAnimation();
 
                 mostrarSiguientePregunta();
@@ -174,8 +170,8 @@ public class QuizActivity extends AppCompatActivity {
             vidas--;
             tvSpeechBubble.setText("¡Ups! Fallaste.");
 
-            // Animación triste temporal
-            lottieCharacter.setAnimation(R.raw.angry_thunderstorm);
+            // CAMBIO AQUI: Búho enojado para el error
+            lottieCharacter.setAnimation(R.raw.owlie_mad);
             lottieCharacter.playAnimation();
 
             resaltarRespuestaCorrecta(correcta);
@@ -187,8 +183,8 @@ public class QuizActivity extends AppCompatActivity {
                 } else {
                     indicePreguntaActual++;
 
-                    // <-- REGRESA AL BÚHO PARA LA SIGUIENTE PREGUNTA
-                    lottieCharacter.setAnimation(R.raw.buho_1);
+                    // Regresa al búho normal para la siguiente pregunta
+                    lottieCharacter.setAnimation(R.raw.owlie_nodding);
                     lottieCharacter.playAnimation();
 
                     mostrarSiguientePregunta();

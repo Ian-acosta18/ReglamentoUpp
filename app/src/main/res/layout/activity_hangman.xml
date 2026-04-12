@@ -74,7 +74,7 @@
             android:id="@+id/lottieCharacter"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            app:lottie_rawRes="@raw/buho_1"
+            app:lottie_rawRes="@raw/owlie_nodding"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -171,27 +171,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvHangmanTitle"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-    <Button
-        android:id="@+id/btnHangmanHint"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-    <TextView
-        android:id="@+id/tvHangmanHint"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

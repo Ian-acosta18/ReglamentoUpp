@@ -84,7 +84,7 @@
             android:id="@+id/lottieMascot"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            app:lottie_rawRes="@raw/buho_1"
+            app:lottie_rawRes="@raw/owlie_nodding"
             app:lottie_autoPlay="true"
             app:lottie_loop="true" />
 

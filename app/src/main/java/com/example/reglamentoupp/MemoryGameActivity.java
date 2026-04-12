@@ -50,7 +50,7 @@ public class MemoryGameActivity extends AppCompatActivity {
     private int lives = 6;
     private int pairsFound = 0;
     private int racha = 0;
-    private int pistasRestantes = 1; // Pista 1 uso
+    private int pistasRestantes = 1;
 
     private final CardDefinition[] definitions = {
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (I)", "Cursar los estudios según planes vigentes."),
@@ -78,7 +78,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         if (toolbar instanceof Toolbar) ((Toolbar) toolbar).setNavigationOnClickListener(v -> finish());
         else toolbar.setOnClickListener(v -> finish());
 
-        // NUEVO: Vistazo rápido a las cartas
         findViewById(R.id.btnHelpMemory).setOnClickListener(v -> usarPista());
 
         startNewGame();
@@ -109,7 +108,7 @@ public class MemoryGameActivity extends AppCompatActivity {
                 isProcessing = false;
                 tvMessage.setText("¡Sigue buscando!");
             }
-        }, 1500); // 1.5 Segundos
+        }, 1500);
     }
 
     private void startNewGame() {
@@ -121,6 +120,12 @@ public class MemoryGameActivity extends AppCompatActivity {
         isProcessing = false;
         selectedDetails1 = null;
         selectedView1 = null;
+
+        // Aseguramos que inicie con el búho asintiendo
+        if (lottieMascot != null) {
+            lottieMascot.setAnimation(R.raw.owlie_nodding);
+            lottieMascot.playAnimation();
+        }
 
         updateUI();
         setupBoard();
@@ -201,7 +206,10 @@ public class MemoryGameActivity extends AppCompatActivity {
             playSound(R.raw.correct_ding); vibrarSafe(50);
             ((MemoryCard) selectedView1.getTag()).isMatched = true; cardData2.isMatched = true;
             tvMessage.setText("¡Correcto!");
-            if (lottieMascot != null) { lottieMascot.setAnimation(R.raw.happy_sun); lottieMascot.playAnimation(); }
+
+            // CAMBIO AQUI: Búho normal (feliz) en lugar del sol
+            if (lottieMascot != null) { lottieMascot.setAnimation(R.raw.owlie_nodding); lottieMascot.playAnimation(); }
+
             setCardStroke(selectedView1, "#4CAF50", 3); setCardStroke(view2, "#4CAF50", 3);
             selectedDetails1 = null; selectedView1 = null; isProcessing = false; updateUI();
             if (pairsFound == TOTAL_PAIRS) endGame(true);
@@ -209,11 +217,20 @@ public class MemoryGameActivity extends AppCompatActivity {
             racha = 0; lives--;
             playSound(R.raw.megaman_x_error); vibrarSafe(200);
             tvMessage.setText("¡Intenta de nuevo!");
-            if (lottieMascot != null) { lottieMascot.setAnimation(R.raw.angry_thunderstorm); lottieMascot.playAnimation(); }
+
+            // CAMBIO AQUI: Búho enojado en lugar de la nube
+            if (lottieMascot != null) { lottieMascot.setAnimation(R.raw.owlie_mad); lottieMascot.playAnimation(); }
+
             setCardStroke(selectedView1, "#F44336", 3); setCardStroke(view2, "#F44336", 3);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (!isFinishing() && !isDestroyed()) {
+                    // Restaurar animación del búho normal si aún estamos en juego
+                    if (lottieMascot != null && lives > 0) {
+                        lottieMascot.setAnimation(R.raw.owlie_nodding);
+                        lottieMascot.playAnimation();
+                    }
+
                     flipCard(selectedView1, false); flipCard(view2, false);
                     setCardStroke(selectedView1, "#D3DCE6", 0); setCardStroke(view2, "#D3DCE6", 0);
                     selectedDetails1 = null; selectedView1 = null; isProcessing = false; updateUI();

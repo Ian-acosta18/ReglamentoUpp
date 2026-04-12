@@ -81,7 +81,7 @@
             android:id="@+id/lottieCharacter"
             android:layout_width="130dp"
             android:layout_height="130dp"
-            app:lottie_rawRes="@raw/buho_1"
+            app:lottie_rawRes="@raw/owlie_nodding"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
             android:scaleType="centerCrop"

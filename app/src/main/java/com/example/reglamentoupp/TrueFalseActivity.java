@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.airbnb.lottie.RenderMode; // IMPORTANTE: Importación de Lottie
+import com.airbnb.lottie.RenderMode;
 import com.example.reglamentoupp.databinding.ActivityTrueFalseBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -59,10 +59,10 @@ public class TrueFalseActivity extends AppCompatActivity {
         binding = ActivityTrueFalseBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // FORZAR RENDERIZADO POR SOFTWARE PARA LOTTIE DESDE JAVA
         if (binding.lottieCharacter != null) {
             binding.lottieCharacter.setRenderMode(RenderMode.SOFTWARE);
-            binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
+            // CAMBIO AQUI: Búho normal al iniciar
+            binding.lottieCharacter.setAnimation(R.raw.owlie_nodding);
         }
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -107,9 +107,9 @@ public class TrueFalseActivity extends AppCompatActivity {
         pistaUsada = true;
 
         if (temporizador != null) temporizador.cancel();
-        tiempoRestante += 5000; // Suma 5 segundos
+        tiempoRestante += 5000;
         binding.tvSpeechBubble.setText("¡+5 Segundos extra! ⏳");
-        binding.tvSpeechBubble.setTextColor(Color.parseColor("#4CAF50")); // Verde
+        binding.tvSpeechBubble.setTextColor(Color.parseColor("#4CAF50"));
 
         iniciarTemporizador(tiempoRestante);
     }
@@ -133,9 +133,10 @@ public class TrueFalseActivity extends AppCompatActivity {
         if (currentQuestionIndex < questionList.size() && lives > 0) {
             botonesBloqueados = false;
             pistaUsada = false;
-            tiempoRestante = 10000; // Reiniciar tiempo a 10s
+            tiempoRestante = 10000;
 
-            binding.lottieCharacter.setAnimation(R.raw.smilling_cloud);
+            // CAMBIO AQUI: Búho normal al cargar pregunta
+            binding.lottieCharacter.setAnimation(R.raw.owlie_nodding);
             binding.lottieCharacter.playAnimation();
             binding.lottieCharacter.setSpeed(1.0f);
 
@@ -217,7 +218,8 @@ public class TrueFalseActivity extends AppCompatActivity {
     }
 
     private void actualizarMascota(boolean esCorrecto) {
-        binding.lottieCharacter.setAnimation(esCorrecto ? R.raw.happy_sun : R.raw.angry_thunderstorm);
+        // CAMBIO AQUI: Selección del búho correcto en lugar de nubes
+        binding.lottieCharacter.setAnimation(esCorrecto ? R.raw.owlie_nodding : R.raw.owlie_mad);
         binding.lottieCharacter.playAnimation();
     }
 
