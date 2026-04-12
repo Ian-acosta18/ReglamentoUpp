@@ -3,7 +3,6 @@ package com.example.reglamentoupp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -26,8 +25,9 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView ivProfilePic;
     private TextView tvProfileName, tvProfileEmail, tvProfileLevel, tvProfileScore, tvProgressText;
     private ProgressBar pbProfileLevel, pbLoading;
-    private MaterialButton btnLogout, btnSaveProfile, btnCancelEdit, btnEditAction;
-    private ImageButton btnTopEdit;
+
+    // Botones con ID únicos y seguros
+    private MaterialButton btnLogout, btnSaveProfile, btnCancelEdit, btnActionEdit;
 
     // Contenedores
     private LinearLayout layoutViewMode, layoutEditMode, layoutActionButtons;
@@ -62,9 +62,8 @@ public class ProfileActivity extends AppCompatActivity {
         btnLogout.setOnClickListener(v -> cerrarSesion());
         findViewById(R.id.btnBackProfile).setOnClickListener(v -> finish());
 
-        // Listeners de edición
-        btnEditAction.setOnClickListener(v -> toggleEditMode());
-        btnTopEdit.setOnClickListener(v -> toggleEditMode());
+        // Listeners de edición seguros
+        btnActionEdit.setOnClickListener(v -> toggleEditMode());
         btnCancelEdit.setOnClickListener(v -> toggleEditMode());
         btnSaveProfile.setOnClickListener(v -> validarYGuardarCambios());
     }
@@ -80,9 +79,7 @@ public class ProfileActivity extends AppCompatActivity {
         pbLoading = findViewById(R.id.pbLoading);
 
         btnLogout = findViewById(R.id.btnLogoutProfile);
-        btnEditAction = findViewById(R.id.btnEditProfile); // Botón debajo del nombre
-        btnTopEdit = findViewById(R.id.btnEditProfile); // Ajuste según si quieres que ambos abran (tienen mismo ID o los puedes separar)
-        btnTopEdit = findViewById(R.id.topBar).findViewById(R.id.btnEditProfile);
+        btnActionEdit = findViewById(R.id.btnActionEditProfile); // ID único asignado en XML
 
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
         btnCancelEdit = findViewById(R.id.btnCancelEdit);
@@ -149,18 +146,13 @@ public class ProfileActivity extends AppCompatActivity {
             layoutViewMode.setVisibility(View.GONE);
             layoutActionButtons.setVisibility(View.GONE);
             layoutEditMode.setVisibility(View.VISIBLE);
-
-            // Opcional: Cambiar icono de arriba por una X
-            btnTopEdit.setImageResource(R.drawable.ic_prohibiciones);
         } else {
             // Volver a MODO VISTA
             layoutViewMode.setVisibility(View.VISIBLE);
             layoutActionButtons.setVisibility(View.VISIBLE);
             layoutEditMode.setVisibility(View.GONE);
 
-            btnTopEdit.setImageResource(R.drawable.ic_foco); // Restaurar icono
-
-            // Limpiar campos para evitar confusiones
+            // Limpiar campos de contraseña para evitar guardados accidentales
             etEditName.setText(currentName);
             etEditEmail.setText(currentEmail);
             etEditNewPassword.setText("");
@@ -176,66 +168,66 @@ public class ProfileActivity extends AppCompatActivity {
         String contrasenaActual = etEditCurrentPassword.getText().toString().trim();
 
         if (nuevoNombre.isEmpty() || nuevoCorreo.isEmpty()) {
-            Toast.makeText(this, "Nombre y correo son obligatorios", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "El nombre y el correo no pueden quedar vacíos.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (contrasenaActual.isEmpty()) {
-            etEditCurrentPassword.setError("Ingresa tu contraseña actual por seguridad");
+            etEditCurrentPassword.setError("Requerido para guardar cambios");
             etEditCurrentPassword.requestFocus();
             return;
         }
 
         mostrarCarga(true);
 
-        // Re-autenticar al usuario para cambios sensibles
+        // Re-autenticar al usuario (Exigido por Firebase para actualizar correo o contraseña)
         AuthCredential credential = EmailAuthProvider.getCredential(currentEmail, contrasenaActual);
         currentUser.reauthenticate(credential).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 actualizarDatosFirebase(nuevoNombre, nuevoCorreo, nuevaContrasena);
             } else {
                 mostrarCarga(false);
-                Toast.makeText(this, "Contraseña actual incorrecta", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "La contraseña actual es incorrecta.", Toast.LENGTH_LONG).show();
                 etEditCurrentPassword.setError("Incorrecta");
             }
         });
     }
 
     private void actualizarDatosFirebase(String nuevoNombre, String nuevoCorreo, String nuevaContrasena) {
-        // Actualizar Contraseña si hay una nueva
+        // Actualizar Contraseña si escribieron una nueva
         if (!nuevaContrasena.isEmpty() && nuevaContrasena.length() >= 6) {
             currentUser.updatePassword(nuevaContrasena).addOnFailureListener(e ->
-                    Toast.makeText(this, "Error al cambiar contraseña", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Ocurrió un error al cambiar la contraseña.", Toast.LENGTH_SHORT).show()
             );
         } else if (!nuevaContrasena.isEmpty() && nuevaContrasena.length() < 6) {
             mostrarCarga(false);
-            Toast.makeText(this, "La contraseña requiere mínimo 6 caracteres", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "La nueva contraseña es demasiado corta (mínimo 6 caracteres).", Toast.LENGTH_LONG).show();
             return;
         }
 
-        // Actualizar Correo si cambió
+        // Actualizar Correo si lo modificaron
         if (!nuevoCorreo.equals(currentEmail)) {
             currentUser.updateEmail(nuevoCorreo).addOnSuccessListener(aVoid -> {
                 currentEmail = nuevoCorreo;
                 tvProfileEmail.setText(currentEmail);
             }).addOnFailureListener(e ->
-                    Toast.makeText(this, "Correo inválido o ya en uso", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Este correo electrónico ya está en uso o no es válido.", Toast.LENGTH_SHORT).show()
             );
         }
 
-        // Actualizar Nombre en la Base de Datos
+        // Actualizar Nombre en Firestore
         db.collection("usuarios").document(currentUser.getUid())
                 .update("nombre", nuevoNombre)
                 .addOnSuccessListener(aVoid -> {
                     mostrarCarga(false);
                     currentName = nuevoNombre;
                     tvProfileName.setText(currentName);
-                    Toast.makeText(this, "¡Perfil actualizado con éxito!", Toast.LENGTH_LONG).show();
-                    toggleEditMode(); // Salir del modo edición
+                    Toast.makeText(this, "¡Tus datos se han actualizado correctamente!", Toast.LENGTH_LONG).show();
+                    toggleEditMode();
                 })
                 .addOnFailureListener(e -> {
                     mostrarCarga(false);
-                    Toast.makeText(this, "Error al actualizar tu nombre", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error al guardar el nombre en la base de datos.", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -271,7 +263,6 @@ public class ProfileActivity extends AppCompatActivity {
         ivBadgeSanciones.clearColorFilter();
         ivBadgeReconocimientos.clearColorFilter();
 
-        // Transparencias: 1.0f para color real, 0.25f para bloqueado opaco
         ivBadgeDerechos.setAlpha(puntaje >= 0 ? 1.0f : 0.25f);
         ivBadgeObligaciones.setAlpha(puntaje >= 50 ? 1.0f : 0.25f);
         ivBadgeProhibiciones.setAlpha(puntaje >= 100 ? 1.0f : 0.25f);
