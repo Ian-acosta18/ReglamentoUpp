@@ -62,15 +62,55 @@
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutCharacter"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+        app:layout_constraintBottom_toTopOf="@+id/cardQuestion">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieCharacter"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:lottie_rawRes="@raw/buho_1"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp"/>
+
+        <TextView
+            android:id="@+id/tvSpeechBubble"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/white_circle_bg"
+            android:backgroundTint="#FFFFFF"
+            android:padding="12dp"
+            android:text="¡Adivina la palabra!"
+            android:textColor="@color/upp_primary"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:elevation="4dp"
+            app:layout_constraintStart_toEndOf="@id/lottieCharacter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/lottieCharacter"
+            app:layout_constraintBottom_toBottomOf="@id/lottieCharacter"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="-10dp"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardQuestion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="12dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
         app:cardBackgroundColor="@color/white"
-        app:layout_constraintTop_toBottomOf="@id/headerLayout">
+        app:layout_constraintTop_toBottomOf="@id/layoutCharacter">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -106,7 +146,7 @@
         android:id="@+id/tvHangmanWord"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:text="_ _ _ _ _"
         android:textColor="@color/white"

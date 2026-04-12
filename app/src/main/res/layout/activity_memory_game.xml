@@ -74,7 +74,7 @@
             android:id="@+id/lottieMascot"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            app:lottie_rawRes="@raw/smilling_cloud"
+            app:lottie_rawRes="@raw/buho_1"
             app:lottie_autoPlay="true"
             app:lottie_loop="true" />
 

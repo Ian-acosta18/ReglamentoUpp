@@ -70,15 +70,47 @@
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/llMascotArea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingTop="8dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieMascot"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:lottie_rawRes="@raw/buho_1"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true" />
+
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/white_circle_bg"
+            android:padding="8dp"
+            android:layout_marginStart="8dp"
+            android:text="¡Encuentra todas las palabras!"
+            android:textColor="@color/upp_primary"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:elevation="4dp"/>
+    </LinearLayout>
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardCuadricula"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         app:cardCornerRadius="20dp"
         app:cardElevation="8dp"
         app:cardBackgroundColor="#0F8AE8"
-        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        app:layout_constraintTop_toBottomOf="@id/llMascotArea"
         app:layout_constraintDimensionRatio="1:1">
 
         <GridLayout
