@@ -32,7 +32,7 @@ public class HangmanActivity extends AppCompatActivity {
 
     private String[][] palabrasConPistas = {
             {"ESTADIA", "Etapa final donde aplicas lo aprendido trabajando en un proyecto dentro de una empresa real:"},
-            {"CALIDAD", "Si repruebas tus materias al límite, pierdes esta condición como estudiante de la UPP:"},
+            {"CALIDAD", "Si repruebas tus materias al límite, pierdes esta condición como estudiante de la UPPue:"},
             {"BAJA", "Trámite que debes solicitar si tienes un problema grave y necesitas pausar tus estudios un cuatrimestre:"},
             {"RECTOR", "Es la máxima autoridad ejecutiva que toma las decisiones finales en la Universidad:"},
             {"TITULO", "Documento profesional final que demuestra que cumpliste con tu plan de estudios y estadía:"},
@@ -46,7 +46,7 @@ public class HangmanActivity extends AppCompatActivity {
     private String palabraSecreta;
     private char[] palabraAdivinada;
     private int vidas = 6;
-    private int pistasRestantes = 2; // NUEVO: Límite de pistas
+    private int pistasRestantes = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +62,6 @@ public class HangmanActivity extends AppCompatActivity {
         binding.btnHelp.setOnClickListener(v -> usarPista());
     }
 
-    // NUEVA FUNCIONALIDAD: Foquito autocompleta 1 letra correcta
     private void usarPista() {
         if (vidas <= 0) return;
         if (pistasRestantes <= 0) {
@@ -70,12 +69,10 @@ public class HangmanActivity extends AppCompatActivity {
             return;
         }
 
-        // Buscar la primera letra que falte
         for (int i = 0; i < palabraSecreta.length(); i++) {
             if (palabraAdivinada[i] == '_') {
                 char letraOculta = palabraSecreta.charAt(i);
 
-                // Encontrar el botón de esa letra y simular que se presiona
                 for (int r = 0; r < binding.layoutTeclado.getChildCount(); r++) {
                     LinearLayout row = (LinearLayout) binding.layoutTeclado.getChildAt(r);
                     for (int c = 0; c < row.getChildCount(); c++) {
@@ -136,7 +133,8 @@ public class HangmanActivity extends AppCompatActivity {
                 btnLetra.setBackgroundResource(R.drawable.fondo_tecla_ahorcado);
                 btnLetra.setTextColor(Color.WHITE);
                 btnLetra.setTypeface(null, Typeface.BOLD);
-                btnLetra.setTextSize(26);
+                // SE AUMENTÓ EL TAMAÑO DE LAS TECLAS A 32
+                btnLetra.setTextSize(32);
                 btnLetra.setPadding(0, 0, 0, 0);
                 btnLetra.setInsetTop(0); btnLetra.setInsetBottom(0); btnLetra.setMinHeight(0); btnLetra.setMinimumHeight(0);
 

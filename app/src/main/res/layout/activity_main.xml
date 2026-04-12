@@ -178,6 +178,23 @@
             android:paddingBottom="100dp"
             android:clipChildren="false">
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGoToRanking"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:text="Ver Top 10 Alumnos"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:icon="@drawable/ic_trophy"
+                app:iconGravity="textStart"
+                app:cornerRadius="16dp"
+                android:backgroundTint="@color/upp_primary"
+                android:elevation="4dp"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

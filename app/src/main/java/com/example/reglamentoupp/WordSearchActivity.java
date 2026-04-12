@@ -55,7 +55,7 @@ public class WordSearchActivity extends AppCompatActivity {
     private final List<TextView> selectedCells = new ArrayList<>();
     private boolean isSelecting = false;
     private int wordsFoundCount = 0;
-    private int pistasRestantes = 3; // NUEVO: Control de Pistas
+    private int pistasRestantes = 3;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -80,8 +80,6 @@ public class WordSearchActivity extends AppCompatActivity {
         tvScorePuntos = findViewById(R.id.tv_score_puntos);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-
-        // NUEVO: Funcionalidad Foquito
         findViewById(R.id.btnHelpWS).setOnClickListener(v -> usarPista());
 
         initializeWords();
@@ -98,7 +96,6 @@ public class WordSearchActivity extends AppCompatActivity {
             return;
         }
 
-        // Buscar la primera palabra que no ha sido encontrada
         Word wordToFind = null;
         for (Word w : wordsToFind) {
             if (!w.found) { wordToFind = w; break; }
@@ -108,10 +105,8 @@ public class WordSearchActivity extends AppCompatActivity {
         String text = wordToFind.text;
         boolean foundInMatrix = false;
 
-        // Encontrar la palabra en la matriz y resaltar la PRIMERA LETRA
         for (int r = 0; r < GRID_SIZE && !foundInMatrix; r++) {
             for (int c = 0; c < GRID_SIZE && !foundInMatrix; c++) {
-                // Chequeo a la derecha
                 if (c + text.length() <= GRID_SIZE) {
                     boolean match = true;
                     for (int i = 0; i < text.length(); i++) {
@@ -119,7 +114,6 @@ public class WordSearchActivity extends AppCompatActivity {
                     }
                     if (match) { resaltarLetraPista(r, c); foundInMatrix = true; break; }
                 }
-                // Chequeo a la izquierda
                 if (c - text.length() >= -1) {
                     boolean match = true;
                     for (int i = 0; i < text.length(); i++) {
@@ -127,7 +121,6 @@ public class WordSearchActivity extends AppCompatActivity {
                     }
                     if (match) { resaltarLetraPista(r, c); foundInMatrix = true; break; }
                 }
-                // Chequeo abajo
                 if (r + text.length() <= GRID_SIZE) {
                     boolean match = true;
                     for (int i = 0; i < text.length(); i++) {
@@ -135,7 +128,6 @@ public class WordSearchActivity extends AppCompatActivity {
                     }
                     if (match) { resaltarLetraPista(r, c); foundInMatrix = true; break; }
                 }
-                // Chequeo arriba
                 if (r - text.length() >= -1) {
                     boolean match = true;
                     for (int i = 0; i < text.length(); i++) {
@@ -266,7 +258,8 @@ public class WordSearchActivity extends AppCompatActivity {
                 updateScore();
 
                 for (TextView cellInPath : selectedCells) {
-                    cellInPath.setBackgroundColor(Color.parseColor("#C0CE93D8"));
+                    // COLOR MORADO CLARITO DE TACHADO
+                    cellInPath.setBackgroundColor(Color.parseColor("#E1BEE7"));
                     cellInPath.setTextColor(Color.BLACK);
                 }
 
@@ -297,7 +290,6 @@ public class WordSearchActivity extends AppCompatActivity {
     private void clearTemporarySelection() {
         for (TextView cell : selectedCells) {
             if (cell.getCurrentTextColor() != Color.BLACK) {
-                // Mantiene el color amarillo de la pista si es que lo tenía, sino lo pone transparente
                 if(cell.getBackground() != null) {
                     cell.setBackgroundColor(Color.TRANSPARENT);
                 }
@@ -342,7 +334,8 @@ public class WordSearchActivity extends AppCompatActivity {
 
         if (startIndex != -1) {
             builder.setSpan(new StrikethroughSpan(), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.setSpan(new ForegroundColorSpan(Color.RED), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            // COLOR MORADO CLARITO EN LA LISTA
+            builder.setSpan(new ForegroundColorSpan(Color.parseColor("#9C27B0")), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvListaPalabras.setText(builder);
         }
     }

@@ -79,14 +79,14 @@ public class MainActivity extends AppCompatActivity {
         progressSanciones = findViewById(R.id.progressSanciones);
         progressReconocimientos = findViewById(R.id.progressReconocimientos);
 
-        // Textos de estado (Nivel 1 • Desbloqueado, etc.)
+        // Textos de estado
         tvStatusDerechos = findViewById(R.id.tvStatusDerechos);
         tvStatusObligaciones = findViewById(R.id.tvStatusObligaciones);
         tvStatusProhibiciones = findViewById(R.id.tvStatusProhibiciones);
         tvStatusSanciones = findViewById(R.id.tvStatusSanciones);
         tvStatusReconocimientos = findViewById(R.id.tvStatusReconocimientos);
 
-        // Íconos de estado (Candado / Palomita)
+        // Íconos de estado
         ivStatusDerechos = findViewById(R.id.ivStatusDerechos);
         ivStatusObligaciones = findViewById(R.id.ivStatusObligaciones);
         ivStatusProhibiciones = findViewById(R.id.ivStatusProhibiciones);
@@ -107,6 +107,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             });
+        }
+
+        // --- Nuevo Botón de Ranking ---
+        View btnGoToRanking = findViewById(R.id.btnGoToRanking);
+        if(btnGoToRanking != null) {
+            btnGoToRanking.setOnClickListener(v -> startActivity(new Intent(this, RankingActivity.class)));
         }
 
         // Configuración de clics para juegos rápidos
@@ -170,34 +176,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Actualiza las 5 barras de progreso y los íconos dinámicamente según la experiencia (XP)
-     */
     private void actualizarProgresoVisual(long xpActual) {
-        // Nivel 1: Derechos (0 - 50 XP)
         evaluarEstadoCategoria(progressDerechos, ivStatusDerechos, tvStatusDerechos, xpActual, 0, 50, "Nivel 1");
-
-        // Nivel 2: Obligaciones (50 - 100 XP)
         evaluarEstadoCategoria(progressObligaciones, ivStatusObligaciones, tvStatusObligaciones, xpActual, 50, 100, "Nivel 2");
-
-        // Nivel 3: Prohibiciones (100 - 150 XP)
         evaluarEstadoCategoria(progressProhibiciones, ivStatusProhibiciones, tvStatusProhibiciones, xpActual, 100, 150, "Nivel 3");
-
-        // Nivel 4: Sanciones (150 - 200 XP)
         evaluarEstadoCategoria(progressSanciones, ivStatusSanciones, tvStatusSanciones, xpActual, 150, 200, "Nivel 4");
-
-        // Nivel 5: Reconocimientos (200 - 250 XP)
         evaluarEstadoCategoria(progressReconocimientos, ivStatusReconocimientos, tvStatusReconocimientos, xpActual, 200, 250, "Nivel 5");
     }
 
-    /**
-     * Calcula dinámicamente si el módulo está bloqueado, en progreso o completado.
-     * Incluye validaciones por si algún elemento XML aún no ha sido creado.
-     */
     private void evaluarEstadoCategoria(ProgressBar bar, ImageView ivLockIcon, TextView tvStatus, long xpGlobal, int minXP, int maxXP, String nivelLabel) {
         int progresoModulo = (int) Math.min(50, Math.max(0, xpGlobal - minXP));
 
-        // Animamos la barra de progreso
         if (bar != null) {
             ObjectAnimator anim = ObjectAnimator.ofInt(bar, "progress", bar.getProgress(), (progresoModulo * 100) / 50);
             anim.setDuration(1000);
@@ -205,20 +194,16 @@ public class MainActivity extends AppCompatActivity {
             anim.start();
         }
 
-        // Cambiamos textos y colores solo si las vistas existen
         if (ivLockIcon != null && tvStatus != null) {
             if (xpGlobal >= maxXP) {
-                // Nivel Completado
                 ivLockIcon.setImageResource(R.drawable.ic_check_circle);
-                ivLockIcon.setColorFilter(getResources().getColor(R.color.game_success)); // <-- ¡Aquí está la corrección!
+                ivLockIcon.setColorFilter(getResources().getColor(R.color.game_success));
                 tvStatus.setText(nivelLabel + " • Completado");
                 ivLockIcon.setVisibility(View.VISIBLE);
             } else if (xpGlobal >= minXP) {
-                // Nivel Actual (Desbloqueado)
                 tvStatus.setText(nivelLabel + " • Desbloqueado");
-                ivLockIcon.setVisibility(View.GONE); // Ocultamos el ícono porque está jugándolo
+                ivLockIcon.setVisibility(View.GONE);
             } else {
-                // Nivel Bloqueado
                 ivLockIcon.setImageResource(R.drawable.ic_lock);
                 ivLockIcon.setColorFilter(getResources().getColor(android.R.color.darker_gray));
                 tvStatus.setText(nivelLabel + " • Bloqueado");
