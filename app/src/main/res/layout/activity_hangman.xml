@@ -65,21 +65,21 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutCharacter"
         android:layout_width="match_parent"
-        android:layout_height="110dp"
+        android:layout_height="160dp"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@+id/headerLayout"
         app:layout_constraintBottom_toTopOf="@+id/cardQuestion">
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/lottieCharacter"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             app:lottie_rawRes="@raw/owlie_nodding"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="16dp"/>
+            android:layout_marginStart="8dp"/>
 
         <TextView
             android:id="@+id/tvSpeechBubble"
@@ -87,11 +87,11 @@
             android:layout_height="wrap_content"
             android:background="@drawable/white_circle_bg"
             android:backgroundTint="#FFFFFF"
-            android:padding="12dp"
+            android:padding="16dp"
             android:text="¡Adivina la palabra!"
             android:textColor="@color/upp_primary"
             android:textStyle="bold"
-            android:textSize="14sp"
+            android:textSize="18sp"
             android:gravity="center"
             android:elevation="4dp"
             app:layout_constraintStart_toEndOf="@id/lottieCharacter"
@@ -99,7 +99,7 @@
             app:layout_constraintTop_toTopOf="@id/lottieCharacter"
             app:layout_constraintBottom_toBottomOf="@id/lottieCharacter"
             android:layout_marginEnd="16dp"
-            android:layout_marginStart="-10dp"/>
+            android:layout_marginStart="-12dp"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.card.MaterialCardView

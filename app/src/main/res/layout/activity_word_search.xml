@@ -82,8 +82,8 @@
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/lottieMascot"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="90dp"
+            android:layout_height="90dp"
             app:lottie_rawRes="@raw/owlie_nodding"
             app:lottie_autoPlay="true"
             app:lottie_loop="true" />
@@ -93,12 +93,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/white_circle_bg"
-            android:padding="8dp"
+            android:padding="12dp"
             android:layout_marginStart="8dp"
             android:text="¡Encuentra todas las palabras!"
             android:textColor="@color/upp_primary"
             android:textStyle="bold"
-            android:textSize="13sp"
+            android:textSize="16sp"
             android:elevation="4dp"/>
     </LinearLayout>
 

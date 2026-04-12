@@ -1,6 +1,7 @@
 package com.example.reglamentoupp;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -41,6 +42,8 @@ public class QuizActivity extends AppCompatActivity {
     private String modoJuego;
     private String categoriaSeleccionada;
 
+    private MediaPlayer mediaPlayer; // Agregado para los sonidos
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +63,6 @@ public class QuizActivity extends AppCompatActivity {
 
         if (lottieCharacter != null) {
             lottieCharacter.setVisibility(View.VISIBLE);
-            // CAMBIO AQUI: Búho inicial
             lottieCharacter.setAnimation(R.raw.owlie_nodding);
             lottieCharacter.playAnimation();
         }
@@ -150,16 +152,15 @@ public class QuizActivity extends AppCompatActivity {
             progressBar.setProgress(preguntasRespondidas);
             tvSpeechBubble.setText("¡Excelente!");
 
-            // CAMBIO AQUI: Búho asintiendo para el acierto (en vez de sol)
+            reproducirSonido(R.raw.correct_ding); // SONIDO DE ACIERTO
+
             lottieCharacter.setAnimation(R.raw.owlie_nodding);
             lottieCharacter.playAnimation();
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 indicePreguntaActual++;
-
                 lottieCharacter.setAnimation(R.raw.owlie_nodding);
                 lottieCharacter.playAnimation();
-
                 mostrarSiguientePregunta();
                 actualizarMarcadores();
             }, 1500);
@@ -170,7 +171,8 @@ public class QuizActivity extends AppCompatActivity {
             vidas--;
             tvSpeechBubble.setText("¡Ups! Fallaste.");
 
-            // CAMBIO AQUI: Búho enojado para el error
+            reproducirSonido(R.raw.megaman_x_error); // SONIDO DE ERROR
+
             lottieCharacter.setAnimation(R.raw.owlie_mad);
             lottieCharacter.playAnimation();
 
@@ -182,14 +184,27 @@ public class QuizActivity extends AppCompatActivity {
                     finalizarJuego(false);
                 } else {
                     indicePreguntaActual++;
-
-                    // Regresa al búho normal para la siguiente pregunta
                     lottieCharacter.setAnimation(R.raw.owlie_nodding);
                     lottieCharacter.playAnimation();
-
                     mostrarSiguientePregunta();
                 }
             }, 2000);
+        }
+    }
+
+    // Método para reproducir los sonidos
+    private void reproducirSonido(int resId) {
+        try {
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+            mediaPlayer = MediaPlayer.create(this, resId);
+            if (mediaPlayer != null) {
+                mediaPlayer.start();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -262,5 +277,14 @@ public class QuizActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         mostrarDialogoSalida();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 }
