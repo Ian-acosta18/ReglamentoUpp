@@ -1,43 +1,35 @@
 package com.example.reglamentoupp;
 
-import android.graphics.Color;
-import android.net.Uri;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.cloudinary.android.MediaManager;
-import com.cloudinary.android.callback.ErrorInfo;
-import com.cloudinary.android.callback.UploadCallback;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private EditText etNombre, etApellidos, etTelefono, etNewPassword, etConfirmNewPassword;
-    private ImageView ivProfilePhoto;
-    private ImageView logroDerechos, logroObligaciones, logroProhibiciones, logroSanciones, logroReconocimientos;
-    private MaterialCardView cardLogroDerechos, cardLogroObligaciones, cardLogroProhibiciones, cardLogroSanciones, cardLogroReconocimientos;
-    private ProgressBar progressBar;
+    private ImageView ivProfilePic;
+    private TextView tvProfileName, tvProfileEmail, tvProfileLevel, tvProfileScore, tvProgressText;
+    private ProgressBar pbProfileLevel;
+    private MaterialButton btnLogout;
+
+    // Insignias
+    private ImageView ivBadgeDerechos, ivBadgeObligaciones, ivBadgeProhibiciones, ivBadgeSanciones, ivBadgeReconocimientos;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private FirebaseUser currentUser;
-
-    private ActivityResultLauncher<String> galleryLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,192 +38,111 @@ public class ProfileActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        currentUser = mAuth.getCurrentUser();
 
         vincularVistas();
         cargarDatosUsuario();
 
-        // Botón retroceder
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-
-        // Configuración para abrir la galería y cambiar foto
-        galleryLauncher = registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                uri -> {
-                    if (uri != null) {
-                        ivProfilePhoto.setImageURI(uri);
-                        subirFotoACloudinary(uri);
-                    }
-                }
-        );
-        findViewById(R.id.cardChangePhoto).setOnClickListener(v -> galleryLauncher.launch("image/*"));
-
-        // Guardar cambios del Perfil
-        findViewById(R.id.btnSaveProfile).setOnClickListener(v -> actualizarDatosPersonales());
-
-        // Actualizar Contraseña
-        findViewById(R.id.btnUpdatePassword).setOnClickListener(v -> actualizarContraseña());
+        btnLogout.setOnClickListener(v -> cerrarSesion());
+        findViewById(R.id.btnBackProfile).setOnClickListener(v -> finish());
     }
 
     private void vincularVistas() {
-        etNombre = findViewById(R.id.etEditNombre);
-        etApellidos = findViewById(R.id.etEditApellidos);
-        etTelefono = findViewById(R.id.etEditTelefono);
-        etNewPassword = findViewById(R.id.etNewPassword);
-        etConfirmNewPassword = findViewById(R.id.etConfirmNewPassword);
-        ivProfilePhoto = findViewById(R.id.ivProfilePhoto);
-        progressBar = findViewById(R.id.progressProfile);
+        ivProfilePic = findViewById(R.id.ivProfilePic);
+        tvProfileName = findViewById(R.id.tvProfileName);
+        tvProfileEmail = findViewById(R.id.tvProfileEmail);
+        tvProfileLevel = findViewById(R.id.tvProfileLevel);
+        tvProfileScore = findViewById(R.id.tvProfileScore);
+        tvProgressText = findViewById(R.id.tvProgressText);
+        pbProfileLevel = findViewById(R.id.pbProfileLevel);
+        btnLogout = findViewById(R.id.btnLogoutProfile);
 
-        // Íconos
-        logroDerechos = findViewById(R.id.logroDerechos);
-        logroObligaciones = findViewById(R.id.logroObligaciones);
-        logroProhibiciones = findViewById(R.id.logroProhibiciones);
-        logroSanciones = findViewById(R.id.logroSanciones);
-        logroReconocimientos = findViewById(R.id.logroReconocimientos);
-
-        // Fondos de Medalla (Círculos)
-        cardLogroDerechos = findViewById(R.id.cardLogroDerechos);
-        cardLogroObligaciones = findViewById(R.id.cardLogroObligaciones);
-        cardLogroProhibiciones = findViewById(R.id.cardLogroProhibiciones);
-        cardLogroSanciones = findViewById(R.id.cardLogroSanciones);
-        cardLogroReconocimientos = findViewById(R.id.cardLogroReconocimientos);
+        // Insignias
+        ivBadgeDerechos = findViewById(R.id.ivBadgeDerechos);
+        ivBadgeObligaciones = findViewById(R.id.ivBadgeObligaciones);
+        ivBadgeProhibiciones = findViewById(R.id.ivBadgeProhibiciones);
+        ivBadgeSanciones = findViewById(R.id.ivBadgeSanciones);
+        ivBadgeReconocimientos = findViewById(R.id.ivBadgeReconocimientos);
     }
 
     private void cargarDatosUsuario() {
-        if (currentUser == null) return;
-        progressBar.setVisibility(View.VISIBLE);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            cerrarSesion();
+            return;
+        }
+
+        tvProfileEmail.setText(currentUser.getEmail());
 
         db.collection("usuarios").document(currentUser.getUid()).get()
-                .addOnSuccessListener(document -> {
-                    progressBar.setVisibility(View.GONE);
-                    if (document.exists()) {
-                        etNombre.setText(document.getString("nombre"));
-                        etApellidos.setText(document.getString("apellidos"));
-                        etTelefono.setText(document.getString("telefono"));
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        String nombre = documentSnapshot.getString("nombre");
+                        Long puntaje = documentSnapshot.getLong("puntaje");
+                        String fotoUrl = documentSnapshot.getString("fotoUrl");
 
-                        String fotoUrl = document.getString("fotoUrl");
-                        if (fotoUrl != null && !fotoUrl.isEmpty()) {
-                            Glide.with(this).load(fotoUrl).centerCrop().into(ivProfilePhoto);
+                        if (nombre != null) tvProfileName.setText(nombre);
+
+                        long xpTotal = (puntaje != null) ? puntaje : 0;
+                        actualizarNivel(xpTotal);
+                        actualizarInsignias(xpTotal);
+
+                        if (fotoUrl != null && !fotoUrl.isEmpty() && !isDestroyed()) {
+                            Glide.with(this)
+                                    .load(fotoUrl)
+                                    .centerCrop()
+                                    .placeholder(R.drawable.ic_profile)
+                                    .into(ivProfilePic);
                         }
-
-                        Long puntaje = document.getLong("puntaje");
-                        if (puntaje != null) {
-                            iluminarLogros(puntaje);
-                        }
                     }
-                }).addOnFailureListener(e -> progressBar.setVisibility(View.GONE));
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Error al cargar datos", Toast.LENGTH_SHORT).show());
     }
 
-    private void actualizarDatosPersonales() {
-        if (currentUser == null) return;
+    private void actualizarNivel(long xpActual) {
+        tvProfileScore.setText(xpActual + " XP Totales");
 
-        String nombre = etNombre.getText().toString().trim();
-        String apellidos = etApellidos.getText().toString().trim();
-        String telefono = etTelefono.getText().toString().trim();
+        long xpParaSiguienteNivel = 50;
+        int nivelActual = (int) (xpActual / xpParaSiguienteNivel) + 1;
+        long xpEnNivelActual = xpActual % xpParaSiguienteNivel;
 
-        if (nombre.isEmpty() || apellidos.isEmpty()) {
-            Toast.makeText(this, "Nombre y Apellidos son obligatorios", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        tvProfileLevel.setText("Nivel " + nivelActual);
+        tvProgressText.setText(xpEnNivelActual + " / " + xpParaSiguienteNivel + " XP");
 
-        progressBar.setVisibility(View.VISIBLE);
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("nombre", nombre);
-        updates.put("apellidos", apellidos);
-        updates.put("telefono", telefono);
-
-        db.collection("usuarios").document(currentUser.getUid()).update(updates)
-                .addOnSuccessListener(aVoid -> {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, "Perfil actualizado con éxito", Toast.LENGTH_SHORT).show();
-                }).addOnFailureListener(e -> {
-                    progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, "Error al actualizar perfil", Toast.LENGTH_SHORT).show();
-                });
+        pbProfileLevel.setMax((int) xpParaSiguienteNivel);
+        pbProfileLevel.setProgress((int) xpEnNivelActual);
     }
 
-    private void actualizarContraseña() {
-        if (currentUser == null) return;
-        String newPass = etNewPassword.getText().toString().trim();
-        String confirmPass = etConfirmNewPassword.getText().toString().trim();
+    private void actualizarInsignias(long puntaje) {
+        if (ivBadgeDerechos == null) return;
 
-        if (newPass.isEmpty()) {
-            etNewPassword.setError("Ingresa una nueva contraseña");
-            return;
-        }
-        if (newPass.length() < 6) {
-            etNewPassword.setError("Mínimo 6 caracteres");
-            return;
-        }
-        if (!newPass.equals(confirmPass)) {
-            etConfirmNewPassword.setError("Las contraseñas no coinciden");
-            return;
-        }
+        // Limpiamos cualquier filtro de color previo que pueda estar afectando los colores
+        ivBadgeDerechos.clearColorFilter();
+        ivBadgeObligaciones.clearColorFilter();
+        ivBadgeProhibiciones.clearColorFilter();
+        ivBadgeSanciones.clearColorFilter();
+        ivBadgeReconocimientos.clearColorFilter();
 
-        progressBar.setVisibility(View.VISIBLE);
-        currentUser.updatePassword(newPass)
-                .addOnCompleteListener(task -> {
-                    progressBar.setVisibility(View.GONE);
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Contraseña actualizada. Usa tu nueva clave en tu próximo inicio.", Toast.LENGTH_LONG).show();
-                        etNewPassword.setText("");
-                        etConfirmNewPassword.setText("");
-                    } else {
-                        Toast.makeText(this, "Por seguridad, cierra sesión y vuelve a entrar para cambiar tu clave.", Toast.LENGTH_LONG).show();
-                    }
-                });
+        // Derechos (0+ puntos)
+        ivBadgeDerechos.setAlpha(puntaje >= 0 ? 1.0f : 0.25f);
+
+        // Obligaciones (50+ puntos)
+        ivBadgeObligaciones.setAlpha(puntaje >= 50 ? 1.0f : 0.25f);
+
+        // Prohibiciones (100+ puntos)
+        ivBadgeProhibiciones.setAlpha(puntaje >= 100 ? 1.0f : 0.25f);
+
+        // Sanciones (150+ puntos)
+        ivBadgeSanciones.setAlpha(puntaje >= 150 ? 1.0f : 0.25f);
+
+        // Reconocimientos (200+ puntos)
+        ivBadgeReconocimientos.setAlpha(puntaje >= 200 ? 1.0f : 0.25f);
     }
 
-    private void subirFotoACloudinary(Uri imageUri) {
-        progressBar.setVisibility(View.VISIBLE);
-        Toast.makeText(this, "Subiendo foto...", Toast.LENGTH_SHORT).show();
-
-        MediaManager.get().upload(imageUri).unsigned("mi_app_preset")
-                .callback(new UploadCallback() {
-                    @Override public void onStart(String requestId) {}
-                    @Override public void onProgress(String requestId, long bytes, long totalBytes) {}
-                    @Override public void onReschedule(String requestId, ErrorInfo error) {}
-
-                    @Override
-                    public void onSuccess(String requestId, Map resultData) {
-                        String newUrl = (String) resultData.get("secure_url");
-                        db.collection("usuarios").document(currentUser.getUid())
-                                .update("fotoUrl", newUrl)
-                                .addOnSuccessListener(aVoid -> {
-                                    progressBar.setVisibility(View.GONE);
-                                    Toast.makeText(ProfileActivity.this, "Foto guardada correctamente", Toast.LENGTH_SHORT).show();
-                                });
-                    }
-
-                    @Override
-                    public void onError(String requestId, ErrorInfo error) {
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(ProfileActivity.this, "Error al subir foto", Toast.LENGTH_SHORT).show();
-                    }
-                }).dispatch();
-    }
-
-    private void iluminarLogros(long puntaje) {
-        // Se pinta el fondo de la tarjeta de color y el ícono de blanco para que resalte
-        if (puntaje >= 0) {
-            cardLogroDerechos.setCardBackgroundColor(Color.parseColor("#448AFF")); // Azul
-            logroDerechos.setColorFilter(Color.WHITE);
-        }
-        if (puntaje >= 50) {
-            cardLogroObligaciones.setCardBackgroundColor(Color.parseColor("#FF9800")); // Naranja
-            logroObligaciones.setColorFilter(Color.WHITE);
-        }
-        if (puntaje >= 100) {
-            cardLogroProhibiciones.setCardBackgroundColor(Color.parseColor("#E91E63")); // Rosa
-            logroProhibiciones.setColorFilter(Color.WHITE);
-        }
-        if (puntaje >= 150) {
-            cardLogroSanciones.setCardBackgroundColor(Color.parseColor("#9C27B0")); // Morado
-            logroSanciones.setColorFilter(Color.WHITE);
-        }
-        if (puntaje >= 200) {
-            cardLogroReconocimientos.setCardBackgroundColor(Color.parseColor("#4CAF50")); // Verde
-            logroReconocimientos.setColorFilter(Color.WHITE);
-        }
+    private void cerrarSesion() {
+        mAuth.signOut();
+        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }
