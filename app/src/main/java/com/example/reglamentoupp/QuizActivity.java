@@ -59,10 +59,10 @@ public class QuizActivity extends AppCompatActivity {
         btnHelp = findViewById(R.id.btnHelpQuiz);
         lottieCharacter = findViewById(R.id.lottieCharacter);
 
-        // 2. Forzar animación del búho
+        // 2. INICIAR ANIMACIÓN CON EL BÚHO
         if (lottieCharacter != null) {
             lottieCharacter.setVisibility(View.VISIBLE);
-            lottieCharacter.setAnimation(R.raw.buho_1);
+            lottieCharacter.setAnimation(R.raw.buho_1); // <-- AQUÍ REGRESAMOS AL BÚHO
             lottieCharacter.playAnimation();
         }
 
@@ -90,7 +90,7 @@ public class QuizActivity extends AppCompatActivity {
 
     private void configurarUI() {
         actualizarMarcadores();
-        progressBar.setMax(10); // Ejemplo: meta de 10 preguntas para ganar
+        progressBar.setMax(10);
         progressBar.setProgress(0);
         tvSpeechBubble.setVisibility(View.VISIBLE);
         tvSpeechBubble.setText("¡Demuestra lo que sabes!");
@@ -101,7 +101,6 @@ public class QuizActivity extends AppCompatActivity {
         deshabilitarBotones();
 
         db.collection("preguntas")
-                .whereEqualTo("categoria", categoriaSeleccionada)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -114,12 +113,12 @@ public class QuizActivity extends AppCompatActivity {
                             Collections.shuffle(listaPreguntas);
                             mostrarSiguientePregunta();
                         } else {
-                            tvQuestion.setText("No hay preguntas para esta categoría.");
-                            Toast.makeText(this, "Categoría vacía", Toast.LENGTH_SHORT).show();
+                            tvQuestion.setText("Aún no tienes preguntas en Firebase.");
+                            Toast.makeText(this, "Base de datos vacía", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         tvQuestion.setText("Error al cargar.");
-                        Toast.makeText(this, "Error de red", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error de conexión", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -138,7 +137,6 @@ public class QuizActivity extends AppCompatActivity {
 
             tvSpeechBubble.setText("¿Cuál es la correcta?");
         } else {
-            // Se acabaron las preguntas, el jugador gana
             finalizarJuego(true);
         }
     }
@@ -148,21 +146,21 @@ public class QuizActivity extends AppCompatActivity {
         String correcta = preguntaActual.getRespuestaCorrecta();
 
         if (respuestaSeleccionada.equals(correcta)) {
-            // Respuesta Correcta
+            // ACERTÓ
             botonSeleccionado.setBackgroundResource(R.drawable.button_quiz_correct);
             puntaje += 10;
             preguntasRespondidas++;
             progressBar.setProgress(preguntasRespondidas);
             tvSpeechBubble.setText("¡Excelente!");
 
-            // Animación feliz
+            // Animación feliz temporal
             lottieCharacter.setAnimation(R.raw.happy_sun);
             lottieCharacter.playAnimation();
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 indicePreguntaActual++;
 
-                // Volver a la animación original del búho
+                // <-- REGRESA AL BÚHO PARA LA SIGUIENTE PREGUNTA
                 lottieCharacter.setAnimation(R.raw.buho_1);
                 lottieCharacter.playAnimation();
 
@@ -171,12 +169,12 @@ public class QuizActivity extends AppCompatActivity {
             }, 1500);
 
         } else {
-            // Respuesta Incorrecta
+            // FALLÓ
             botonSeleccionado.setBackgroundResource(R.drawable.button_quiz_incorrect);
             vidas--;
             tvSpeechBubble.setText("¡Ups! Fallaste.");
 
-            // Animación de error
+            // Animación triste temporal
             lottieCharacter.setAnimation(R.raw.angry_thunderstorm);
             lottieCharacter.playAnimation();
 
@@ -189,7 +187,7 @@ public class QuizActivity extends AppCompatActivity {
                 } else {
                     indicePreguntaActual++;
 
-                    // Volver a la animación original del búho
+                    // <-- REGRESA AL BÚHO PARA LA SIGUIENTE PREGUNTA
                     lottieCharacter.setAnimation(R.raw.buho_1);
                     lottieCharacter.playAnimation();
 
@@ -237,11 +235,10 @@ public class QuizActivity extends AppCompatActivity {
             puntaje -= 20;
             actualizarMarcadores();
             tvSpeechBubble.setText("Pista: Piensa en el Reglamento...");
-            // Aquí puedes agregar lógica para ocultar una opción incorrecta
-            btnHelp.setEnabled(false); // Deshabilitar tras un uso por pregunta
+            btnHelp.setEnabled(false);
             btnHelp.setAlpha(0.5f);
         } else {
-            Toast.makeText(this, "Necesitas 20 puntos para una pista", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Necesitas 20 puntos", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -253,16 +250,8 @@ public class QuizActivity extends AppCompatActivity {
                 .setTitle(titulo)
                 .setMessage(mensaje)
                 .setCancelable(false)
-                .setPositiveButton("Regresar", (dialog, which) -> {
-                    guardarPuntajeSiEsMejor();
-                    finish();
-                })
+                .setPositiveButton("Regresar", (dialog, which) -> finish())
                 .show();
-    }
-
-    private void guardarPuntajeSiEsMejor() {
-        // Aquí deberías tener la lógica para guardar el puntaje en Firebase
-        // asociado al usuario actual si es mayor a su récord anterior.
     }
 
     private void mostrarDialogoSalida() {
