@@ -52,13 +52,14 @@ public class MemoryGameActivity extends AppCompatActivity {
     private int racha = 0;
     private int pistasRestantes = 1;
 
+    // AÑADIDO: Ahora CardDefinition incluye un cuarto parámetro para el "ejemplo"
     private final CardDefinition[] definitions = {
-            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (I)", "Cursar los estudios según planes vigentes."),
-            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (III)", "Recibir orientación académica."),
-            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VII)", "Conocer resultados de evaluaciones."),
-            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VIII)", "Obtener credencial al inscribirse."),
-            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (I)", "Ser responsables de su formación."),
-            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (V)", "Asistir puntualmente a clases.")
+            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (I)", "Cursar los estudios según planes vigentes.", "Ejemplo: Inscribirte a las materias de tu plan actual."),
+            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (III)", "Recibir orientación académica.", "Ejemplo: Pedir tutorías si tienes dudas en una materia."),
+            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VII)", "Conocer resultados de evaluaciones.", "Ejemplo: Revisar tus calificaciones en el sistema."),
+            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VIII)", "Obtener credencial al inscribirse.", "Ejemplo: Tramitar tu credencial en Servicios Escolares."),
+            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (I)", "Ser responsables de su formación.", "Ejemplo: Entregar tareas a tiempo y estudiar para exámenes."),
+            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (V)", "Asistir puntualmente a clases.", "Ejemplo: Llegar antes de que termine la tolerancia del profesor.")
     };
 
     @Override
@@ -121,7 +122,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         selectedDetails1 = null;
         selectedView1 = null;
 
-        // Aseguramos que inicie con el búho asintiendo
         if (lottieMascot != null) {
             lottieMascot.setAnimation(R.raw.owlie_nodding);
             lottieMascot.playAnimation();
@@ -143,12 +143,20 @@ public class MemoryGameActivity extends AppCompatActivity {
 
         for (int i = 0; i < TOTAL_PAIRS; i++) {
             CardDefinition def = definitions[i];
-            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textTitle, matchIdCounter));
-            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textDesc, matchIdCounter));
+
+            // Carta 1: Título del Artículo (Sin ejemplo)
+            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textTitle, matchIdCounter, null));
+
+            // Carta 2: Descripción del Artículo (CON EJEMPLO)
+            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textDesc, matchIdCounter, def.example));
+
             matchIdCounter++;
         }
 
-        cards.add(new MemoryCard(idCounter++, R.drawable.mi_logo, "¡Comodín!\n+20 Pts", -1));
+        // Comodín (Sin ejemplo)
+        cards.add(new MemoryCard(idCounter++, R.drawable.mi_logo, "¡Comodín!\n+20 Pts", -1, null));
+
+        // Aleatorización
         Collections.shuffle(cards);
 
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -157,10 +165,21 @@ public class MemoryGameActivity extends AppCompatActivity {
             View cardView = inflater.inflate(R.layout.item_memory_card, glCards, false);
 
             TextView tvText = cardView.findViewById(R.id.tv_card_text);
+            TextView tvExample = cardView.findViewById(R.id.tvCardExample); // Vinculamos el texto del ejemplo
             ImageView ivIcon = cardView.findViewById(R.id.iv_card_icon);
 
             if (tvText != null) tvText.setText(card.textLabel);
             if (ivIcon != null) ivIcon.setImageResource(card.iconResId);
+
+            // LOGICA PUNTO 3: Mostrar el ejemplo solo si existe
+            if (tvExample != null) {
+                if (card.example != null && !card.example.isEmpty()) {
+                    tvExample.setVisibility(View.VISIBLE);
+                    tvExample.setText(card.example);
+                } else {
+                    tvExample.setVisibility(View.GONE);
+                }
+            }
 
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0; params.height = dpToPx(150);
@@ -207,7 +226,6 @@ public class MemoryGameActivity extends AppCompatActivity {
             ((MemoryCard) selectedView1.getTag()).isMatched = true; cardData2.isMatched = true;
             tvMessage.setText("¡Correcto!");
 
-            // CAMBIO AQUI: Búho normal (feliz) en lugar del sol
             if (lottieMascot != null) { lottieMascot.setAnimation(R.raw.owlie_nodding); lottieMascot.playAnimation(); }
 
             setCardStroke(selectedView1, "#4CAF50", 3); setCardStroke(view2, "#4CAF50", 3);
@@ -218,14 +236,12 @@ public class MemoryGameActivity extends AppCompatActivity {
             playSound(R.raw.megaman_x_error); vibrarSafe(200);
             tvMessage.setText("¡Intenta de nuevo!");
 
-            // CAMBIO AQUI: Búho enojado en lugar de la nube
             if (lottieMascot != null) { lottieMascot.setAnimation(R.raw.owlie_mad); lottieMascot.playAnimation(); }
 
             setCardStroke(selectedView1, "#F44336", 3); setCardStroke(view2, "#F44336", 3);
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (!isFinishing() && !isDestroyed()) {
-                    // Restaurar animación del búho normal si aún estamos en juego
                     if (lottieMascot != null && lives > 0) {
                         lottieMascot.setAnimation(R.raw.owlie_nodding);
                         lottieMascot.playAnimation();
@@ -314,12 +330,19 @@ public class MemoryGameActivity extends AppCompatActivity {
     @Override protected void onPause() { super.onPause(); if (timer != null) timer.cancel(); if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; } }
     @Override protected void onDestroy() { super.onDestroy(); if (timer != null) timer.cancel(); if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; } }
 
+    // MODIFICADO: Se agrega la variable "example" al constructor y a la clase
     private static class CardDefinition {
-        int iconRes; String textTitle; String textDesc;
-        public CardDefinition(int iconRes, String textTitle, String textDesc) { this.iconRes = iconRes; this.textTitle = textTitle; this.textDesc = textDesc; }
+        int iconRes; String textTitle; String textDesc; String example;
+        public CardDefinition(int iconRes, String textTitle, String textDesc, String example) {
+            this.iconRes = iconRes; this.textTitle = textTitle; this.textDesc = textDesc; this.example = example;
+        }
     }
+
+    // MODIFICADO: Se agrega la variable "example"
     private static class MemoryCard {
-        int id; int iconResId; String textLabel; int matchId; boolean isMatched = false;
-        public MemoryCard(int id, int iconResId, String textLabel, int matchId) { this.id = id; this.iconResId = iconResId; this.textLabel = textLabel; this.matchId = matchId; }
+        int id; int iconResId; String textLabel; int matchId; boolean isMatched = false; String example;
+        public MemoryCard(int id, int iconResId, String textLabel, int matchId, String example) {
+            this.id = id; this.iconResId = iconResId; this.textLabel = textLabel; this.matchId = matchId; this.example = example;
+        }
     }
 }
