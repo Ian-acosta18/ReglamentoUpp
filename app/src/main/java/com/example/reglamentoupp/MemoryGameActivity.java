@@ -52,7 +52,6 @@ public class MemoryGameActivity extends AppCompatActivity {
     private int racha = 0;
     private int pistasRestantes = 1;
 
-    // AÑADIDO: Ahora CardDefinition incluye un cuarto parámetro para el "ejemplo"
     private final CardDefinition[] definitions = {
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (I)", "Cursar los estudios según planes vigentes.", "Ejemplo: Inscribirte a las materias de tu plan actual."),
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (III)", "Recibir orientación académica.", "Ejemplo: Pedir tutorías si tienes dudas en una materia."),
@@ -144,10 +143,11 @@ public class MemoryGameActivity extends AppCompatActivity {
         for (int i = 0; i < TOTAL_PAIRS; i++) {
             CardDefinition def = definitions[i];
 
-            // Carta 1: Título del Artículo (Sin ejemplo)
-            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textTitle, matchIdCounter, null));
+            // Carta 1: Título del Artículo (AHORA SÍ MUESTRA EL EJEMPLO)
+            cards.add(new MemoryCard(idCounter++, def.iconRes, def.textTitle, matchIdCounter, def.example));
 
-            // Carta 2: Descripción del Artículo (CON EJEMPLO)
+            // Carta 2: Descripción del Artículo (TAMBIÉN MUESTRA EL EJEMPLO)
+            // Si quieres que el ejemplo SOLO salga en la carta de "Art.", cambia 'def.example' por 'null' en la línea de abajo.
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textDesc, matchIdCounter, def.example));
 
             matchIdCounter++;
@@ -156,7 +156,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         // Comodín (Sin ejemplo)
         cards.add(new MemoryCard(idCounter++, R.drawable.mi_logo, "¡Comodín!\n+20 Pts", -1, null));
 
-        // Aleatorización
         Collections.shuffle(cards);
 
         LayoutInflater inflater = LayoutInflater.from(this);
@@ -165,13 +164,12 @@ public class MemoryGameActivity extends AppCompatActivity {
             View cardView = inflater.inflate(R.layout.item_memory_card, glCards, false);
 
             TextView tvText = cardView.findViewById(R.id.tv_card_text);
-            TextView tvExample = cardView.findViewById(R.id.tvCardExample); // Vinculamos el texto del ejemplo
+            TextView tvExample = cardView.findViewById(R.id.tvCardExample);
             ImageView ivIcon = cardView.findViewById(R.id.iv_card_icon);
 
             if (tvText != null) tvText.setText(card.textLabel);
             if (ivIcon != null) ivIcon.setImageResource(card.iconResId);
 
-            // LOGICA PUNTO 3: Mostrar el ejemplo solo si existe
             if (tvExample != null) {
                 if (card.example != null && !card.example.isEmpty()) {
                     tvExample.setVisibility(View.VISIBLE);
@@ -330,7 +328,6 @@ public class MemoryGameActivity extends AppCompatActivity {
     @Override protected void onPause() { super.onPause(); if (timer != null) timer.cancel(); if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; } }
     @Override protected void onDestroy() { super.onDestroy(); if (timer != null) timer.cancel(); if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; } }
 
-    // MODIFICADO: Se agrega la variable "example" al constructor y a la clase
     private static class CardDefinition {
         int iconRes; String textTitle; String textDesc; String example;
         public CardDefinition(int iconRes, String textTitle, String textDesc, String example) {
@@ -338,7 +335,6 @@ public class MemoryGameActivity extends AppCompatActivity {
         }
     }
 
-    // MODIFICADO: Se agrega la variable "example"
     private static class MemoryCard {
         int id; int iconResId; String textLabel; int matchId; boolean isMatched = false; String example;
         public MemoryCard(int id, int iconResId, String textLabel, int matchId, String example) {
