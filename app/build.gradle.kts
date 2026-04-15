@@ -55,6 +55,8 @@ dependencies {
     implementation("com.airbnb.android:lottie:6.3.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.airbnb.android:lottie:6.4.0")
+    implementation("com.intuit.sdp:sdp-android:1.1.1")
+    implementation("com.intuit.ssp:ssp-android:1.1.1")
 
     // Firebase (BOM)
     implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
