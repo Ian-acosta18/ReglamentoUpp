@@ -59,7 +59,24 @@ public class HangmanActivity extends AppCompatActivity {
         iniciarJuego();
 
         binding.btnBack.setOnClickListener(v -> finish());
-        binding.btnHelp.setOnClickListener(v -> usarPista());
+
+        // NUEVA LÓGICA DEL BOTÓN INFO
+        binding.btnHelp.setOnClickListener(v -> mostrarInstruccionesYPista());
+    }
+
+    private void mostrarInstruccionesYPista() {
+        String reglas = "Reglas del Ahorcado:\n\n" +
+                "• Lee la definición y adivina el concepto letra por letra.\n" +
+                "• Tienes 6 vidas (errores permitidos).\n" +
+                "• Evita que las vidas lleguen a 0.\n\n" +
+                "¿Quieres revelar una letra correcta?";
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Información del Juego")
+                .setMessage(reglas)
+                .setPositiveButton("Revelar Letra", (dialog, which) -> usarPista())
+                .setNegativeButton("Cerrar", null)
+                .show();
     }
 
     private void usarPista() {
@@ -133,7 +150,6 @@ public class HangmanActivity extends AppCompatActivity {
                 btnLetra.setBackgroundResource(R.drawable.fondo_tecla_ahorcado);
                 btnLetra.setTextColor(Color.WHITE);
                 btnLetra.setTypeface(null, Typeface.BOLD);
-                // SE AUMENTÓ EL TAMAÑO DE LAS TECLAS A 32
                 btnLetra.setTextSize(32);
                 btnLetra.setPadding(0, 0, 0, 0);
                 btnLetra.setInsetTop(0); btnLetra.setInsetBottom(0); btnLetra.setMinHeight(0); btnLetra.setMinimumHeight(0);

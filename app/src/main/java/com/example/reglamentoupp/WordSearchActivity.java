@@ -20,7 +20,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -80,7 +79,9 @@ public class WordSearchActivity extends AppCompatActivity {
         tvScorePuntos = findViewById(R.id.tv_score_puntos);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        findViewById(R.id.btnHelpWS).setOnClickListener(v -> usarPista());
+
+        // NUEVA LÓGICA DEL BOTÓN INFO
+        findViewById(R.id.btnHelpWS).setOnClickListener(v -> mostrarInstruccionesYPista());
 
         initializeWords();
         generarCuadricula();
@@ -88,6 +89,21 @@ public class WordSearchActivity extends AppCompatActivity {
         updateScore();
 
         btnRegresar.setOnClickListener(v -> finish());
+    }
+
+    private void mostrarInstruccionesYPista() {
+        String reglas = "Reglas de Sopa de Letras:\n\n" +
+                "• Lee las definiciones en la parte inferior.\n" +
+                "• Encuentra la palabra en la cuadrícula azul y desliza el dedo sobre ella.\n" +
+                "• Busca en horizontal, vertical y diagonal.\n\n" +
+                "¿Quieres que resalte la ubicación de una palabra?";
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Información del Juego")
+                .setMessage(reglas)
+                .setPositiveButton("Mostrar Ubicación", (dialog, which) -> usarPista())
+                .setNegativeButton("Cerrar", null)
+                .show();
     }
 
     private void usarPista() {
@@ -258,7 +274,6 @@ public class WordSearchActivity extends AppCompatActivity {
                 updateScore();
 
                 for (TextView cellInPath : selectedCells) {
-                    // COLOR MORADO CLARITO DE TACHADO
                     cellInPath.setBackgroundColor(Color.parseColor("#E1BEE7"));
                     cellInPath.setTextColor(Color.BLACK);
                 }
@@ -334,7 +349,6 @@ public class WordSearchActivity extends AppCompatActivity {
 
         if (startIndex != -1) {
             builder.setSpan(new StrikethroughSpan(), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            // COLOR MORADO CLARITO EN LA LISTA
             builder.setSpan(new ForegroundColorSpan(Color.parseColor("#9C27B0")), startIndex, startIndex + definition.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             tvListaPalabras.setText(builder);
         }

@@ -61,7 +61,6 @@ public class TrueFalseActivity extends AppCompatActivity {
 
         if (binding.lottieCharacter != null) {
             binding.lottieCharacter.setRenderMode(RenderMode.SOFTWARE);
-            // CAMBIO AQUI: Búho normal al iniciar
             binding.lottieCharacter.setAnimation(R.raw.owlie_nodding);
         }
 
@@ -94,9 +93,25 @@ public class TrueFalseActivity extends AppCompatActivity {
             });
         }
 
+        // NUEVA LÓGICA DEL BOTÓN INFO
         if(binding.btnHelpTF != null) {
-            binding.btnHelpTF.setOnClickListener(v -> usarPista());
+            binding.btnHelpTF.setOnClickListener(v -> mostrarInstruccionesYPista());
         }
+    }
+
+    private void mostrarInstruccionesYPista() {
+        String reglas = "Reglas de Verdadero o Falso:\n\n" +
+                "• Tienes 10 segundos para decidir si la afirmación es cierta o falsa.\n" +
+                "• Mantén una racha de 3 o más para ganar más puntos (15 en lugar de 10).\n" +
+                "• Tienes 3 vidas.\n\n" +
+                "¿Quieres añadir 5 segundos extra a esta pregunta?";
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Información del Juego")
+                .setMessage(reglas)
+                .setPositiveButton("+5 Segundos", (dialog, which) -> usarPista())
+                .setNegativeButton("Cerrar", null)
+                .show();
     }
 
     private void usarPista() {
@@ -135,7 +150,6 @@ public class TrueFalseActivity extends AppCompatActivity {
             pistaUsada = false;
             tiempoRestante = 10000;
 
-            // CAMBIO AQUI: Búho normal al cargar pregunta
             binding.lottieCharacter.setAnimation(R.raw.owlie_nodding);
             binding.lottieCharacter.playAnimation();
             binding.lottieCharacter.setSpeed(1.0f);
@@ -218,7 +232,6 @@ public class TrueFalseActivity extends AppCompatActivity {
     }
 
     private void actualizarMascota(boolean esCorrecto) {
-        // CAMBIO AQUI: Selección del búho correcto en lugar de nubes
         binding.lottieCharacter.setAnimation(esCorrecto ? R.raw.owlie_nodding : R.raw.owlie_mad);
         binding.lottieCharacter.playAnimation();
     }

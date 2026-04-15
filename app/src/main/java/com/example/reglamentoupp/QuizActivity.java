@@ -42,7 +42,7 @@ public class QuizActivity extends AppCompatActivity {
     private String modoJuego;
     private String categoriaSeleccionada;
 
-    private MediaPlayer mediaPlayer; // Agregado para los sonidos
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +67,9 @@ public class QuizActivity extends AppCompatActivity {
             lottieCharacter.playAnimation();
         }
 
+        // CAMBIAR ICONO A INFORMACIÓN (Opcional, pero recomendado si tienes un ic_info)
+        // btnHelp.setImageResource(R.drawable.ic_info);
+
         db = FirebaseFirestore.getInstance();
         listaPreguntas = new ArrayList<>();
 
@@ -80,11 +83,28 @@ public class QuizActivity extends AppCompatActivity {
         cargarPreguntas();
 
         btnBack.setOnClickListener(v -> mostrarDialogoSalida());
-        btnHelp.setOnClickListener(v -> usarComodin());
+
+        // NUEVA LÓGICA DEL BOTÓN INFO
+        btnHelp.setOnClickListener(v -> mostrarInstruccionesYComodin());
 
         btnOptionA.setOnClickListener(v -> verificarRespuesta(btnOptionA.getText().toString(), btnOptionA));
         btnOptionB.setOnClickListener(v -> verificarRespuesta(btnOptionB.getText().toString(), btnOptionB));
         btnOptionC.setOnClickListener(v -> verificarRespuesta(btnOptionC.getText().toString(), btnOptionC));
+    }
+
+    private void mostrarInstruccionesYComodin() {
+        String reglas = "Reglas de Trivia UPPue:\n\n" +
+                "• Lee la pregunta y selecciona la respuesta correcta.\n" +
+                "• Tienes 3 vidas. Ganas 10 puntos por acierto.\n" +
+                "• El juego termina si te quedas sin vidas o respondes todo.\n\n" +
+                "¿Quieres usar un comodín por 20 puntos?";
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Información del Juego")
+                .setMessage(reglas)
+                .setPositiveButton("Usar Comodín", (dialog, which) -> usarComodin())
+                .setNegativeButton("Cerrar", null)
+                .show();
     }
 
     private void configurarUI() {
@@ -145,14 +165,13 @@ public class QuizActivity extends AppCompatActivity {
         String correcta = preguntaActual.getRespuestaCorrecta();
 
         if (respuestaSeleccionada.equals(correcta)) {
-            // ACERTÓ
             botonSeleccionado.setBackgroundResource(R.drawable.button_quiz_correct);
             puntaje += 10;
             preguntasRespondidas++;
             progressBar.setProgress(preguntasRespondidas);
             tvSpeechBubble.setText("¡Excelente!");
 
-            reproducirSonido(R.raw.correct_ding); // SONIDO DE ACIERTO
+            reproducirSonido(R.raw.correct_ding);
 
             lottieCharacter.setAnimation(R.raw.owlie_nodding);
             lottieCharacter.playAnimation();
@@ -166,12 +185,11 @@ public class QuizActivity extends AppCompatActivity {
             }, 1500);
 
         } else {
-            // FALLÓ
             botonSeleccionado.setBackgroundResource(R.drawable.button_quiz_incorrect);
             vidas--;
             tvSpeechBubble.setText("¡Ups! Fallaste.");
 
-            reproducirSonido(R.raw.megaman_x_error); // SONIDO DE ERROR
+            reproducirSonido(R.raw.megaman_x_error);
 
             lottieCharacter.setAnimation(R.raw.owlie_mad);
             lottieCharacter.playAnimation();
@@ -192,7 +210,6 @@ public class QuizActivity extends AppCompatActivity {
         }
     }
 
-    // Método para reproducir los sonidos
     private void reproducirSonido(int resId) {
         try {
             if (mediaPlayer != null) {
