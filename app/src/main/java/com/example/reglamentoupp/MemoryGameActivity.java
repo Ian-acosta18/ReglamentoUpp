@@ -27,12 +27,13 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class MemoryGameActivity extends AppCompatActivity {
 
-    private static final int TOTAL_PAIRS = 4;
+    private static final int TOTAL_PAIRS = 4; // Mantenemos 4 pares (8 cartas) + 1 comodín = 9 cartas (Grid 3x3)
     private static final long GAME_TIME_MS = 120000;
 
     private GridLayout glCards;
@@ -52,14 +53,30 @@ public class MemoryGameActivity extends AppCompatActivity {
     private int racha = 0;
     private int pistasRestantes = 1;
 
-    private final CardDefinition[] definitions = {
+    // Aquí está el "Gran Mazo" con preguntas de TODOS los apartados
+    private final List<CardDefinition> allDefinitions = Arrays.asList(
+            // DERECHOS
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (I)", "Cursar los estudios según planes vigentes.", "Ejemplo: Inscribirte a las materias de tu plan actual."),
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (III)", "Recibir orientación académica.", "Ejemplo: Pedir tutorías si tienes dudas en una materia."),
-            new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VII)", "Conocer resultados de evaluaciones.", "Ejemplo: Revisar tus calificaciones en el sistema."),
             new CardDefinition(R.drawable.ic_derechos, "Art. 3 (VIII)", "Obtener credencial al inscribirse.", "Ejemplo: Tramitar tu credencial en Servicios Escolares."),
+
+            // OBLIGACIONES
             new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (I)", "Ser responsables de su formación.", "Ejemplo: Entregar tareas a tiempo y estudiar para exámenes."),
-            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (V)", "Asistir puntualmente a clases.", "Ejemplo: Llegar antes de que termine la tolerancia del profesor.")
-    };
+            new CardDefinition(R.drawable.ic_obligaciones, "Art. 5 (V)", "Asistir puntualmente a clases.", "Ejemplo: Llegar antes de que termine la tolerancia del profesor."),
+
+            // PROHIBICIONES
+            new CardDefinition(R.drawable.ic_prohibiciones, "Art. 8 (I)", "Faltar al respeto a miembros de la comunidad.", "Ejemplo: Insultar a un compañero o profesor."),
+            new CardDefinition(R.drawable.ic_prohibiciones, "Art. 8 (IV)", "Consumir sustancias ilícitas.", "Ejemplo: Ingresar o consumir alcohol en las instalaciones."),
+            new CardDefinition(R.drawable.ic_prohibiciones, "Art. 8 (VIII)", "Realizar actos de violencia o bullying.", "Ejemplo: Acosar física o verbalmente a otro estudiante."),
+
+            // SANCIONES
+            new CardDefinition(R.drawable.ic_sanciones, "Amonestación", "Llamado de atención formal.", "Ejemplo: Recibir un apercibimiento por escrito del director."),
+            new CardDefinition(R.drawable.ic_sanciones, "Art. 35", "Sanciones por faltas al reglamento.", "Ejemplo: Ser acreedor a una suspensión temporal."),
+
+            // RECONOCIMIENTOS
+            new CardDefinition(R.drawable.ic_reconocimientos, "Becas", "Apoyo otorgado por desempeño.", "Ejemplo: Obtener la beca de excelencia académica."),
+            new CardDefinition(R.drawable.ic_reconocimientos, "Mención Honorífica", "Distinción al momento de titularse.", "Ejemplo: Graduarte con promedio sobresaliente sin reprobar.")
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,22 +157,23 @@ public class MemoryGameActivity extends AppCompatActivity {
         int idCounter = 0;
         int matchIdCounter = 0;
 
+        // NUEVA LÓGICA: Barajar todas las opciones posibles antes de elegir las 4 para jugar
+        List<CardDefinition> pool = new ArrayList<>(allDefinitions);
+        Collections.shuffle(pool);
+
         for (int i = 0; i < TOTAL_PAIRS; i++) {
-            CardDefinition def = definitions[i];
+            CardDefinition def = pool.get(i); // Toma una definición aleatoria de la lista ya revuelta
 
-            // Carta 1: Título del Artículo (AHORA SÍ MUESTRA EL EJEMPLO)
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textTitle, matchIdCounter, def.example));
-
-            // Carta 2: Descripción del Artículo (TAMBIÉN MUESTRA EL EJEMPLO)
-            // Si quieres que el ejemplo SOLO salga en la carta de "Art.", cambia 'def.example' por 'null' en la línea de abajo.
             cards.add(new MemoryCard(idCounter++, def.iconRes, def.textDesc, matchIdCounter, def.example));
 
             matchIdCounter++;
         }
 
-        // Comodín (Sin ejemplo)
+        // Comodín
         cards.add(new MemoryCard(idCounter++, R.drawable.mi_logo, "¡Comodín!\n+20 Pts", -1, null));
 
+        // Aleatorización de la posición de las cartas en el tablero
         Collections.shuffle(cards);
 
         LayoutInflater inflater = LayoutInflater.from(this);
