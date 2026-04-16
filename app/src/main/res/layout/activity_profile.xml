@@ -112,6 +112,16 @@
                         android:textSize="14sp"
                         android:layout_marginTop="4dp" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChangeProfilePic"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cambiar Foto"
+                        android:textColor="#9C27B0"
+                        android:visibility="gone"
+                        android:layout_marginTop="4dp"/>
+
                     <LinearLayout
                         android:id="@+id/layoutActionButtons"
                         android:layout_width="match_parent"

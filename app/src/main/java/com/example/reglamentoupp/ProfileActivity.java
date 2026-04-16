@@ -1,6 +1,7 @@
 package com.example.reglamentoupp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -9,6 +10,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -19,6 +22,11 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -27,7 +35,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ProgressBar pbProfileLevel, pbLoading;
 
     // Botones con ID únicos y seguros
-    private MaterialButton btnLogout, btnSaveProfile, btnCancelEdit, btnActionEdit;
+    private MaterialButton btnLogout, btnSaveProfile, btnCancelEdit, btnActionEdit, btnChangeProfilePic;
 
     // Contenedores
     private LinearLayout layoutViewMode, layoutEditMode, layoutActionButtons;
@@ -46,6 +54,21 @@ public class ProfileActivity extends AppCompatActivity {
     private String currentName = "";
     private String currentEmail = "";
 
+    // URI para la nueva imagen seleccionada
+    private Uri imageUri = null;
+
+    // Lanzador para seleccionar imagen de la galería
+    private final ActivityResultLauncher<String> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    imageUri = uri;
+                    // Previsualización inmediata de la imagen elegida
+                    Glide.with(this).load(imageUri).centerCrop().into(ivProfilePic);
+                }
+            }
+    );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,10 +85,13 @@ public class ProfileActivity extends AppCompatActivity {
         btnLogout.setOnClickListener(v -> cerrarSesion());
         findViewById(R.id.btnBackProfile).setOnClickListener(v -> finish());
 
-        // Listeners de edición seguros
+        // Listeners de edición
         btnActionEdit.setOnClickListener(v -> toggleEditMode());
         btnCancelEdit.setOnClickListener(v -> toggleEditMode());
         btnSaveProfile.setOnClickListener(v -> validarYGuardarCambios());
+
+        // Listener para abrir galería
+        btnChangeProfilePic.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
     }
 
     private void vincularVistas() {
@@ -80,6 +106,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         btnLogout = findViewById(R.id.btnLogoutProfile);
         btnActionEdit = findViewById(R.id.btnActionEditProfile);
+        btnChangeProfilePic = findViewById(R.id.btnChangeProfilePic);
 
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
         btnCancelEdit = findViewById(R.id.btnCancelEdit);
@@ -142,22 +169,27 @@ public class ProfileActivity extends AppCompatActivity {
     private void toggleEditMode() {
         isEditing = !isEditing;
         if (isEditing) {
-            // Activar MODO EDICIÓN
             layoutViewMode.setVisibility(View.GONE);
             layoutActionButtons.setVisibility(View.GONE);
             layoutEditMode.setVisibility(View.VISIBLE);
+            btnChangeProfilePic.setVisibility(View.VISIBLE);
         } else {
-            // Volver a MODO VISTA
             layoutViewMode.setVisibility(View.VISIBLE);
             layoutActionButtons.setVisibility(View.VISIBLE);
             layoutEditMode.setVisibility(View.GONE);
+            btnChangeProfilePic.setVisibility(View.GONE);
 
-            // Limpiar campos de contraseña para evitar guardados accidentales
+            // Restaurar valores originales si se cancela
             etEditName.setText(currentName);
             etEditEmail.setText(currentEmail);
             etEditNewPassword.setText("");
             etEditCurrentPassword.setText("");
             etEditCurrentPassword.setError(null);
+
+            if (imageUri != null) {
+                imageUri = null;
+                cargarDatosUsuario(); // Recargar foto desde Firestore
+            }
         }
     }
 
@@ -168,66 +200,84 @@ public class ProfileActivity extends AppCompatActivity {
         String contrasenaActual = etEditCurrentPassword.getText().toString().trim();
 
         if (nuevoNombre.isEmpty() || nuevoCorreo.isEmpty()) {
-            Toast.makeText(this, "El nombre y el correo no pueden quedar vacíos.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Nombre y correo son obligatorios.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (contrasenaActual.isEmpty()) {
-            etEditCurrentPassword.setError("Requerido para guardar cambios");
+            etEditCurrentPassword.setError("Requerido para confirmar");
             etEditCurrentPassword.requestFocus();
             return;
         }
 
         mostrarCarga(true);
 
-        // Re-autenticar al usuario (Exigido por Firebase para actualizar correo o contraseña)
+        // Re-autenticación obligatoria para cambios críticos
         AuthCredential credential = EmailAuthProvider.getCredential(currentEmail, contrasenaActual);
         currentUser.reauthenticate(credential).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 actualizarDatosFirebase(nuevoNombre, nuevoCorreo, nuevaContrasena);
             } else {
                 mostrarCarga(false);
-                Toast.makeText(this, "La contraseña actual es incorrecta.", Toast.LENGTH_LONG).show();
-                etEditCurrentPassword.setError("Incorrecta");
+                Toast.makeText(this, "Contraseña actual incorrecta.", Toast.LENGTH_LONG).show();
+                etEditCurrentPassword.setError("Error");
             }
         });
     }
 
     private void actualizarDatosFirebase(String nuevoNombre, String nuevoCorreo, String nuevaContrasena) {
-        // Actualizar Contraseña si escribieron una nueva
+        // Actualizar contraseña si se ingresó una nueva
         if (!nuevaContrasena.isEmpty() && nuevaContrasena.length() >= 6) {
-            currentUser.updatePassword(nuevaContrasena).addOnFailureListener(e ->
-                    Toast.makeText(this, "Ocurrió un error al cambiar la contraseña.", Toast.LENGTH_SHORT).show()
-            );
-        } else if (!nuevaContrasena.isEmpty() && nuevaContrasena.length() < 6) {
-            mostrarCarga(false);
-            Toast.makeText(this, "La nueva contraseña es demasiado corta (mínimo 6 caracteres).", Toast.LENGTH_LONG).show();
-            return;
+            currentUser.updatePassword(nuevaContrasena);
         }
 
-        // Actualizar Correo si lo modificaron
+        // Actualizar correo si cambió
         if (!nuevoCorreo.equals(currentEmail)) {
             currentUser.updateEmail(nuevoCorreo).addOnSuccessListener(aVoid -> {
                 currentEmail = nuevoCorreo;
                 tvProfileEmail.setText(currentEmail);
-            }).addOnFailureListener(e ->
-                    Toast.makeText(this, "Este correo electrónico ya está en uso o no es válido.", Toast.LENGTH_SHORT).show()
-            );
+            });
         }
 
-        // Actualizar Nombre en Firestore
+        // Si hay una nueva imagen, subirla a Storage
+        if (imageUri != null) {
+            StorageReference fileRef = FirebaseStorage.getInstance().getReference()
+                    .child("perfiles")
+                    .child(currentUser.getUid() + ".jpg");
+
+            fileRef.putFile(imageUri).addOnSuccessListener(taskSnapshot -> {
+                fileRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    actualizarFirestore(nuevoNombre, uri.toString());
+                });
+            }).addOnFailureListener(e -> {
+                mostrarCarga(false);
+                Toast.makeText(this, "Error al subir imagen.", Toast.LENGTH_SHORT).show();
+            });
+        } else {
+            actualizarFirestore(nuevoNombre, null);
+        }
+    }
+
+    private void actualizarFirestore(String nuevoNombre, String nuevaFotoUrl) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("nombre", nuevoNombre);
+        if (nuevaFotoUrl != null) {
+            updates.put("fotoUrl", nuevaFotoUrl);
+        }
+
         db.collection("usuarios").document(currentUser.getUid())
-                .update("nombre", nuevoNombre)
+                .update(updates)
                 .addOnSuccessListener(aVoid -> {
                     mostrarCarga(false);
                     currentName = nuevoNombre;
                     tvProfileName.setText(currentName);
-                    Toast.makeText(this, "¡Tus datos se han actualizado correctamente!", Toast.LENGTH_LONG).show();
+                    imageUri = null;
+                    Toast.makeText(this, "Perfil actualizado con éxito.", Toast.LENGTH_LONG).show();
                     toggleEditMode();
                 })
                 .addOnFailureListener(e -> {
                     mostrarCarga(false);
-                    Toast.makeText(this, "Error al guardar el nombre en la base de datos.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error al guardar en base de datos.", Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -235,10 +285,9 @@ public class ProfileActivity extends AppCompatActivity {
         pbLoading.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         btnSaveProfile.setEnabled(!isLoading);
         btnCancelEdit.setEnabled(!isLoading);
+        btnChangeProfilePic.setEnabled(!isLoading);
         etEditName.setEnabled(!isLoading);
         etEditEmail.setEnabled(!isLoading);
-        etEditNewPassword.setEnabled(!isLoading);
-        etEditCurrentPassword.setEnabled(!isLoading);
     }
 
     private void actualizarNivel(long xpActual) {
@@ -249,20 +298,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         tvProfileLevel.setText("Nivel " + nivelActual);
         tvProgressText.setText(xpEnNivelActual + " / " + xpParaSiguienteNivel + " XP");
-
-        pbProfileLevel.setMax((int) xpParaSiguienteNivel);
         pbProfileLevel.setProgress((int) xpEnNivelActual);
     }
 
     private void actualizarInsignias(long puntaje) {
         if (ivBadgeDerechos == null) return;
-
-        ivBadgeDerechos.clearColorFilter();
-        ivBadgeObligaciones.clearColorFilter();
-        ivBadgeProhibiciones.clearColorFilter();
-        ivBadgeSanciones.clearColorFilter();
-        ivBadgeReconocimientos.clearColorFilter();
-
         ivBadgeDerechos.setAlpha(puntaje >= 0 ? 1.0f : 0.25f);
         ivBadgeObligaciones.setAlpha(puntaje >= 50 ? 1.0f : 0.25f);
         ivBadgeProhibiciones.setAlpha(puntaje >= 100 ? 1.0f : 0.25f);
@@ -271,10 +311,10 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void cerrarSesion() {
-        mAuth.signOut();
-        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
+    mAuth.signOut();
+    Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+    startActivity(intent);
+    finish();
+}
 }

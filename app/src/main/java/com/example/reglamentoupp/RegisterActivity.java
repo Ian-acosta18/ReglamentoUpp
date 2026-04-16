@@ -10,6 +10,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide; // Importación de Glide para mejorar la carga de imagen
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
@@ -45,12 +46,21 @@ public class RegisterActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mStore = FirebaseFirestore.getInstance();
 
+        // AQUÍ ESTÁ LA CORRECCIÓN PRINCIPAL
         galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(),
                 uri -> {
                     if (uri != null) {
                         imageUri = uri;
-                        binding.ivPerfilRegister.setImageURI(uri);
+
+                        // 1. Quitar el tinte gris (tint) para que se vean los colores de la foto
+                        binding.ivPerfilRegister.clearColorFilter();
+
+                        // 2. Cargar la imagen usando Glide para que se centre bien en el círculo
+                        Glide.with(this)
+                                .load(uri)
+                                .centerCrop()
+                                .into(binding.ivPerfilRegister);
                     }
                 }
         );
@@ -202,7 +212,6 @@ public class RegisterActivity extends AppCompatActivity {
         mStore.collection("usuarios").document(firebaseUser.getUid())
                 .set(userData)
                 .addOnSuccessListener(aVoid -> {
-                    // Mensaje Toast personalizado como solicitaste
                     Toast.makeText(RegisterActivity.this, "¡Registro exitoso en UPPue!", Toast.LENGTH_SHORT).show();
                     navigateToMain();
                 })
